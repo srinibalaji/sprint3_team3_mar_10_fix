@@ -41,13 +41,13 @@
 | `variables_iam.tf` | All | Compartment name overrides + `sim_*_compartment_id` |
 | `locals.tf` | All | Region helpers, landing zone tags |
 | `iam_compartments.tf` | All (read-only) | Module orchestrator — merges team maps, calls module |
-| `iam_cmps_team1.tf` | **Team 1** | NW + SEC |
-| `iam_cmps_team2.tf` | **Team 2** | SOC + OPS |
-| `iam_cmps_team3.tf` | **Team 3** | CSVCS + DEVT_CSVCS |
-| `iam_cmps_team4.tf` | **Team 4** | OS + SS + TS + DEVT spokes |
-| `iam_groups.tf` | Team 2 (all review) | 10 TF IAM groups (UG_SIM_EXT + UG_SIM_CHILD created manually by Team 4 — see below) |
-| `iam_policies.tf` | **Team 2** | 38 policy statements |
-| `mon_tags.tf` | **Team 3** | ELZ tag namespace + 5 tags |
+| `iam_cmps_team1.tf` | **Team 1** | Author NW + SEC compartment map |
+| `iam_cmps_team2.tf` | **Team 2** | Author SOC + OPS compartment map |
+| `iam_cmps_team3.tf` | **Team 3** | Author CSVCS + DEVT_CSVCS compartment map |
+| `iam_cmps_team4.tf` | **Team 4** | Author OS + SS + TS + DEVT spoke compartment map |
+| `iam_groups.tf` | **Team 2** | Author 10 TF IAM groups module call (UG_SIM_EXT + UG_SIM_CHILD created manually by Team 4 — see below) |
+| `iam_policies.tf` | **Team 2** | Author 38 policy statements module call |
+| `mon_tags.tf` | **Team 3** | Author ELZ tag namespace + 5 tags |
 | `terraform.tfvars.template` | All | Copy → `terraform.tfvars` and fill in |
 
 > `iam_compartments.tf` requires approval from all 4 team leads on any PR that touches it. It should only change if a compartment is added or a key renamed.
@@ -258,14 +258,14 @@ sprint1/github-cicd              ← Team 4
 
 | # | Title | Team | Priority |
 |---|-------|------|---------|
-| 1 | `[S1-T1] Provision NW + SEC compartments (iam_cmps_team1.tf)` | T1 | P0 |
-| 2 | `[S1-T2] Provision SOC + OPS compartments (iam_cmps_team2.tf)` | T2 | P0 |
-| 3 | `[S1-T3] Provision CSVCS + DEVT_CSVCS compartments (iam_cmps_team3.tf)` | T3 | P0 |
-| 4 | `[S1-T4] Provision OS + SS + TS + DEVT spoke compartments (iam_cmps_team4.tf)` | T4 | P0 |
+| 1 | `[S1-T1] Write & provision NW + SEC compartments (iam_cmps_team1.tf)` | T1 | P0 |
+| 2 | `[S1-T2] Write & provision SOC + OPS compartments (iam_cmps_team2.tf)` | T2 | P0 |
+| 3 | `[S1-T3] Write & provision CSVCS + DEVT_CSVCS compartments (iam_cmps_team3.tf)` | T3 | P0 |
+| 4 | `[S1-T4] Write & provision OS + SS + TS + DEVT spoke compartments (iam_cmps_team4.tf)` | T4 | P0 |
 | 5 | `[S1-T4] MANUAL: Create star-sim-ext-cmp + star-sim-child-cmp + UG_SIM_EXT + UG_SIM_CHILD in OCI Console` | T4 | P0 |
-| 6 | `[S1-T2] Provision 38 policy statements (iam_policies.tf)` | T2 | P0 |
-| 7 | `[S1-T2] Provision 10 IAM groups (iam_groups.tf)` | T2 | P0 |
-| 8 | `[S1-T3] Provision ELZ tag namespace + 5 tags (mon_tags.tf)` | T3 | P0 |
+| 6 | `[S1-T2] Write & provision 38 policy statements (iam_policies.tf)` | T2 | P0 |
+| 7 | `[S1-T2] Write & provision 10 IAM groups (iam_groups.tf)` | T2 | P0 |
+| 8 | `[S1-T3] Write & provision ELZ tag namespace + 5 tags (mon_tags.tf)` | T3 | P0 |
 | 9 | `[S1-ALL] TC-01: Validate 10 TF compartments` | All | P0 |
 | 10 | `[S1-T4] TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars` | T4 | P0 |
 | 11 | `[S1-T2] TC-02: Validate 12 groups (10 TF + 2 manual)` | T2 | P0 |

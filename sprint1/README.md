@@ -224,14 +224,15 @@ sprint1/github-cicd              ← Team 4
 | 6 | `[S1-T2] Provision 38 policy statements (iam_policies.tf)` | T2 | P0 |
 | 7 | `[S1-T2] Provision 12 IAM groups (iam_groups.tf)` | T2 | P0 |
 | 8 | `[S1-T3] Provision ELZ tag namespace + 5 tags (mon_tags.tf)` | T3 | P0 |
-| 9 | `[S1-T4] GitHub Project Kanban, branch protection, labels, CI workflow` | T4 | P0 |
-| 10 | `[S1-ALL] TC-01: Validate 10 TF compartments` | All | P0 |
-| 11 | `[S1-T4] TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars` | T4 | P0 |
-| 12 | `[S1-T2] TC-02: Validate 12 groups` | T2 | P0 |
-| 13 | `[S1-T2] TC-03: NEGATIVE SoD — DEVT cannot write to SEC` | T2 | P0 |
-| 14 | `[S1-T2] TC-04: NEGATIVE — SOC user read-only` | T2 | P0 |
-| 15 | `[S1-T3] TC-05: Validate ELZ tags and CostCenter tracking` | T3 | P0 |
-| 16 | `[S1-ALL] TC-06: terraform plan zero drift after full Sprint 1 apply` | T4 | P0 |
+| 9 | `[S1-ALL] TC-01: Validate 10 TF compartments` | All | P0 |
+| 10 | `[S1-T4] TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars` | T4 | P0 |
+| 11 | `[S1-T2] TC-02: Validate 12 groups` | T2 | P0 |
+| 12 | `[S1-T2] TC-03: NEGATIVE SoD — DEVT cannot write to SEC` | T2 | P0 |
+| 13 | `[S1-T2] TC-04: NEGATIVE — SOC user read-only` | T2 | P0 |
+| 14 | `[S1-T3] TC-05: Validate ELZ tags and CostCenter tracking` | T3 | P0 |
+| 15 | `[S1-ALL] TC-06: Create ORM Stacks and then execute an APPLY Job` | T4 | P0 |
+| 16 | `[S1-ALL] TC-06b: Trigger a new PLAN Job against the existing Stack and review the job logs for any drift` | T4 | P0 |
+
 
 ---
 
@@ -243,7 +244,8 @@ sprint1/github-cicd              ← Team 4
 - [ ] TC-03: SoD NEGATIVE PASS (screenshot in Issue #13)
 - [ ] TC-04: SOC read-only PASS
 - [ ] TC-05: ELZ tags PASS
-- [ ] TC-06: terraform plan zero drift PASS
+- [ ] TC-06: ORM Stack operation and Job both return success PASS
+- [ ] TC-06b: ensuring zero drift after full Sprint 1 apply PASS
 - [ ] `sprint1_outputs.json` exported and shared with Sprint 2 leads
 - [ ] All 16 GitHub issues moved to **Done**
 - [ ] Git tag `v1-sprint1-complete` pushed to main

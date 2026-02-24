@@ -6,7 +6,7 @@
 |-------|-------|
 | **Sprint** | Sprint 1 of 4 |
 | **Duration** | 2 weeks (10 working days) |
-| **Goal** | Provision 10 TF-managed compartments + 2 manual, 10 TF IAM groups + 2 manual IAM groups, 38 policies, ELZ tags. |
+| **Goal** | Provision 10 TF-managed compartments + 2 manual, 12 IAM groups, 38 policies, ELZ tags. |
 | **Outcome** | Complete governance skeleton. Zero compute. Zero networking. All IAM proven correct before Sprint 2. |
 | **ORM Zip** | `STAR_ELZ_Sprint1_IAM.zip` |
 
@@ -41,13 +41,13 @@
 | `variables_iam.tf` | All | Compartment name overrides + `sim_*_compartment_id` |
 | `locals.tf` | All | Region helpers, landing zone tags |
 | `iam_compartments.tf` | All (read-only) | Module orchestrator — merges team maps, calls module |
-| `iam_cmps_team1.tf` | **Team 1** | Author NW + SEC compartment map |
-| `iam_cmps_team2.tf` | **Team 2** | Author SOC + OPS compartment map |
-| `iam_cmps_team3.tf` | **Team 3** | Author CSVCS + DEVT_CSVCS compartment map |
-| `iam_cmps_team4.tf` | **Team 4** | Author OS + SS + TS + DEVT spoke compartment map |
-| `iam_groups.tf` | **Team 2** | Author 10 TF IAM groups module call (UG_SIM_EXT + UG_SIM_CHILD created manually by Team 4 — see below) |
-| `iam_policies.tf` | **Team 2** | Author 38 policy statements module call |
-| `mon_tags.tf` | **Team 3** | Author ELZ tag namespace + 5 tags |
+| `iam_cmps_team1.tf` | **Team 1** | NW + SEC |
+| `iam_cmps_team2.tf` | **Team 2** | SOC + OPS |
+| `iam_cmps_team3.tf` | **Team 3** | CSVCS + DEVT_CSVCS |
+| `iam_cmps_team4.tf` | **Team 4** | OS + SS + TS + DEVT spokes |
+| `iam_groups.tf` | Team 2 (all review) | 12 IAM groups |
+| `iam_policies.tf` | **Team 2** | 38 policy statements |
+| `mon_tags.tf` | **Team 3** | ELZ tag namespace + 5 tags |
 | `terraform.tfvars.template` | All | Copy → `terraform.tfvars` and fill in |
 
 > `iam_compartments.tf` requires approval from all 4 team leads on any PR that touches it. It should only change if a compartment is added or a key renamed.
@@ -88,39 +88,6 @@ sim_child_compartment_id = "ocid1.compartment.oc1.ap-singapore-1.yyyyy"
 
 ---
 
-## Week 1, Day 1 — Manual IAM Groups (Team 4, 10 min)
-
-After creating the two sim compartments above, Team 4 creates two IAM groups manually in OCI Console. These groups correspond to the sim compartments and are **not managed by Terraform** — they are TEMP V1 ONLY and will be deleted in V2.
-
-**Create UG_SIM_EXT:**
-```
-OCI Console → Identity → Groups → Create Group
-  Name:        star-ug-sim-ext
-  Description: TEMP V1 ONLY - User group for Simulated External compartment (Dummy AD, DNS). Delete in V2.
-```
-
-**Create UG_SIM_CHILD:**
-```
-OCI Console → Identity → Groups → Create Group
-  Name:        star-ug-sim-child
-  Description: TEMP V1 ONLY - User group for Simulated Child Tenancy (Hello World). Delete in V2.
-```
-
-**Record OCIDs in State Book:**
-After creating both groups, copy their OCIDs from the group detail page and record them in the State Book under V1_Manual_Resources tab.
-
-> **Policy note:** UG_SIM_EXT and UG_SIM_CHILD are not covered by the 38 TF-managed policy statements in `iam_policies.tf`. Team 4 is responsible for determining what policy statements these groups need and adding them — either manually in OCI Console or via a new `iam_policies_sim.tf` file on branch `sprint1/iam-policies-sim`. Hint: at minimum each group needs `manage all-resources in compartment <their-compartment>`.
-
-**TC-02 validation will check for all 12 groups:**
-```bash
-oci iam group list --compartment-id <tenancy-ocid> --all \
-  --query "data[?contains(name,'star')].name | sort(@)" --output table
-# Expected: 12 groups — 10 from Terraform + star-ug-sim-ext + star-ug-sim-child
-```
-
-
----
-
 ## ORM Deploy — Step by Step
 
 **Prepare zip:**
@@ -147,9 +114,7 @@ OCI Console → Developer Services → Resource Manager → Stacks → Create St
 | All `custom_*_compartment_name` | Leave blank |
 
 **Plan then Apply:**
-Expected plan: `+10 compartments, +10 TF groups, +38 policy statements, +tags, 0 changes, 0 deletions`
-
-> UG_SIM_EXT and UG_SIM_CHILD are created manually (see Team 4 manual steps below) — they will not appear in the TF plan.
+Expected plan: `+10 compartments, +12 groups, +38 policy statements, +6 tags, 0 changes, 0 deletions`
 
 ---
 
@@ -176,10 +141,10 @@ oci iam compartment list --compartment-id <tenancy-ocid> --all \
 ### TC-02 — ★ 12 IAM groups created
 ```bash
 oci iam group list --compartment-id <tenancy-ocid> --all \
-  --query "data[?contains(name,'star')].name | sort(@)" --output table
-# Expected: 12 groups total — 10 TF-managed + 2 manual (UG_SIM_EXT, UG_SIM_CHILD)
+  --query "data[?contains(name,'UG_')].name | sort(@)" --output table
+# Expected: 12 groups
 ```
-**PASS:** Exactly 12 groups visible. 10 created by Terraform, 2 created manually by Team 4.
+**PASS:** Exactly 12 groups.
 
 ### TC-03 — ★ NEGATIVE: DEVT user cannot write to SEC
 ```bash
@@ -205,17 +170,10 @@ oci iam tag list --tag-namespace-id <elz-ns-ocid> \
 # Expected: CostCenter isCostTracking=true, all others false
 ```
 
-### TC-06 — ★ ORM Stack Apply succeeds
-```
-OCI Console → Developer Services → Resource Manager → Stacks → star-elz-sprint1-iam
-→ Terraform Actions → Apply
-Expected: Job Status = SUCCEEDED. All resources green.
-```
-
-### TC-06b — ★ Zero drift after Apply
-```
-OCI Console → same Stack → Terraform Actions → Plan
-Expected: Job Status = SUCCEEDED. Plan output shows: No changes. Infrastructure is up-to-date.
+### TC-06 — ★ terraform plan zero drift
+```bash
+terraform plan -detailed-exitcode
+# Expected: exit code 0, "No changes."
 ```
 
 ---
@@ -258,22 +216,22 @@ sprint1/github-cicd              ← Team 4
 
 | # | Title | Team | Priority |
 |---|-------|------|---------|
-| 1 | `[S1-T1] Write & provision NW + SEC compartments (iam_cmps_team1.tf)` | T1 | P0 |
-| 2 | `[S1-T2] Write & provision SOC + OPS compartments (iam_cmps_team2.tf)` | T2 | P0 |
-| 3 | `[S1-T3] Write & provision CSVCS + DEVT_CSVCS compartments (iam_cmps_team3.tf)` | T3 | P0 |
-| 4 | `[S1-T4] Write & provision OS + SS + TS + DEVT spoke compartments (iam_cmps_team4.tf)` | T4 | P0 |
-| 5 | `[S1-T4] MANUAL: Create star-sim-ext-cmp + star-sim-child-cmp + UG_SIM_EXT + UG_SIM_CHILD in OCI Console` | T4 | P0 |
-| 6 | `[S1-T2] Write & provision 38 policy statements (iam_policies.tf)` | T2 | P0 |
-| 7 | `[S1-T2] Write & provision 10 IAM groups (iam_groups.tf)` | T2 | P0 |
-| 8 | `[S1-T3] Write & provision ELZ tag namespace + 5 tags (mon_tags.tf)` | T3 | P0 |
-| 9 | `[S1-ALL] TC-01: Validate 10 TF compartments` | All | P0 |
-| 10 | `[S1-T4] TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars` | T4 | P0 |
-| 11 | `[S1-T2] TC-02: Validate 12 groups (10 TF + 2 manual)` | T2 | P0 |
-| 12 | `[S1-T2] TC-03: NEGATIVE SoD — DEVT cannot write to SEC` | T2 | P0 |
-| 13 | `[S1-T2] TC-04: NEGATIVE — SOC user read-only` | T2 | P0 |
-| 14 | `[S1-T3] TC-05: Validate ELZ tags and CostCenter tracking` | T3 | P0 |
-| 15 | `[S1-ALL] TC-06: Create ORM Stack and execute Apply Job` | T4 | P0 |
-| 16 | `[S1-ALL] TC-06b: Trigger new Plan Job and verify zero drift` | T4 | P0 |
+| 1 | `[S1-T1] Provision NW + SEC compartments (iam_cmps_team1.tf)` | T1 | P0 |
+| 2 | `[S1-T2] Provision SOC + OPS compartments (iam_cmps_team2.tf)` | T2 | P0 |
+| 3 | `[S1-T3] Provision CSVCS + DEVT_CSVCS compartments (iam_cmps_team3.tf)` | T3 | P0 |
+| 4 | `[S1-T4] Provision OS + SS + TS + DEVT spoke compartments (iam_cmps_team4.tf)` | T4 | P0 |
+| 5 | `[S1-T4] MANUAL: Create star-sim-ext-cmp and star-sim-child-cmp in OCI Console` | T4 | P0 |
+| 6 | `[S1-T2] Provision 38 policy statements (iam_policies.tf)` | T2 | P0 |
+| 7 | `[S1-T2] Provision 12 IAM groups (iam_groups.tf)` | T2 | P0 |
+| 8 | `[S1-T3] Provision ELZ tag namespace + 5 tags (mon_tags.tf)` | T3 | P0 |
+| 9 | `[S1-T4] GitHub Project Kanban, branch protection, labels, CI workflow` | T4 | P0 |
+| 10 | `[S1-ALL] TC-01: Validate 10 TF compartments` | All | P0 |
+| 11 | `[S1-T4] TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars` | T4 | P0 |
+| 12 | `[S1-T2] TC-02: Validate 12 groups` | T2 | P0 |
+| 13 | `[S1-T2] TC-03: NEGATIVE SoD — DEVT cannot write to SEC` | T2 | P0 |
+| 14 | `[S1-T2] TC-04: NEGATIVE — SOC user read-only` | T2 | P0 |
+| 15 | `[S1-T3] TC-05: Validate ELZ tags and CostCenter tracking` | T3 | P0 |
+| 16 | `[S1-ALL] TC-06: terraform plan zero drift after full Sprint 1 apply` | T4 | P0 |
 
 ---
 
@@ -281,15 +239,14 @@ sprint1/github-cicd              ← Team 4
 
 - [ ] TC-01: 10 TF compartments PASS
 - [ ] TC-01b: 2 manual compartments + OCIDs in tfvars PASS
-- [ ] TC-02: 12 groups PASS (10 TF + 2 manual)
-- [ ] TC-03: SoD NEGATIVE PASS (screenshot in Issue #12)
+- [ ] TC-02: 12 groups PASS
+- [ ] TC-03: SoD NEGATIVE PASS (screenshot in Issue #13)
 - [ ] TC-04: SOC read-only PASS
 - [ ] TC-05: ELZ tags PASS
-- [ ] TC-06: ORM Stack Apply Job SUCCEEDED
-- [ ] TC-06b: ORM Plan Job shows zero drift PASS
+- [ ] TC-06: terraform plan zero drift PASS
 - [ ] `sprint1_outputs.json` exported and shared with Sprint 2 leads
 - [ ] All 16 GitHub issues moved to **Done**
 - [ ] Git tag `v1-sprint1-complete` pushed to main
-- [ ] State Book V1_Validation TC-01 to TC-06b updated: PASS/FAIL/date
+- [ ] State Book V1_Validation TC-01 to TC-06 updated: PASS/FAIL/date
 
 *Sprint 1 Complete → [Sprint 2 README](../sprint2/README.md)*

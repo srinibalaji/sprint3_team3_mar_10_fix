@@ -18,3 +18,23 @@
 # =============================================================================
 
 # TODO: write local.team4_groups below this line
+locals {
+    team4_groups {
+        (local.os_nw_admin_group_key):{
+            name           = local.provided_os_nw_admin_group_name
+            description    = "OS Spoke Network Admin — manage all C1_OS_ELZ_NW resources"
+        }, 
+        (local.ss_nw_admin_group_key):{
+            name           = local.provided_ss_nw_admin_group_name
+            description    = "SS Spoke Network Admin — manage all C1_SS_ELZ_NW resources"
+        },
+        (ocal.ts_nw_admin_group_key):{
+            name           = local.provided_ts_nw_admin_group_name
+            description    = "TS Spoke Network Admin — manage all C1_TS_ELZ_NW resources"
+        },
+        (local.devt_nw_admin_group_key):{
+            name           = local.provided_devt_nw_admin_group_name
+            description    = "DEVT Spoke Network Admin — manage all C1_DEVT_ELZ_NW resources"
+        }
+    }
+}

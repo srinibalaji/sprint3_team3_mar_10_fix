@@ -15,3 +15,15 @@
 # =============================================================================
 
 # TODO: write local.team2_groups below this line
+locals {
+    team2_groups = {
+        (local.soc_group_key) : {
+            name : local.provided_soc_group_name
+            description : "SOC Analyst — read-only tenancy, log review, audit events"
+        },
+        (local.ops_admin_group_key) : {
+            name : local.provided_ops_admin_group_name
+            description : "Operations Admin — logging, monitoring, alarms, service connector"
+        }
+    }
+}

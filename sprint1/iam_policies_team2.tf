@@ -20,3 +20,44 @@
 # =============================================================================
 
 # TODO: write local.team2_policies and statement lists below this line
+locals {
+    team2_policies = {
+        "SOC-POLICY-TENANCY" : {
+            name : "UG_ELZ_SOC-Policy"
+            description : "SOC - Read all resources, read audit-events"
+            compartment_id : var.tenancy_ocid
+            statements : [
+                "Allow group ${local.provided_soc_group_name} to read all-resources in tenancy",
+                "Allow group ${local.provided_soc_group_name} to read audit-events in tenancy"
+            ]
+        }
+        "SOC-POLICY-COMPARTMENT" : {
+            name : "UG_ELZ_SOC-Policy"
+            description : "SOC - Read log-groups, log-content in SOC cmp"
+            compartment_id : module.lz_compartments.compartments[local.soc_compartment_key].id
+            statements : [
+                "Allow group ${local.provided_soc_group_name} to read log-groups in compartment ${local.provided_soc_compartment_name}",
+                "Allow group ${local.provided_soc_group_name} to read log-content in compartment ${local.provided_soc_compartment_name}"
+            ]
+        }
+        "OPS-ADMIN-POLICY-TENANCY" : {
+            name : "UG_ELZ_OPS-Admin-Policy"
+            description : "OPS - Manage logging, objects, service-connector in OPS cmp"
+            compartment_id : var.tenancy_ocid
+            statements : [
+                "Allow group ${local.provided_ops_admin_group_name} to manage alarms in tenancy",
+                "Allow group ${local.provided_ops_admin_group_name} to manage metrics in tenancy"
+            ]
+        }
+        "OPS-ADMIN-POLICY-COMPARTMENT" : {
+            name : "UG_ELZ_OPS-Admin-Policy"
+            description : "OPS - Manage alarms, metrics"
+            compartment_id : module.lz_compartments.compartments[local.ops_compartment_key].id
+            statements : [
+                "Allow group ${local.provided_ops_admin_group_name} to manage logging-family in compartment ${local.provided_ops_compartment_name}",
+                "Allow group ${local.provided_ops_admin_group_name} to manage objects in compartment ${local.provided_ops_compartment_name}",
+                "Allow group ${local.provided_ops_admin_group_name} to manage serviceconnectors in compartment ${local.provided_ops_compartment_name}"
+            ]
+        }
+    }
+}

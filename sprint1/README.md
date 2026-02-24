@@ -321,7 +321,7 @@ sprint1/github-cicd              ← Team 4 — CI/CD
 | 13 | `[S1-T4] Write & provision policy statements (iam_policies_team4.tf)` | T4 | P0 | 2/25/26 | 2/25/26 |
 | 14 | `[S1-T3] Write & provision ELZ tag namespace + 5 tags (mon_tags.tf)` | T3 | P0 | 2/25/26 | 2/25/26 |
 | 15 | `[S1-ALL] TC-06: Create ORM Stack and execute Apply Job` | Oracle | P0 | 2/25/26 | 2/25/26 |
-| 16 | `[S1-ALL] TC-06b: Trigger new Plan Job and verify zero drift` | Oracle | P0 | — | — |
+| 16 | `[S1-ALL] TC-06b: Trigger new Plan Job and verify zero drift` | Oracle | P0 | 2/25/26 | 2/25/26 |
 | 17 | `[S1-ALL] TC-01: Validate 10 TF compartments` | All | P0 | 2/25/26 | 2/25/26 |
 | 18 | `[S1-T4] TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars` | T4 | P0 | 2/25/26 | 2/25/26 |
 | 19 | `[S1-T2] TC-02: Validate 12 groups (10 TF + 2 manual)` | All | P0 | 2/25/26 | 2/25/26 |

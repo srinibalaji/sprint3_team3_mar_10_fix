@@ -14,3 +14,15 @@
 # =============================================================================
 
 # TODO: write local.team2_compartments below this line
+locals {
+  team2_compartments = {
+    (local.soc_compartment_key) : {
+      name : local.provided_soc_compartment_name
+      description : "SOC — read-only monitoring, incident response"
+    },
+    (local.ops_compartment_key) : {
+      name : local.provided_ops_compartment_name
+      description : "Operations — Flow Logs, Service Connector, Deployment Pipeline"
+    }
+  }
+}

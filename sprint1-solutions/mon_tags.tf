@@ -41,23 +41,18 @@ locals {
         description = "ELZ Landing Zone V1 tag namespace"
         is_retired  = false
         tags = {
-          "COSTCENTER-TAG" = {
-            name        = "CostCenter"
-            description = "Cost centre code for billing and chargeback reporting"
-            is_cost_tracking = true
-          },
           "ENVIRONMENT-TAG" = {
             name        = "environment"
             description = "Deployment environment e.g. v1-poc, v2, prod"
-          },
+          }
           "OWNER-TAG" = {
             name        = "owner"
             description = "Resource owner team"
-          },
+          }
           "MANAGED-BY-TAG" = {
             name        = "managed-by"
             description = "IaC tool managing this resource"
-          },
+          }
           "VERSION-TAG" = {
             name        = "version"
             description = "Landing Zone version"

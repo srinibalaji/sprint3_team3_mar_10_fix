@@ -51,5 +51,3 @@ locals {
     }
   }
 }
-
-# Team 1 — NW and SEC compartments verified by lead — 2026-02-22

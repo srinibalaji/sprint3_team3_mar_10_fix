@@ -1,6 +1,21 @@
-# Copyright (c) 2023, 2025, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl/
-# OCI ELZ Landing Zone V1 - aligned to terraform-oci-core-landingzone
+# =============================================================================
+# STAR ELZ V1 — IAM Groups — MODULE ORCHESTRATOR
+# This file ONLY calls the lz_groups module and defines shared locals.
+# It does NOT define any individual groups.
+#
+# EACH TEAM OWNS THEIR OWN FILE:
+#   iam_groups_team1.tf — Team 1: NW-ADMIN-GROUP, SEC-ADMIN-GROUP           (2 groups)
+#   iam_groups_team2.tf — Team 2: SOC-GROUP, OPS-ADMIN-GROUP                (2 groups)
+#   iam_groups_team3.tf — Team 3: CSVCS-ADMIN-GROUP, DEVT-CSVCS-ADMIN-GROUP (2 groups)
+#   iam_groups_team4.tf — Team 4: OS-NW-ADMIN-GROUP, SS-NW-ADMIN-GROUP,
+#                                  TS-NW-ADMIN-GROUP, DEVT-NW-ADMIN-GROUP    (4 groups)
+#   Total TF-managed: 10 groups
+#
+# MANUAL GROUPS (2) — OCI Console, Team 4, Sprint 1 Day 1:
+#   star-ug-sim-ext   — TEMP V1 ONLY (simulated external agency users)
+#   star-ug-sim-child — TEMP V1 ONLY (simulated child tenancy users)
+#   Record OCIDs in State Book: V1_Manual_Resources tab
+# =============================================================================
 
 locals {
   #------------------------------------------------------------------------------------------------------
@@ -9,27 +24,17 @@ locals {
   custom_groups_defined_tags  = null
   custom_groups_freeform_tags = null
 
-  # Optional group name overrides
-  custom_nw_admin_group_name        = null
-  custom_sec_admin_group_name       = null
-  custom_soc_group_name             = null
-  custom_ops_admin_group_name       = null
-  custom_csvcs_admin_group_name     = null
+  # Optional group name overrides — set in _override.tf to rename, else defaults apply
+  custom_nw_admin_group_name         = null
+  custom_sec_admin_group_name        = null
+  custom_soc_group_name              = null
+  custom_ops_admin_group_name        = null
+  custom_csvcs_admin_group_name      = null
   custom_devt_csvcs_admin_group_name = null
-  custom_os_nw_admin_group_name     = null
-  custom_ss_nw_admin_group_name     = null
-  custom_ts_nw_admin_group_name     = null
-  custom_devt_nw_admin_group_name   = null
-}
-
-#------------------------------------------------------------------------
-#----- Module call - same pattern as core LZ iam_groups.tf
-#------------------------------------------------------------------------
-module "lz_groups" {
-  source               = "github.com/oci-landing-zones/terraform-oci-modules-iam//groups?ref=v0.3.1"
-  providers            = { oci = oci.home }
-  tenancy_ocid         = var.tenancy_ocid
-  groups_configuration = local.groups_configuration
+  custom_os_nw_admin_group_name      = null
+  custom_ss_nw_admin_group_name      = null
+  custom_ts_nw_admin_group_name      = null
+  custom_devt_nw_admin_group_name    = null
 }
 
 locals {
@@ -47,7 +52,7 @@ locals {
   groups_freeform_tags = local.custom_groups_freeform_tags != null ? merge(local.custom_groups_freeform_tags, local.default_groups_freeform_tags) : local.default_groups_freeform_tags
 
   #-----------------------------------------------------------
-  #----- Group keys
+  #----- Group map keys — referenced by all team files and iam_policies*.tf
   #-----------------------------------------------------------
   nw_admin_group_key         = "NW-ADMIN-GROUP"
   sec_admin_group_key        = "SEC-ADMIN-GROUP"
@@ -61,108 +66,55 @@ locals {
   devt_nw_admin_group_key    = "DEVT-NW-ADMIN-GROUP"
 
   #-----------------------------------------------------------
-  #----- Group names (custom override or default)
+  #----- Group names — custom override or default
   #-----------------------------------------------------------
-  provided_nw_admin_group_name        = coalesce(local.custom_nw_admin_group_name,         "${var.service_label}-ug-elz-nw")
-  provided_sec_admin_group_name       = coalesce(local.custom_sec_admin_group_name,        "${var.service_label}-ug-elz-sec")
-  provided_soc_group_name             = coalesce(local.custom_soc_group_name,              "${var.service_label}-ug-elz-soc")
-  provided_ops_admin_group_name       = coalesce(local.custom_ops_admin_group_name,        "${var.service_label}-ug-elz-ops")
-  provided_csvcs_admin_group_name     = coalesce(local.custom_csvcs_admin_group_name,      "${var.service_label}-ug-elz-csvcs")
-  provided_devt_csvcs_admin_group_name = coalesce(local.custom_devt_csvcs_admin_group_name, "${var.service_label}-ug-devt-csvcs")
-  provided_os_nw_admin_group_name     = coalesce(local.custom_os_nw_admin_group_name,      "${var.service_label}-ug-os-elz-nw")
-  provided_ss_nw_admin_group_name     = coalesce(local.custom_ss_nw_admin_group_name,      "${var.service_label}-ug-ss-elz-nw")
-  provided_ts_nw_admin_group_name     = coalesce(local.custom_ts_nw_admin_group_name,      "${var.service_label}-ug-ts-elz-nw")
-  provided_devt_nw_admin_group_name   = coalesce(local.custom_devt_nw_admin_group_name,    "${var.service_label}-ug-devt-elz-nw")
+  provided_nw_admin_group_name         = coalesce(local.custom_nw_admin_group_name,         "${var.service_label}-ug-elz-nw")
+  provided_sec_admin_group_name        = coalesce(local.custom_sec_admin_group_name,         "${var.service_label}-ug-elz-sec")
+  provided_soc_group_name              = coalesce(local.custom_soc_group_name,               "${var.service_label}-ug-elz-soc")
+  provided_ops_admin_group_name        = coalesce(local.custom_ops_admin_group_name,         "${var.service_label}-ug-elz-ops")
+  provided_csvcs_admin_group_name      = coalesce(local.custom_csvcs_admin_group_name,       "${var.service_label}-ug-elz-csvcs")
+  provided_devt_csvcs_admin_group_name = coalesce(local.custom_devt_csvcs_admin_group_name,  "${var.service_label}-ug-devt-csvcs")
+  provided_os_nw_admin_group_name      = coalesce(local.custom_os_nw_admin_group_name,       "${var.service_label}-ug-os-elz-nw")
+  provided_ss_nw_admin_group_name      = coalesce(local.custom_ss_nw_admin_group_name,       "${var.service_label}-ug-ss-elz-nw")
+  provided_ts_nw_admin_group_name      = coalesce(local.custom_ts_nw_admin_group_name,       "${var.service_label}-ug-ts-elz-nw")
+  provided_devt_nw_admin_group_name    = coalesce(local.custom_devt_nw_admin_group_name,     "${var.service_label}-ug-devt-elz-nw")
 
-  #------------------------------------------------------------------------
-  #----- Groups configuration map - input to module
-  #------------------------------------------------------------------------
+  #-----------------------------------------------------------
+  #----- Merge all 4 team group maps — each team edits only their own file
+  #-----------------------------------------------------------
   groups_configuration = {
     default_defined_tags  : local.groups_defined_tags
     default_freeform_tags : local.groups_freeform_tags
 
-    groups : {
-      # Global network admin - manages hub VCN, both DRGs, route tables
-      (local.nw_admin_group_key) : {
-        name        : local.provided_nw_admin_group_name,
-        description : "${var.lz_provenant_label} Global Network Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      # Security admin - Vault, Cloud Guard, Bastion, Security Zones
-      (local.sec_admin_group_key) : {
-        name        : local.provided_sec_admin_group_name,
-        description : "${var.lz_provenant_label} Security Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      # SOC - read-only security monitoring
-      (local.soc_group_key) : {
-        name        : local.provided_soc_group_name,
-        description : "${var.lz_provenant_label} SOC Analysts - read-only security monitoring.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      # Operations admin - logging, monitoring, deployment
-      (local.ops_admin_group_key) : {
-        name        : local.provided_ops_admin_group_name,
-        description : "${var.lz_provenant_label} Operations Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      # Common services admin
-      (local.csvcs_admin_group_key) : {
-        name        : local.provided_csvcs_admin_group_name,
-        description : "${var.lz_provenant_label} Common Services Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      # Dev common services admin
-      (local.devt_csvcs_admin_group_key) : {
-        name        : local.provided_devt_csvcs_admin_group_name,
-        description : "${var.lz_provenant_label} Development Common Services Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      # Spoke network admins
-      (local.os_nw_admin_group_key) : {
-        name        : local.provided_os_nw_admin_group_name,
-        description : "${var.lz_provenant_label} Operational Services Network Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      (local.ss_nw_admin_group_key) : {
-        name        : local.provided_ss_nw_admin_group_name,
-        description : "${var.lz_provenant_label} Shared Services Network Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      (local.ts_nw_admin_group_key) : {
-        name        : local.provided_ts_nw_admin_group_name,
-        description : "${var.lz_provenant_label} Tenant Services Network Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      },
-      (local.devt_nw_admin_group_key) : {
-        name        : local.provided_devt_nw_admin_group_name,
-        description : "${var.lz_provenant_label} Development/Test Network Administrators.",
-        defined_tags  : local.groups_defined_tags,
-        freeform_tags : local.groups_freeform_tags
-      }
-    }
+    groups : merge(
+      local.team1_groups,  # NW-ADMIN-GROUP, SEC-ADMIN-GROUP
+      local.team2_groups,  # SOC-GROUP, OPS-ADMIN-GROUP
+      local.team3_groups,  # CSVCS-ADMIN-GROUP, DEVT-CSVCS-ADMIN-GROUP
+      local.team4_groups   # OS-NW-ADMIN-GROUP, SS-NW-ADMIN-GROUP, TS-NW-ADMIN-GROUP, DEVT-NW-ADMIN-GROUP
+    )
   }
 
   #---------------------------------------------------------------------------------------
-  #----- Group names from module output - used in policy statements
+  #----- Group names from module output — used in iam_policies*.tf statement strings
   #---------------------------------------------------------------------------------------
-  nw_admin_group_name        = [module.lz_groups.groups[local.nw_admin_group_key].name]
-  sec_admin_group_name       = [module.lz_groups.groups[local.sec_admin_group_key].name]
-  soc_group_name             = [module.lz_groups.groups[local.soc_group_key].name]
-  ops_admin_group_name       = [module.lz_groups.groups[local.ops_admin_group_key].name]
-  csvcs_admin_group_name     = [module.lz_groups.groups[local.csvcs_admin_group_key].name]
-  devt_csvcs_admin_group_name = [module.lz_groups.groups[local.devt_csvcs_admin_group_key].name]
-  os_nw_admin_group_name     = [module.lz_groups.groups[local.os_nw_admin_group_key].name]
-  ss_nw_admin_group_name     = [module.lz_groups.groups[local.ss_nw_admin_group_key].name]
-  ts_nw_admin_group_name     = [module.lz_groups.groups[local.ts_nw_admin_group_key].name]
-  devt_nw_admin_group_name   = [module.lz_groups.groups[local.devt_nw_admin_group_key].name]
+  nw_admin_group_name          = [module.lz_groups.groups[local.nw_admin_group_key].name]
+  sec_admin_group_name         = [module.lz_groups.groups[local.sec_admin_group_key].name]
+  soc_group_name               = [module.lz_groups.groups[local.soc_group_key].name]
+  ops_admin_group_name         = [module.lz_groups.groups[local.ops_admin_group_key].name]
+  csvcs_admin_group_name       = [module.lz_groups.groups[local.csvcs_admin_group_key].name]
+  devt_csvcs_admin_group_name  = [module.lz_groups.groups[local.devt_csvcs_admin_group_key].name]
+  os_nw_admin_group_name       = [module.lz_groups.groups[local.os_nw_admin_group_key].name]
+  ss_nw_admin_group_name       = [module.lz_groups.groups[local.ss_nw_admin_group_key].name]
+  ts_nw_admin_group_name       = [module.lz_groups.groups[local.ts_nw_admin_group_key].name]
+  devt_nw_admin_group_name     = [module.lz_groups.groups[local.devt_nw_admin_group_key].name]
+}
+
+#------------------------------------------------------------------------
+#----- Module call — same pattern as iam_compartments.tf
+#------------------------------------------------------------------------
+module "lz_groups" {
+  source               = "github.com/oci-landing-zones/terraform-oci-modules-iam//groups?ref=v0.3.1"
+  providers            = { oci = oci.home }
+  tenancy_ocid         = var.tenancy_ocid
+  groups_configuration = local.groups_configuration
 }

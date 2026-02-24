@@ -1,25 +1,16 @@
 # =============================================================================
 # STAR ELZ V1 — IAM Compartments — TEAM 3 OWNED FILE
-# Team 3 domain: Shared Services (CSVCS, DEVT_CSVCS)
-# Sprint 1, Week 1
+# Team 3 domain: Common Shared Services (CSVCS, DEVT_CSVCS)
+# Sprint 1, Week 1 — Day 1
 # Branch: sprint1/iam-compartments-team3
 # =============================================================================
+# YOUR TASK:
+#   Define local.team3_compartments — a map with 2 entries:
+#     5. CSVCS      — common shared services compartment
+#     6. DEVT_CSVCS — development common services compartment
 #
-# COMPARTMENTS TO DEFINE IN THIS FILE (2 of 10 TF-managed):
-#   5. star-r-elz-csvcs-cmp      — Common Shared Services: APM, File Transfer, ServiceNow
-#   6. star-r-elz-devt-csvcs-cmp — Dev Common Services: development toolchain
-#
-# INSTRUCTIONS:
-#   Define local.team3_compartments following the same pattern as team1.
-#   Keys: local.csvcs_compartment_key, local.devt_csvcs_compartment_key
-#   Names: local.provided_csvcs_compartment_name, local.provided_devt_csvcs_compartment_name
-#   Note: DEVT_CSVCS freeform_tags should merge cmps_freeform_tags with environment=development
+# KEYS  → local.csvcs_compartment_key, local.devt_csvcs_compartment_key
+# NAMES → local.provided_csvcs_compartment_name, local.provided_devt_csvcs_compartment_name
 # =============================================================================
 
-locals {
-  team3_compartments = {
-    # YOUR CODE HERE
-    # Add CSVCS compartment entry
-    # Add DEVT_CSVCS compartment entry (remember the extra freeform tag)
-  }
-}
+# TODO: write local.team3_compartments below this line

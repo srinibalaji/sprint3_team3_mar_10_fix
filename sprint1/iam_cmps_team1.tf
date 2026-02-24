@@ -1,31 +1,30 @@
 # =============================================================================
 # STAR ELZ V1 — IAM Compartments — TEAM 1 OWNED FILE
 # Team 1 domain: Hub Network + Security (NW, SEC)
-# Sprint 1, Week 1
+# Sprint 1, Week 1 — Day 1
 # Branch: sprint1/iam-compartments-team1
 # =============================================================================
+# YOUR TASK:
+#   Define local.team1_compartments — a map with 2 entries:
+#     1. NW  — root hub network compartment
+#     2. SEC — security services compartment
 #
-# COMPARTMENTS TO DEFINE IN THIS FILE (2 of 10 TF-managed):
-#   1. star-r-elz-nw-cmp   — Root hub network: DRGs, Hub VCN, route tables, Sim FW, Bastion
-#   2. star-r-elz-sec-cmp  — Security services: Vault, Cloud Guard, Security Zones
+# PATTERN (copy from iam_cmps_team2.tf if you need a reference):
+#   locals {
+#     team1_compartments = {
+#       (local.<key>) : {
+#         name          : local.provided_<name>,
+#         description   : "...",
+#         defined_tags  : local.cmps_defined_tags,
+#         freeform_tags : local.cmps_freeform_tags,
+#         children      : {}
+#       }
+#     }
+#   }
 #
-# INSTRUCTIONS:
-#   Define local.team1_compartments as a map using the same pattern as the
-#   other team files. Each entry uses:
-#     - key:   local.<name>_compartment_key  (defined in locals.tf)
-#     - name:  local.provided_<name>_compartment_name
-#     - description, defined_tags, freeform_tags, children
-#
-#   Reference: iam_compartments.tf shows how team maps are merged.
-#   Reference: locals.tf shows available local keys and tag locals.
-#
-# DO NOT edit iam_compartments.tf — it is read-only and merges all team maps.
+# KEYS  → local.nw_compartment_key,  local.sec_compartment_key
+# NAMES → local.provided_nw_compartment_name, local.provided_sec_compartment_name
+# Both are defined in iam_compartments.tf — do NOT redefine them here.
 # =============================================================================
 
-locals {
-  team1_compartments = {
-    # YOUR CODE HERE
-    # Add NW compartment entry
-    # Add SEC compartment entry
-  }
-}
+# TODO: write local.team1_compartments below this line

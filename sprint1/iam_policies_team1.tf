@@ -82,10 +82,10 @@ locals {
 
   # Network admin grants — root level
   nw_admin_grants_on_root = [
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_nw_admin_group_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment ${local.provided_nw_admin_group_name}",
+    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_nw_compartment_name}",
+    "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment ${local.provided_nw_compartment_name}",
     "allow group ${join(",", local.nw_admin_group_name)} to use cloud-shell in tenancy",
-    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment ${local.provided_nw_admin_group_name}",
+    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment ${local.provided_sec_compartment_name}",
     "allow group ${join(",", local.nw_admin_group_name)} to use cloud-shell in tenancy"
 
   ]

@@ -82,20 +82,20 @@ locals {
 
   # Network admin grants — root level
   nw_admin_grants_on_root = [
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment *",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment *",
+    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_nw_admin_group_name}",
+    "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment ${local.provided_nw_admin_group_name}",
     "allow group ${join(",", local.nw_admin_group_name)} to use cloud-shell in tenancy",
-    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment *",
+    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment ${local.provided_nw_admin_group_name}",
     "allow group ${join(",", local.nw_admin_group_name)} to use cloud-shell in tenancy"
 
   ]
 
   # Security admin grants — root level
   sec_admin_grants_on_root = [
-    "allow group ${join(",", local.sec_admin_group_name)} to manage all-resources in compartment *",
+    "allow group ${join(",", local.sec_admin_group_name)} to manage all-resources in compartment ${local.provided_sec_admin_group_name}",
     "allow group ${join(",", local.sec_admin_group_name)} to manage cloud-guard-family in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage vaults in compartment *",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage keys in compartment *",
+    "allow group ${join(",", local.sec_admin_group_name)} to manage vaults in compartment ${local.provided_sec_admin_group_name}",
+    "allow group ${join(",", local.sec_admin_group_name)} to manage keys in compartment ${local.provided_sec_admin_group_name}",
     "allow group ${join(",", local.sec_admin_group_name)} to read all-resources in tenancy",
   ]
 

@@ -67,8 +67,8 @@ locals {
   #-----------------------------------------------------------
   provided_nw_admin_group_name         = coalesce(local.custom_nw_admin_group_name,         "UG_ELZ_NW")
   provided_sec_admin_group_name        = coalesce(local.custom_sec_admin_group_name,         "UG_ELZ_SEC")
-  # provided_soc_group_name              = coalesce(local.custom_soc_group_name,               "${var.service_label}-ug-elz-soc")
-  # provided_ops_admin_group_name        = coalesce(local.custom_ops_admin_group_name,         "${var.service_label}-ug-elz-ops")
+  # provided_soc_group_name              = coalesce(local.custom_soc_group_name,               "UG_ELZ_SOC")
+  # provided_ops_admin_group_name        = coalesce(local.custom_ops_admin_group_name,         "UG_ELZ_SOC")
   # provided_csvcs_admin_group_name      = coalesce(local.custom_csvcs_admin_group_name,       "${var.service_label}-ug-elz-csvcs")
   # provided_devt_csvcs_admin_group_name = coalesce(local.custom_devt_csvcs_admin_group_name,  "${var.service_label}-ug-devt-csvcs")
   # provided_os_nw_admin_group_name      = coalesce(local.custom_os_nw_admin_group_name,       "${var.service_label}-ug-os-elz-nw")

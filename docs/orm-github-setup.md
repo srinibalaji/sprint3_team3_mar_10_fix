@@ -71,5 +71,5 @@ After apply, use **Run Drift Detection** to confirm live state matches Terraform
 ## Notes
 
 - Each person has their own stack — changes to one person's stack do not affect others
-- The `deployment_identifier` variable isolates each person's resources (e.g. `AMIT`, `DYLAN`)
+- The `deployment_identifier` variable isolates each person's resources (e.g. `AMIT`)
 - If your PAT expires, update it in your Configuration Source Provider — the stack itself does not need to be recreated

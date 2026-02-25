@@ -29,22 +29,22 @@ locals {
   # Compartment map keys — referenced by all downstream modules
   nw_compartment_key         = "NW-CMP"
   sec_compartment_key        = "SEC-CMP"
-  soc_compartment_key        = "SOC-CMP"
-  ops_compartment_key        = "OPS-CMP"
-  csvcs_compartment_key      = "CSVCS-CMP"
-  devt_csvcs_compartment_key = "DEVT-CSVCS-CMP"
-  os_nw_compartment_key      = "OS-NW-CMP"
-  ss_nw_compartment_key      = "SS-NW-CMP"
-  ts_nw_compartment_key      = "TS-NW-CMP"
-  devt_nw_compartment_key    = "DEVT-NW-CMP"
+  # soc_compartment_key        = "SOC-CMP"
+  # ops_compartment_key        = "OPS-CMP"
+  # csvcs_compartment_key      = "CSVCS-CMP"
+  # devt_csvcs_compartment_key = "DEVT-CSVCS-CMP"
+  # os_nw_compartment_key      = "OS-NW-CMP"
+  # ss_nw_compartment_key      = "SS-NW-CMP"
+  # ts_nw_compartment_key      = "TS-NW-CMP"
+  # devt_nw_compartment_key    = "DEVT-NW-CMP"
 
   # Compartment names — override via variables_iam.tf vars, else use default
   provided_nw_compartment_name         = coalesce(var.custom_nw_compartment_name,         "${var.service_label}-r-elz-nw-cmp")
   provided_sec_compartment_name        = coalesce(var.custom_sec_compartment_name,        "${var.service_label}-r-elz-sec-cmp")
-  provided_soc_compartment_name        = coalesce(var.custom_soc_compartment_name,        "${var.service_label}-r-elz-soc-cmp")
-  provided_ops_compartment_name        = coalesce(var.custom_ops_compartment_name,        "${var.service_label}-r-elz-ops-cmp")
-  provided_csvcs_compartment_name      = coalesce(var.custom_csvcs_compartment_name,      "${var.service_label}-r-elz-csvcs-cmp")
-  provided_devt_csvcs_compartment_name = coalesce(var.custom_devt_csvcs_compartment_name, "${var.service_label}-r-elz-devt-csvcs-cmp")
+  # provided_soc_compartment_name        = coalesce(var.custom_soc_compartment_name,        "${var.service_label}-r-elz-soc-cmp")
+  # provided_ops_compartment_name        = coalesce(var.custom_ops_compartment_name,        "${var.service_label}-r-elz-ops-cmp")
+  # provided_csvcs_compartment_name      = coalesce(var.custom_csvcs_compartment_name,      "${var.service_label}-r-elz-csvcs-cmp")
+  # provided_devt_csvcs_compartment_name = coalesce(var.custom_devt_csvcs_compartment_name, "${var.service_label}-r-elz-devt-csvcs-cmp")
   provided_os_nw_compartment_name      = coalesce(var.custom_os_nw_compartment_name,      "${var.service_label}-os-elz-nw-cmp")
   provided_ss_nw_compartment_name      = coalesce(var.custom_ss_nw_compartment_name,      "${var.service_label}-ss-elz-nw-cmp")
   provided_ts_nw_compartment_name      = coalesce(var.custom_ts_nw_compartment_name,      "${var.service_label}-ts-elz-nw-cmp")
@@ -56,23 +56,23 @@ locals {
     enable_delete     : local.enable_cmp_delete
     compartments : merge(
       local.team1_compartments,  # NW, SEC
-      local.team2_compartments,  # SOC, OPS
-      local.team3_compartments,  # CSVCS, DEVT_CSVCS
-      local.team4_compartments   # OS_NW, SS_NW, TS_NW, DEVT_NW
+      # local.team2_compartments,  # SOC, OPS
+      # local.team3_compartments,  # CSVCS, DEVT_CSVCS
+      # local.team4_compartments   # OS_NW, SS_NW, TS_NW, DEVT_NW
     )
   }
 
   # Compartment IDs from module output — used by all downstream modules
   nw_compartment_id         = module.lz_compartments.compartments[local.nw_compartment_key].id
   sec_compartment_id        = module.lz_compartments.compartments[local.sec_compartment_key].id
-  soc_compartment_id        = module.lz_compartments.compartments[local.soc_compartment_key].id
-  ops_compartment_id        = module.lz_compartments.compartments[local.ops_compartment_key].id
-  csvcs_compartment_id      = module.lz_compartments.compartments[local.csvcs_compartment_key].id
-  devt_csvcs_compartment_id = module.lz_compartments.compartments[local.devt_csvcs_compartment_key].id
-  os_nw_compartment_id      = module.lz_compartments.compartments[local.os_nw_compartment_key].id
-  ss_nw_compartment_id      = module.lz_compartments.compartments[local.ss_nw_compartment_key].id
-  ts_nw_compartment_id      = module.lz_compartments.compartments[local.ts_nw_compartment_key].id
-  devt_nw_compartment_id    = module.lz_compartments.compartments[local.devt_nw_compartment_key].id
+  # soc_compartment_id        = module.lz_compartments.compartments[local.soc_compartment_key].id
+  # ops_compartment_id        = module.lz_compartments.compartments[local.ops_compartment_key].id
+  # csvcs_compartment_id      = module.lz_compartments.compartments[local.csvcs_compartment_key].id
+  # devt_csvcs_compartment_id = module.lz_compartments.compartments[local.devt_csvcs_compartment_key].id
+  # os_nw_compartment_id      = module.lz_compartments.compartments[local.os_nw_compartment_key].id
+  # ss_nw_compartment_id      = module.lz_compartments.compartments[local.ss_nw_compartment_key].id
+  # ts_nw_compartment_id      = module.lz_compartments.compartments[local.ts_nw_compartment_key].id
+  # devt_nw_compartment_id    = module.lz_compartments.compartments[local.devt_nw_compartment_key].id
 
   # Manual compartment IDs — created in OCI Console, OCIDs passed via tfvars
   sim_ext_compartment_id   = var.sim_ext_compartment_id

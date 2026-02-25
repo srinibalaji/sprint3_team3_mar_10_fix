@@ -85,9 +85,9 @@ locals {
 
     groups : merge(
       local.team1_groups,  # NW-ADMIN-GROUP, SEC-ADMIN-GROUP
-      local.team2_groups,  # SOC-GROUP, OPS-ADMIN-GROUP
-      local.team3_groups,  # CSVCS-ADMIN-GROUP, DEVT-CSVCS-ADMIN-GROUP
-      local.team4_groups   # OS-NW-ADMIN-GROUP, SS-NW-ADMIN-GROUP, TS-NW-ADMIN-GROUP, DEVT-NW-ADMIN-GROUP
+      # local.team2_groups,  # SOC-GROUP, OPS-ADMIN-GROUP
+      # local.team3_groups,  # CSVCS-ADMIN-GROUP, DEVT-CSVCS-ADMIN-GROUP
+      # local.team4_groups   # OS-NW-ADMIN-GROUP, SS-NW-ADMIN-GROUP, TS-NW-ADMIN-GROUP, DEVT-NW-ADMIN-GROUP
     )
   }
 
@@ -96,14 +96,14 @@ locals {
   #---------------------------------------------------------------------------------------
   nw_admin_group_name          = [module.lz_groups.groups[local.nw_admin_group_key].name]
   sec_admin_group_name         = [module.lz_groups.groups[local.sec_admin_group_key].name]
-  soc_group_name               = [module.lz_groups.groups[local.soc_group_key].name]
-  ops_admin_group_name         = [module.lz_groups.groups[local.ops_admin_group_key].name]
-  csvcs_admin_group_name       = [module.lz_groups.groups[local.csvcs_admin_group_key].name]
-  devt_csvcs_admin_group_name  = [module.lz_groups.groups[local.devt_csvcs_admin_group_key].name]
-  os_nw_admin_group_name       = [module.lz_groups.groups[local.os_nw_admin_group_key].name]
-  ss_nw_admin_group_name       = [module.lz_groups.groups[local.ss_nw_admin_group_key].name]
-  ts_nw_admin_group_name       = [module.lz_groups.groups[local.ts_nw_admin_group_key].name]
-  devt_nw_admin_group_name     = [module.lz_groups.groups[local.devt_nw_admin_group_key].name]
+  # soc_group_name               = [module.lz_groups.groups[local.soc_group_key].name]
+  # ops_admin_group_name         = [module.lz_groups.groups[local.ops_admin_group_key].name]
+  # csvcs_admin_group_name       = [module.lz_groups.groups[local.csvcs_admin_group_key].name]
+  # devt_csvcs_admin_group_name  = [module.lz_groups.groups[local.devt_csvcs_admin_group_key].name]
+  # os_nw_admin_group_name       = [module.lz_groups.groups[local.os_nw_admin_group_key].name]
+  # ss_nw_admin_group_name       = [module.lz_groups.groups[local.ss_nw_admin_group_key].name]
+  # ts_nw_admin_group_name       = [module.lz_groups.groups[local.ts_nw_admin_group_key].name]
+  # devt_nw_admin_group_name     = [module.lz_groups.groups[local.devt_nw_admin_group_key].name]
 }
 
 #------------------------------------------------------------------------

@@ -24,6 +24,8 @@
 # TENANCY       → var.tenancy_ocid  (use as compartment_id for all root-level policies)
 # =============================================================================
 
+# TODO: write local.team1_policies and statement lists below this line
+
 locals {
   team1_policies = {
 
@@ -33,31 +35,31 @@ locals {
     # before making any routing or DRG changes. cloud-shell for CLI access.
     # -------------------------------------------------------------------------
     "NW-ADMIN-ROOT-POLICY" : {
-      name : "${var.service_label}-nw-admin-root-policy"
-      description : "${var.lz_provenant_label} network admin root-level grants."
+      name           : "${var.service_label}-nw-admin-root-policy"
+      description    : "${var.lz_provenant_label} network admin root-level grants."
       compartment_id : var.tenancy_ocid
       statements : concat(
         local.nw_admin_grants_on_root
       )
-      defined_tags : local.policies_defined_tags
+      defined_tags  : local.policies_defined_tags
       freeform_tags : local.policies_freeform_tags
     },
 
     # -------------------------------------------------------------------------
     # NW-ADMIN-POLICY
     # Hub: manage virtual-network-family + DRGs (DRGs exist only in hub in V1).
-    # Spoke: manage virtual-network-family in each spoke compartment -
+    # Spoke: manage virtual-network-family in each spoke compartment —
     #   network topology only, NOT compute or security resources.
     # -------------------------------------------------------------------------
     "NW-ADMIN-POLICY" : {
-      name : "${var.service_label}-nw-admin-policy"
-      description : "${var.lz_provenant_label} network admin grants on hub and spoke compartments."
+      name           : "${var.service_label}-nw-admin-policy"
+      description    : "${var.lz_provenant_label} network admin grants on hub and spoke compartments."
       compartment_id : var.tenancy_ocid
       statements : concat(
         local.nw_admin_grants_on_nw_cmp,
         local.nw_admin_grants_on_spoke_cmps
       )
-      defined_tags : local.policies_defined_tags
+      defined_tags  : local.policies_defined_tags
       freeform_tags : local.policies_freeform_tags
     },
 
@@ -68,50 +70,50 @@ locals {
     # CIS Level 1 requires an auditor-level read of audit-events in tenancy.
     # -------------------------------------------------------------------------
     "SEC-ADMIN-ROOT-POLICY" : {
-      name : "${var.service_label}-sec-admin-root-policy"
-      description : "${var.lz_provenant_label} security admin root-level grants."
+      name           : "${var.service_label}-sec-admin-root-policy"
+      description    : "${var.lz_provenant_label} security admin root-level grants."
       compartment_id : var.tenancy_ocid
       statements : concat(
         local.sec_admin_grants_on_root
       )
-      defined_tags : local.policies_defined_tags
+      defined_tags  : local.policies_defined_tags
       freeform_tags : local.policies_freeform_tags
     },
 
     # -------------------------------------------------------------------------
     # SEC-ADMIN-POLICY
     # SEC compartment only: Vault, keys, Bastion, Security Zones, all-resources.
-    # Scoped to SEC compartment - SEC admin has NO write access in NW, OPS, or spokes.
+    # Scoped to SEC compartment — SEC admin has NO write access in NW, OPS, or spokes.
     # -------------------------------------------------------------------------
     "SEC-ADMIN-POLICY" : {
-      name : "${var.service_label}-sec-admin-policy"
-      description : "${var.lz_provenant_label} security admin grants on security compartment."
+      name           : "${var.service_label}-sec-admin-policy"
+      description    : "${var.lz_provenant_label} security admin grants on security compartment."
       compartment_id : var.tenancy_ocid
       statements : concat(
         local.sec_admin_grants_on_sec_cmp
       )
-      defined_tags : local.policies_defined_tags
+      defined_tags  : local.policies_defined_tags
       freeform_tags : local.policies_freeform_tags
     }
   }
 
   # ---------------------------------------------------------------------------
-  # Statement lists
+  # Statement lists — owned by Team 1, consumed by policy objects above
   # ---------------------------------------------------------------------------
 
-  # Network admin grants - root level
+  # Network admin grants — root level
   nw_admin_grants_on_root = [
     "allow group ${join(",", local.nw_admin_group_name)} to read all-resources in tenancy",
     "allow group ${join(",", local.nw_admin_group_name)} to use cloud-shell in tenancy"
   ]
 
-  # Network admin grants - hub NW compartment
+  # Network admin grants — hub NW compartment
   nw_admin_grants_on_nw_cmp = [
     "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_nw_compartment_name}",
     "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment ${local.provided_nw_compartment_name}"
   ]
 
-  # Network admin grants - all 4 spoke compartments (VCN topology only)
+  # Network admin grants — all 4 spoke compartments (VCN topology only)
   nw_admin_grants_on_spoke_cmps = [
     "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_os_nw_compartment_name}",
     "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_ss_nw_compartment_name}",
@@ -119,7 +121,7 @@ locals {
     "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_devt_nw_compartment_name}"
   ]
 
-  # Security admin grants - root level
+  # Security admin grants — root level
   sec_admin_grants_on_root = [
     "allow group ${join(",", local.sec_admin_group_name)} to manage cloud-guard-family in tenancy",
     "allow group ${join(",", local.sec_admin_group_name)} to manage cloudevents-rules in tenancy",
@@ -131,7 +133,7 @@ locals {
     "allow group ${join(",", local.sec_admin_group_name)} to read audit-events in tenancy"
   ]
 
-  # Security admin grants - SEC compartment
+  # Security admin grants — SEC compartment
   sec_admin_grants_on_sec_cmp = [
     "allow group ${join(",", local.sec_admin_group_name)} to manage vaults in compartment ${local.provided_sec_compartment_name}",
     "allow group ${join(",", local.sec_admin_group_name)} to manage keys in compartment ${local.provided_sec_compartment_name}",

@@ -10,16 +10,6 @@
 #     2. SEC-ADMIN-GROUP → star-ug-elz-sec
 #
 # PATTERN:
-#   locals {
-#     team1_groups = {
-#       (local.<key>) : {
-#         name          : local.provided_<name>,
-#         description   : "...",
-#         defined_tags  : local.groups_defined_tags,
-#         freeform_tags : local.groups_freeform_tags
-#       }
-#     }
-#   }
 #
 # KEYS  → local.nw_admin_group_key,  local.sec_admin_group_key
 # NAMES → local.provided_nw_admin_group_name, local.provided_sec_admin_group_name

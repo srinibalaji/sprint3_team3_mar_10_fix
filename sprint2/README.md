@@ -88,7 +88,7 @@ Before starting Sprint 2:
    #   C1_R_ELZ_SEC OCID → paste as sec_compartment_id in terraform.tfvars
    ```
 3. **ORM Dynamic Group** `ORM-Sprint2-DynGroup` created (or reuse Sprint 1 group)
-4. **IP Plan confirmed** — CIDR `10.0.0.0/16` for Hub VCN agreed with DSTA network team
+4. **IP Plan confirmed** — CIDR `10.0.0.0/16` for Hub VCN agreed with STAR network team
 
 ---
 
@@ -148,7 +148,7 @@ Plan: 8 to add, 0 to change, 0 to destroy.
 
 Oracle TAD runs the apply and confirms all resources created cleanly.
 
-### Step 7 — Task 5: Sim Firewall via Console (DSTA T4)
+### Step 7 — Task 5: Sim Firewall via Console (STAR T4)
 
 After Terraform apply completes:
 1. OCI Console → **Compute → Instances → Create Instance**

@@ -17,11 +17,11 @@
 
 | Task | Description | Owner | Start | End | Days |
 |------|-------------|-------|-------|-----|------|
-| 1 | VCN, subnets, Service Gateway | DSTA | 3 Mar | 3 Mar | 1 |
-| 2 | DRG + VCN attachment | DSTA | 3 Mar | 3 Mar | 1 |
-| 3 | Route tables + security lists | DSTA | 3 Mar | 4 Mar | 2 |
+| 1 | VCN, subnets, Service Gateway | STAR | 3 Mar | 3 Mar | 1 |
+| 2 | DRG + VCN attachment | STAR | 3 Mar | 3 Mar | 1 |
+| 3 | Route tables + security lists | STAR | 3 Mar | 4 Mar | 2 |
 | 4 | Deploy to OCI via Resource Manager | Oracle | 4 Mar | 4 Mar | 1 |
-| 5 | Provision sim firewall compute (OCI Console) | DSTA T4 | 5 Mar | 5 Mar | 1 |
+| 5 | Provision sim firewall compute (OCI Console) | STAR T4 | 5 Mar | 5 Mar | 1 |
 | 6 | Configure IP forwarding on sim firewall | Oracle | 5 Mar | 5 Mar | 1 |
 
 ---
@@ -48,7 +48,7 @@
 
 ```
 Tenancy Root
-└── AMIT_AD_LZ_Dev (Sprint 1)
+└── LZ_Dev (Sprint 1)
     └── C1_R_ELZ_NW
         └── Hub VCN (10.0.0.0/16)
             ├── Service Gateway → Oracle Services Network

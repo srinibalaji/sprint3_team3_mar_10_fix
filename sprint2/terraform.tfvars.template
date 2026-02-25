@@ -1,0 +1,24 @@
+# =============================================================================
+# STAR ELZ V1 — Sprint 2: Hub Networking
+# Terraform Variables Template
+#
+# Copy this file to terraform.tfvars and fill in values before running.
+# DO NOT commit terraform.tfvars to git — it is in .gitignore.
+# =============================================================================
+
+# --- Tenancy ---
+tenancy_ocid = "ocid1.tenancy.oc1..REPLACE_ME"
+region       = "ap-singapore-2"
+
+# --- Labels ---
+service_label = "c1"
+cis_level     = "1"
+
+# --- Sprint 1 Outputs (paste from sprint1_outputs.json) ---
+nw_compartment_id  = "ocid1.compartment.oc1..REPLACE_ME"   # C1_R_ELZ_NW
+sec_compartment_id = "ocid1.compartment.oc1..REPLACE_ME"   # C1_R_ELZ_SEC
+
+# --- Network CIDRs (do not change without updating State Book IP Plan) ---
+hub_vcn_cidr         = "10.0.0.0/16"
+hub_fw_subnet_cidr   = "10.0.0.0/24"
+hub_mgmt_subnet_cidr = "10.0.1.0/24"

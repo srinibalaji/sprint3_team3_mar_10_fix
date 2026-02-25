@@ -81,23 +81,6 @@ All 12 compartments are children of the enclosing compartment `AD_LZ_Dev`.
 
 ---
 
-## Terraform Variable Mapping
-
-These are the exact values your `terraform.tfvars` must produce:
-
-```hcl
-service_label             = "c1"
-enclosing_compartment_name = "AD_LZ_Dev"
-deployment_identifier     = ""          # empty — no prefix on any resource
-```
-
-With `deployment_identifier = ""` the code produces:
-- Enclosing: `AD_LZ_Dev`
-- Sub-compartments: `C1_R_ELZ_NW` etc (no prefix)
-- Groups: `UG_ELZ_NW` etc (no prefix)
-
----
-
 ## Destroy Current State First
 
 If your tenancy has resources from a prior run with `deployment_identifier = "AMIT"`

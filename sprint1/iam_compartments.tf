@@ -39,16 +39,16 @@ locals {
   # devt_nw_compartment_key    = "DEVT-NW-CMP"
 
   # Compartment names — override via variables_iam.tf vars, else use default
-  provided_nw_compartment_name         = coalesce(var.custom_nw_compartment_name,         "${var.service_label}-r-elz-nw-cmp")
-  provided_sec_compartment_name        = coalesce(var.custom_sec_compartment_name,        "${var.service_label}-r-elz-sec-cmp")
-  # provided_soc_compartment_name        = coalesce(var.custom_soc_compartment_name,        "${var.service_label}-r-elz-soc-cmp")
-  # provided_ops_compartment_name        = coalesce(var.custom_ops_compartment_name,        "${var.service_label}-r-elz-ops-cmp")
-  # provided_csvcs_compartment_name      = coalesce(var.custom_csvcs_compartment_name,      "${var.service_label}-r-elz-csvcs-cmp")
-  # provided_devt_csvcs_compartment_name = coalesce(var.custom_devt_csvcs_compartment_name, "${var.service_label}-r-elz-devt-csvcs-cmp")
-  provided_os_nw_compartment_name      = coalesce(var.custom_os_nw_compartment_name,      "${var.service_label}-os-elz-nw-cmp")
-  provided_ss_nw_compartment_name      = coalesce(var.custom_ss_nw_compartment_name,      "${var.service_label}-ss-elz-nw-cmp")
-  provided_ts_nw_compartment_name      = coalesce(var.custom_ts_nw_compartment_name,      "${var.service_label}-ts-elz-nw-cmp")
-  provided_devt_nw_compartment_name    = coalesce(var.custom_devt_nw_compartment_name,    "${var.service_label}-devt-elz-nw-cmp")
+  provided_nw_compartment_name         = coalesce(var.custom_nw_compartment_name,         upper("${var.service_label}_R_ELZ_NW"))
+provided_sec_compartment_name        = coalesce(var.custom_sec_compartment_name,        upper("${var.service_label}_R_ELZ_SEC"))
+provided_soc_compartment_name        = coalesce(var.custom_soc_compartment_name,        upper("${var.service_label}_R_ELZ_SOC"))
+provided_ops_compartment_name        = coalesce(var.custom_ops_compartment_name,        upper("${var.service_label}_R_ELZ_OPS"))
+provided_csvcs_compartment_name      = coalesce(var.custom_csvcs_compartment_name,      upper("${var.service_label}_R_ELZ_CSVCS"))
+provided_devt_csvcs_compartment_name = coalesce(var.custom_devt_csvcs_compartment_name, upper("${var.service_label}_R_ELZ_DEVT_CSVCS"))
+provided_os_nw_compartment_name      = coalesce(var.custom_os_nw_compartment_name,      upper("${var.service_label}_OS_ELZ_NW"))
+provided_ss_nw_compartment_name      = coalesce(var.custom_ss_nw_compartment_name,      upper("${var.service_label}_SS_ELZ_NW"))
+provided_ts_nw_compartment_name      = coalesce(var.custom_ts_nw_compartment_name,      upper("${var.service_label}_TS_ELZ_NW"))
+provided_devt_nw_compartment_name    = coalesce(var.custom_devt_nw_compartment_name,    upper("${var.service_label}_DEVT_ELZ_NW"))
 
   # Merge all 4 team compartment maps — each team edits only their own file
   compartments_configuration = {

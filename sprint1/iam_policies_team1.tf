@@ -35,7 +35,7 @@ locals {
     # before making any routing or DRG changes. cloud-shell for CLI access.
     # -------------------------------------------------------------------------
     "NW-ADMIN-ROOT-POLICY" : {
-      name           : "${var.service_label}-nw-admin-root-policy"
+      name           : "UG_ELZ_NW-Policy"
       description    : "${var.lz_provenant_label} network admin root-level grants."
       compartment_id : var.tenancy_ocid
       statements : concat(
@@ -51,17 +51,6 @@ locals {
     # Spoke: manage virtual-network-family in each spoke compartment —
     #   network topology only, NOT compute or security resources.
     # -------------------------------------------------------------------------
-    "NW-ADMIN-POLICY" : {
-      name           : "${var.service_label}-nw-admin-policy"
-      description    : "${var.lz_provenant_label} network admin grants on hub and spoke compartments."
-      compartment_id : var.tenancy_ocid
-      statements : concat(
-        local.nw_admin_grants_on_nw_cmp,
-        local.nw_admin_grants_on_spoke_cmps
-      )
-      defined_tags  : local.policies_defined_tags
-      freeform_tags : local.policies_freeform_tags
-    },
 
     # -------------------------------------------------------------------------
     # SEC-ADMIN-ROOT-POLICY
@@ -70,7 +59,7 @@ locals {
     # CIS Level 1 requires an auditor-level read of audit-events in tenancy.
     # -------------------------------------------------------------------------
     "SEC-ADMIN-ROOT-POLICY" : {
-      name           : "${var.service_label}-sec-admin-root-policy"
+      name           : "UG_ELZ_SEC-Policy"
       description    : "${var.lz_provenant_label} security admin root-level grants."
       compartment_id : var.tenancy_ocid
       statements : concat(
@@ -78,23 +67,13 @@ locals {
       )
       defined_tags  : local.policies_defined_tags
       freeform_tags : local.policies_freeform_tags
-    },
+    }
 
     # -------------------------------------------------------------------------
     # SEC-ADMIN-POLICY
     # SEC compartment only: Vault, keys, Bastion, Security Zones, all-resources.
     # Scoped to SEC compartment — SEC admin has NO write access in NW, OPS, or spokes.
-    # -------------------------------------------------------------------------
-    "SEC-ADMIN-POLICY" : {
-      name           : "${var.service_label}-sec-admin-policy"
-      description    : "${var.lz_provenant_label} security admin grants on security compartment."
-      compartment_id : var.tenancy_ocid
-      statements : concat(
-        local.sec_admin_grants_on_sec_cmp
-      )
-      defined_tags  : local.policies_defined_tags
-      freeform_tags : local.policies_freeform_tags
-    }
+
   }
 
   # ---------------------------------------------------------------------------
@@ -103,42 +82,21 @@ locals {
 
   # Network admin grants — root level
   nw_admin_grants_on_root = [
-    "allow group ${join(",", local.nw_admin_group_name)} to read all-resources in tenancy",
+    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment *",
+    "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment *",
+    "allow group ${join(",", local.nw_admin_group_name)} to use cloud-shell in tenancy",
+    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment *",
     "allow group ${join(",", local.nw_admin_group_name)} to use cloud-shell in tenancy"
-  ]
 
-  # Network admin grants — hub NW compartment
-  nw_admin_grants_on_nw_cmp = [
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_nw_compartment_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment ${local.provided_nw_compartment_name}"
-  ]
-
-  # Network admin grants — all 4 spoke compartments (VCN topology only)
-  nw_admin_grants_on_spoke_cmps = [
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_os_nw_compartment_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_ss_nw_compartment_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_ts_nw_compartment_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_devt_nw_compartment_name}"
   ]
 
   # Security admin grants — root level
   sec_admin_grants_on_root = [
+    "allow group ${join(",", local.sec_admin_group_name)} to manage all-resources in compartment *",
     "allow group ${join(",", local.sec_admin_group_name)} to manage cloud-guard-family in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage cloudevents-rules in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to read tenancies in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to read objectstorage-namespaces in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to use cloud-shell in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage tag-namespaces in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage tag-defaults in tenancy",
-    "allow group ${join(",", local.sec_admin_group_name)} to read audit-events in tenancy"
+    "allow group ${join(",", local.sec_admin_group_name)} to manage vaults in compartment *",
+    "allow group ${join(",", local.sec_admin_group_name)} to manage keys in compartment *",
+    "allow group ${join(",", local.sec_admin_group_name)} to read all-resources in tenancy",
   ]
 
-  # Security admin grants — SEC compartment
-  sec_admin_grants_on_sec_cmp = [
-    "allow group ${join(",", local.sec_admin_group_name)} to manage vaults in compartment ${local.provided_sec_compartment_name}",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage keys in compartment ${local.provided_sec_compartment_name}",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage bastion-family in compartment ${local.provided_sec_compartment_name}",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage security-zone in compartment ${local.provided_sec_compartment_name}",
-    "allow group ${join(",", local.sec_admin_group_name)} to manage all-resources in compartment ${local.provided_sec_compartment_name}"
-  ]
 }

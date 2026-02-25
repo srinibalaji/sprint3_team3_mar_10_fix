@@ -65,16 +65,16 @@ locals {
   #-----------------------------------------------------------
   #----- Group names — custom override or default
   #-----------------------------------------------------------
-  provided_nw_admin_group_name         = coalesce(local.custom_nw_admin_group_name,         "${var.service_label}-ug-elz-nw")
-  provided_sec_admin_group_name        = coalesce(local.custom_sec_admin_group_name,         "${var.service_label}-ug-elz-sec")
-  provided_soc_group_name              = coalesce(local.custom_soc_group_name,               "${var.service_label}-ug-elz-soc")
-  provided_ops_admin_group_name        = coalesce(local.custom_ops_admin_group_name,         "${var.service_label}-ug-elz-ops")
-  provided_csvcs_admin_group_name      = coalesce(local.custom_csvcs_admin_group_name,       "${var.service_label}-ug-elz-csvcs")
-  provided_devt_csvcs_admin_group_name = coalesce(local.custom_devt_csvcs_admin_group_name,  "${var.service_label}-ug-devt-csvcs")
-  provided_os_nw_admin_group_name      = coalesce(local.custom_os_nw_admin_group_name,       "${var.service_label}-ug-os-elz-nw")
-  provided_ss_nw_admin_group_name      = coalesce(local.custom_ss_nw_admin_group_name,       "${var.service_label}-ug-ss-elz-nw")
-  provided_ts_nw_admin_group_name      = coalesce(local.custom_ts_nw_admin_group_name,       "${var.service_label}-ug-ts-elz-nw")
-  provided_devt_nw_admin_group_name    = coalesce(local.custom_devt_nw_admin_group_name,     "${var.service_label}-ug-devt-elz-nw")
+  provided_nw_admin_group_name         = coalesce(local.custom_nw_admin_group_name,         "UG_ELZ_NW")
+  provided_sec_admin_group_name        = coalesce(local.custom_sec_admin_group_name,         "UG_ELZ_SEC")
+  # provided_soc_group_name              = coalesce(local.custom_soc_group_name,               "${var.service_label}-ug-elz-soc")
+  # provided_ops_admin_group_name        = coalesce(local.custom_ops_admin_group_name,         "${var.service_label}-ug-elz-ops")
+  # provided_csvcs_admin_group_name      = coalesce(local.custom_csvcs_admin_group_name,       "${var.service_label}-ug-elz-csvcs")
+  # provided_devt_csvcs_admin_group_name = coalesce(local.custom_devt_csvcs_admin_group_name,  "${var.service_label}-ug-devt-csvcs")
+  # provided_os_nw_admin_group_name      = coalesce(local.custom_os_nw_admin_group_name,       "${var.service_label}-ug-os-elz-nw")
+  # provided_ss_nw_admin_group_name      = coalesce(local.custom_ss_nw_admin_group_name,       "${var.service_label}-ug-ss-elz-nw")
+  # provided_ts_nw_admin_group_name      = coalesce(local.custom_ts_nw_admin_group_name,       "${var.service_label}-ug-ts-elz-nw")
+  # provided_devt_nw_admin_group_name    = coalesce(local.custom_devt_nw_admin_group_name,     "${var.service_label}-ug-devt-elz-nw")
 
   #-----------------------------------------------------------
   #----- Merge all 4 team group maps — each team edits only their own file

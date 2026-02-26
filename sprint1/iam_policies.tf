@@ -28,9 +28,6 @@
 # =============================================================================
 
 locals {
-  #------------------------------------------------------------------------------------------------------
-  #-- Any of these local variables can be overridden in a _override.tf file
-  #------------------------------------------------------------------------------------------------------
   custom_policies_defined_tags  = null
   custom_policies_freeform_tags = null
 }
@@ -56,9 +53,9 @@ locals {
 
     supplied_policies : merge(
       local.team1_policies,  # NW-ADMIN-ROOT-POLICY, NW-ADMIN-POLICY, SEC-ADMIN-ROOT-POLICY, SEC-ADMIN-POLICY
-      local.team2_policies,  # SOC-POLICY, OPS-ADMIN-POLICY
-      local.team3_policies,  # CSVCS-POLICY, OCI-SERVICES-POLICY
-      local.team4_policies   # SPOKE-NW-ADMIN-POLICY
+      # local.team2_policies,  # SOC-POLICY, OPS-ADMIN-POLICY
+      # local.team3_policies,  # CSVCS-POLICY, OCI-SERVICES-POLICY
+      # local.team4_policies   # SPOKE-NW-ADMIN-POLICY
     )
   }
 }

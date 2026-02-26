@@ -18,9 +18,6 @@
 # =============================================================================
 
 locals {
-  #------------------------------------------------------------------------------------------------------
-  #-- Any of these local variables can be overridden in a _override.tf file
-  #------------------------------------------------------------------------------------------------------
   custom_groups_defined_tags  = null
   custom_groups_freeform_tags = null
 
@@ -68,16 +65,16 @@ locals {
   #-----------------------------------------------------------
   #----- Group names — custom override or default
   #-----------------------------------------------------------
-  provided_nw_admin_group_name         = coalesce(local.custom_nw_admin_group_name,         "${var.service_label}-ug-elz-nw")
-  provided_sec_admin_group_name        = coalesce(local.custom_sec_admin_group_name,         "${var.service_label}-ug-elz-sec")
-  provided_soc_group_name              = coalesce(local.custom_soc_group_name,               "${var.service_label}-ug-elz-soc")
-  provided_ops_admin_group_name        = coalesce(local.custom_ops_admin_group_name,         "${var.service_label}-ug-elz-ops")
-  provided_csvcs_admin_group_name      = coalesce(local.custom_csvcs_admin_group_name,       "${var.service_label}-ug-elz-csvcs")
-  provided_devt_csvcs_admin_group_name = coalesce(local.custom_devt_csvcs_admin_group_name,  "${var.service_label}-ug-devt-csvcs")
-  provided_os_nw_admin_group_name      = coalesce(local.custom_os_nw_admin_group_name,       "${var.service_label}-ug-os-elz-nw")
-  provided_ss_nw_admin_group_name      = coalesce(local.custom_ss_nw_admin_group_name,       "${var.service_label}-ug-ss-elz-nw")
-  provided_ts_nw_admin_group_name      = coalesce(local.custom_ts_nw_admin_group_name,       "${var.service_label}-ug-ts-elz-nw")
-  provided_devt_nw_admin_group_name    = coalesce(local.custom_devt_nw_admin_group_name,     "${var.service_label}-ug-devt-elz-nw")
+  provided_nw_admin_group_name         = coalesce(local.custom_nw_admin_group_name,         "UG_ELZ_NW")
+  provided_sec_admin_group_name        = coalesce(local.custom_sec_admin_group_name,         "UG_ELZ_SEC")
+  # provided_soc_group_name              = coalesce(local.custom_soc_group_name,               "UG_ELZ_SOC")
+  # provided_ops_admin_group_name        = coalesce(local.custom_ops_admin_group_name,         "UG_ELZ_SOC")
+  # provided_csvcs_admin_group_name      = coalesce(local.custom_csvcs_admin_group_name,       "${var.service_label}-ug-elz-csvcs")
+  # provided_devt_csvcs_admin_group_name = coalesce(local.custom_devt_csvcs_admin_group_name,  "${var.service_label}-ug-devt-csvcs")
+  # provided_os_nw_admin_group_name      = coalesce(local.custom_os_nw_admin_group_name,       "${var.service_label}-ug-os-elz-nw")
+  # provided_ss_nw_admin_group_name      = coalesce(local.custom_ss_nw_admin_group_name,       "${var.service_label}-ug-ss-elz-nw")
+  # provided_ts_nw_admin_group_name      = coalesce(local.custom_ts_nw_admin_group_name,       "${var.service_label}-ug-ts-elz-nw")
+  # provided_devt_nw_admin_group_name    = coalesce(local.custom_devt_nw_admin_group_name,     "${var.service_label}-ug-devt-elz-nw")
 
   #-----------------------------------------------------------
   #----- Merge all 4 team group maps — each team edits only their own file
@@ -88,9 +85,9 @@ locals {
 
     groups : merge(
       local.team1_groups,  # NW-ADMIN-GROUP, SEC-ADMIN-GROUP
-      local.team2_groups,  # SOC-GROUP, OPS-ADMIN-GROUP
-      local.team3_groups,  # CSVCS-ADMIN-GROUP, DEVT-CSVCS-ADMIN-GROUP
-      local.team4_groups   # OS-NW-ADMIN-GROUP, SS-NW-ADMIN-GROUP, TS-NW-ADMIN-GROUP, DEVT-NW-ADMIN-GROUP
+      # local.team2_groups,  # SOC-GROUP, OPS-ADMIN-GROUP
+      # local.team3_groups,  # CSVCS-ADMIN-GROUP, DEVT-CSVCS-ADMIN-GROUP
+      # local.team4_groups   # OS-NW-ADMIN-GROUP, SS-NW-ADMIN-GROUP, TS-NW-ADMIN-GROUP, DEVT-NW-ADMIN-GROUP
     )
   }
 
@@ -99,14 +96,14 @@ locals {
   #---------------------------------------------------------------------------------------
   nw_admin_group_name          = [module.lz_groups.groups[local.nw_admin_group_key].name]
   sec_admin_group_name         = [module.lz_groups.groups[local.sec_admin_group_key].name]
-  soc_group_name               = [module.lz_groups.groups[local.soc_group_key].name]
-  ops_admin_group_name         = [module.lz_groups.groups[local.ops_admin_group_key].name]
-  csvcs_admin_group_name       = [module.lz_groups.groups[local.csvcs_admin_group_key].name]
-  devt_csvcs_admin_group_name  = [module.lz_groups.groups[local.devt_csvcs_admin_group_key].name]
-  os_nw_admin_group_name       = [module.lz_groups.groups[local.os_nw_admin_group_key].name]
-  ss_nw_admin_group_name       = [module.lz_groups.groups[local.ss_nw_admin_group_key].name]
-  ts_nw_admin_group_name       = [module.lz_groups.groups[local.ts_nw_admin_group_key].name]
-  devt_nw_admin_group_name     = [module.lz_groups.groups[local.devt_nw_admin_group_key].name]
+  # soc_group_name               = [module.lz_groups.groups[local.soc_group_key].name]
+  # ops_admin_group_name         = [module.lz_groups.groups[local.ops_admin_group_key].name]
+  # csvcs_admin_group_name       = [module.lz_groups.groups[local.csvcs_admin_group_key].name]
+  # devt_csvcs_admin_group_name  = [module.lz_groups.groups[local.devt_csvcs_admin_group_key].name]
+  # os_nw_admin_group_name       = [module.lz_groups.groups[local.os_nw_admin_group_key].name]
+  # ss_nw_admin_group_name       = [module.lz_groups.groups[local.ss_nw_admin_group_key].name]
+  # ts_nw_admin_group_name       = [module.lz_groups.groups[local.ts_nw_admin_group_key].name]
+  # devt_nw_admin_group_name     = [module.lz_groups.groups[local.devt_nw_admin_group_key].name]
 }
 
 #------------------------------------------------------------------------

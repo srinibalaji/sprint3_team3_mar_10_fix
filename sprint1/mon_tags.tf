@@ -1,71 +1,31 @@
-# Copyright (c) 2023, 2025, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl/
+# =============================================================================
+# STAR ELZ V1 — Tag Namespace + Tags — TEAM 3 OWNED FILE
+# ELZ tag namespace with 5 tags, CostCenter cost-tracking enabled
+# Sprint 1, Week 1
+# Branch: sprint1/tagging (Team 3)
+# =============================================================================
+#
+# TAGS TO DEFINE (5 tags in ELZ namespace):
+#   1. CostCenter    — is-cost-tracking: true
+#   2. Environment   — values: POC, DEV, TEST, PROD
+#   3. Owner         — free text
+#   4. ManagedBy     — values: Terraform, Manual
+#   5. DataClassification — values: OFFICIAL, SENSITIVE, RESTRICTED
+#
+# INSTRUCTIONS:
+#   Use the lz_tags module from terraform-oci-modules-iam.
+#   Source: github.com/oci-landing-zones/terraform-oci-modules-iam//tags
+#   Tag namespace compartment: var.tenancy_ocid (root)
+#   Reference: TC-05 describes the validation — CostCenter must show
+#   is-cost-tracking = true in the OCI Console tag namespace.
+# =============================================================================
 
 locals {
-  #------------------------------------------------------------------------------------------------------
-  #-- Any of these local vars can be overridden in a _override.tf file
-  #------------------------------------------------------------------------------------------------------
   tag_namespace_name           = ""
   tag_namespace_compartment_id = var.tenancy_ocid
   tag_defaults_compartment_id  = var.tenancy_ocid
-
-  all_tags_defined_tags  = {}
-  all_tags_freeform_tags = {}
+  all_tags_defined_tags        = {}
+  all_tags_freeform_tags       = {}
 }
 
-locals {
-  #------------------------------------------------------------------------------------------------------
-  #-- These variables are not meant to be overridden
-  #------------------------------------------------------------------------------------------------------
-
-  default_tags_defined_tags  = null
-  default_tags_freeform_tags = local.landing_zone_tags
-
-  tags_defined_tags  = length(local.all_tags_defined_tags)  > 0 ? local.all_tags_defined_tags  : local.default_tags_defined_tags
-  tags_freeform_tags = length(local.all_tags_freeform_tags) > 0 ? merge(local.all_tags_freeform_tags, local.default_tags_freeform_tags) : local.default_tags_freeform_tags
-
-  default_tag_namespace_name = "${var.service_label}-namesp"
-
-  #------------------------------------------------------------------------
-  #----- Tags configuration definition. Input to module.
-  #------------------------------------------------------------------------
-  tags_configuration = {
-    default_compartment_id = local.tag_namespace_compartment_id
-    cis_namespace_name     = length(local.tag_namespace_name) > 0 ? local.tag_namespace_name : local.default_tag_namespace_name
-    default_defined_tags   = local.tags_defined_tags
-    default_freeform_tags  = local.tags_freeform_tags
-
-    namespaces = {
-      "ELZ-V1-NAMESPACE" = {
-        name        = "${var.service_label}-elz-v1"
-        description = "ELZ Landing Zone V1 tag namespace"
-        is_retired  = false
-        tags = {
-          "ENVIRONMENT-TAG" = {
-            name        = "environment"
-            description = "Deployment environment e.g. v1-poc, v2, prod"
-          }
-          "OWNER-TAG" = {
-            name        = "owner"
-            description = "Resource owner team"
-          }
-          "MANAGED-BY-TAG" = {
-            name        = "managed-by"
-            description = "IaC tool managing this resource"
-          }
-          "VERSION-TAG" = {
-            name        = "version"
-            description = "Landing Zone version"
-          }
-        }
-      }
-    }
-  }
-}
-
-module "lz_tags" {
-  source             = "github.com/oci-landing-zones/terraform-oci-modules-governance//tags?ref=v0.1.5"
-  providers          = { oci = oci.home }
-  tags_configuration = local.tags_configuration
-  tenancy_ocid       = var.tenancy_ocid
-}
+# YOUR CODE HERE — module "lz_tags" call

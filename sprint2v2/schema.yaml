@@ -1,0 +1,282 @@
+title: "STAR ELZ V1 — Sprint 2 Networking"
+description: "DSTA STAR Enterprise Landing Zone V1 — Hub and Spoke Networking (VCNs, Subnets, DRG, Route Tables, Sim Firewall, Bastion)"
+schemaVersion: 1.1.0
+version: "20250302"
+locale: "en"
+
+variableGroups:
+
+  - title: "1. Tenancy & Region"
+    variables:
+      - tenancy_ocid
+      - region
+
+  - title: "2. Landing Zone Identity"
+    variables:
+      - service_label
+      - cis_level
+      - lz_environment
+      - lz_cost_center
+
+  - title: "3. Sprint 1 Compartment OCIDs (from terraform output)"
+    description: "Paste OCIDs from Sprint 1: run 'terraform output -json > sprint1_outputs.json' in the Sprint 1 directory."
+    variables:
+      - nw_compartment_id
+      - os_compartment_id
+      - ts_compartment_id
+      - ss_compartment_id
+      - devt_compartment_id
+      - sec_compartment_id
+      - soc_compartment_id
+      - ops_compartment_id
+      - csvcs_compartment_id
+      - devt_csvcs_compartment_id
+
+  - title: "4. Phase 2 — Hub DRG OCID (paste after Phase 1 apply)"
+    description: "PHASE 1: Leave hub_drg_id empty. Apply to create VCNs, subnets, and Hub DRG. PHASE 2: After Phase 1, Team 4 runs 'terraform output hub_drg_id' and shares the OCID. All teams paste it here and re-apply. This creates DRG attachments, route tables, Sim FW, and Bastion."
+    variables:
+      - hub_drg_id
+
+  - title: "5. Network CIDRs — Hub VCN"
+    description: "Hub VCN CIDR ranges. Defaults follow STAR ELZ IP plan. Override only if address space conflicts exist."
+    variables:
+      - hub_vcn_cidr
+      - hub_fw_subnet_cidr
+      - hub_mgmt_subnet_cidr
+
+  - title: "6. Network CIDRs — Spoke VCNs"
+    variables:
+      - os_vcn_cidr
+      - os_app_subnet_cidr
+      - ts_vcn_cidr
+      - ts_app_subnet_cidr
+      - ss_vcn_cidr
+      - ss_app_subnet_cidr
+      - devt_vcn_cidr
+      - devt_app_subnet_cidr
+
+  - title: "7. Sim Firewall Compute"
+    description: "Shape and sizing for Sim Firewall instances. Keep defaults for workshop use."
+    variables:
+      - sim_fw_shape
+      - sim_fw_ocpus
+      - sim_fw_memory_gb
+
+  - title: "8. Bastion"
+    variables:
+      - bastion_client_cidr
+
+variables:
+
+  # ---------------------------------------------------------------------------
+  # Section 1
+  # ---------------------------------------------------------------------------
+  tenancy_ocid:
+    type: string
+    title: "Tenancy OCID"
+    description: "Your OCI tenancy OCID. Found at: OCI Console → Profile → Tenancy."
+    required: true
+
+  region:
+    type: oci:identity:region:name
+    title: "Region"
+    description: "OCI region for all networking resources."
+    required: true
+
+  # ---------------------------------------------------------------------------
+  # Section 2
+  # ---------------------------------------------------------------------------
+  service_label:
+    type: string
+    title: "Service Label"
+    description: "1-8 uppercase alphanumeric chars. Used in tags and descriptions only — does NOT affect resource names."
+    default: "C1"
+    required: true
+
+  cis_level:
+    type: enum
+    title: "CIS Benchmark Level"
+    default: "1"
+    enum:
+      - "1"
+      - "2"
+
+  lz_environment:
+    type: enum
+    title: "Environment"
+    default: "poc"
+    enum:
+      - "poc"
+      - "dev"
+      - "uat"
+      - "prod"
+
+  lz_cost_center:
+    type: string
+    title: "Cost Center Code"
+    default: "STAR-ELZ-V1"
+    required: true
+
+  # ---------------------------------------------------------------------------
+  # Section 3 — Compartment OCIDs
+  # ---------------------------------------------------------------------------
+  nw_compartment_id:
+    type: string
+    title: "C1_R_ELZ_NW OCID (T4 — Hub NW)"
+    description: "From Sprint 1 output: nw_compartment_id"
+    required: true
+
+  os_compartment_id:
+    type: string
+    title: "C1_OS_ELZ_NW OCID (T1 — OS)"
+    description: "From Sprint 1 output: os_nw_compartment_id"
+    required: true
+
+  ts_compartment_id:
+    type: string
+    title: "C1_TS_ELZ_NW OCID (T2 — TS)"
+    description: "From Sprint 1 output: ts_nw_compartment_id"
+    required: true
+
+  ss_compartment_id:
+    type: string
+    title: "C1_SS_ELZ_NW OCID (T3 — SS)"
+    description: "From Sprint 1 output: ss_nw_compartment_id"
+    required: true
+
+  devt_compartment_id:
+    type: string
+    title: "C1_DEVT_ELZ_NW OCID (T3 — DEVT)"
+    description: "From Sprint 1 output: devt_nw_compartment_id"
+    required: true
+
+  sec_compartment_id:
+    type: string
+    title: "C1_R_ELZ_SEC OCID"
+    description: "From Sprint 1 output: sec_compartment_id"
+    required: true
+
+  soc_compartment_id:
+    type: string
+    title: "C1_R_ELZ_SOC OCID"
+    description: "From Sprint 1 output: soc_compartment_id"
+    required: true
+
+  ops_compartment_id:
+    type: string
+    title: "C1_R_ELZ_OPS OCID"
+    description: "From Sprint 1 output: ops_compartment_id"
+    required: true
+
+  csvcs_compartment_id:
+    type: string
+    title: "C1_R_ELZ_CSVCS OCID"
+    description: "From Sprint 1 output: csvcs_compartment_id"
+    required: true
+
+  devt_csvcs_compartment_id:
+    type: string
+    title: "C1_R_ELZ_DEVT_CSVCS OCID"
+    description: "From Sprint 1 output: devt_csvcs_compartment_id"
+    required: true
+
+  # ---------------------------------------------------------------------------
+  # Section 4 — Phase 2 DRG
+  # ---------------------------------------------------------------------------
+  hub_drg_id:
+    type: string
+    title: "Hub DRG OCID (Phase 2 only)"
+    description: "PHASE 1: Leave EMPTY — DRG attachments, route tables, Sim FW, Bastion are skipped. PHASE 2: After Phase 1, Team 4 outputs this OCID. All teams paste it here and re-apply."
+    required: false
+    default: ""
+
+  # ---------------------------------------------------------------------------
+  # Section 5 — Hub CIDRs
+  # ---------------------------------------------------------------------------
+  hub_vcn_cidr:
+    type: string
+    title: "Hub VCN CIDR"
+    default: "10.0.0.0/16"
+
+  hub_fw_subnet_cidr:
+    type: string
+    title: "Hub Firewall Subnet CIDR"
+    default: "10.0.0.0/24"
+
+  hub_mgmt_subnet_cidr:
+    type: string
+    title: "Hub Management Subnet CIDR"
+    default: "10.0.1.0/24"
+
+  # ---------------------------------------------------------------------------
+  # Section 6 — Spoke CIDRs
+  # ---------------------------------------------------------------------------
+  os_vcn_cidr:
+    type: string
+    title: "OS VCN CIDR"
+    default: "10.1.0.0/16"
+
+  os_app_subnet_cidr:
+    type: string
+    title: "OS App Subnet CIDR"
+    default: "10.1.0.0/24"
+
+  ts_vcn_cidr:
+    type: string
+    title: "TS VCN CIDR"
+    default: "10.3.0.0/16"
+
+  ts_app_subnet_cidr:
+    type: string
+    title: "TS App Subnet CIDR"
+    default: "10.3.0.0/24"
+
+  ss_vcn_cidr:
+    type: string
+    title: "SS VCN CIDR"
+    default: "10.2.0.0/16"
+
+  ss_app_subnet_cidr:
+    type: string
+    title: "SS App Subnet CIDR"
+    default: "10.2.0.0/24"
+
+  devt_vcn_cidr:
+    type: string
+    title: "DEVT VCN CIDR"
+    default: "10.4.0.0/16"
+
+  devt_app_subnet_cidr:
+    type: string
+    title: "DEVT App Subnet CIDR"
+    default: "10.4.0.0/24"
+
+  # ---------------------------------------------------------------------------
+  # Section 7 — Sim FW
+  # ---------------------------------------------------------------------------
+  sim_fw_shape:
+    type: string
+    title: "Sim FW Shape"
+    default: "VM.Standard.E4.Flex"
+
+  sim_fw_ocpus:
+    type: number
+    title: "Sim FW OCPUs"
+    default: 1
+    minimum: 1
+    maximum: 4
+
+  sim_fw_memory_gb:
+    type: number
+    title: "Sim FW Memory (GB)"
+    default: 6
+    minimum: 6
+
+  # ---------------------------------------------------------------------------
+  # Section 8 — Bastion
+  # ---------------------------------------------------------------------------
+  bastion_client_cidr:
+    type: string
+    title: "Bastion Allowed Client CIDR"
+    description: "CIDR allowed to open Bastion sessions. Default: 0.0.0.0/0. Restrict for production."
+    default: "0.0.0.0/0"

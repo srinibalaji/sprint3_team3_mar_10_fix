@@ -137,7 +137,7 @@ locals {
   # --- Group Names (tenancy-scoped, no C-level prefix) ---
   nw_group_name         = "UG_ELZ_NW"
   sec_group_name        = "UG_ELZ_SEC"
-  soc_group_name_const  = "UG_ELZ_SOC"
+  soc_group_name        = "UG_ELZ_SOC"
   ops_group_name        = "UG_ELZ_OPS"
   csvcs_group_name      = "UG_ELZ_CSVCS"
   devt_csvcs_group_name = "UG_ELZ_DEVT_CSVCS"
@@ -151,7 +151,7 @@ locals {
   # All policies live at tenancy root (C0) — no Root/Admin suffix needed
   nw_policy_name           = "${local.nw_group_name}-Policy"
   sec_policy_name          = "${local.sec_group_name}-Policy"
-  soc_policy_name          = "${local.soc_group_name_const}-Policy"
+  soc_policy_name          = "${local.soc_group_name}-Policy"
   ops_policy_name          = "${local.ops_group_name}-Policy"
   csvcs_policy_name        = "${local.csvcs_group_name}-Policy"
   oci_services_policy_name = "OCI-SERVICES-Policy"

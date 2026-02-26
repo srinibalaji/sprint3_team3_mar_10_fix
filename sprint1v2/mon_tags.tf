@@ -105,21 +105,36 @@ resource "oci_identity_tag" "cost_center" {
   freeform_tags = local.landing_zone_tags
 }
 
+# BUG-FIX: Dedicated CreatedBy tag definition required — cannot reuse Owner tag.
+# Using oci_identity_tag.owner.id would create auto-tag C0-star-elz-v1.Owner = <principal>,
+# not C0-star-elz-v1.CreatedBy = <principal>. OCI applies tag defaults using the tag
+# definition's name, not the default resource name. Separate definition required.
+resource "oci_identity_tag" "created_by_tag" {
+  provider         = oci.home
+  tag_namespace_id = oci_identity_tag_namespace.elz_v1.id
+  name             = "CreatedBy"
+  description      = "Auto-applied by tag default. OCI principal (user OCID or instance principal) that created the resource. CIS 3.2 required."
+  is_retired       = false
+  is_cost_tracking = false
+
+  freeform_tags = local.landing_zone_tags
+}
+
 # =============================================================================
 # TAG DEFAULT — Layer 3: CreatedBy auto-applied at tenancy root
 # CIS 3.2: Every resource created in the tenancy automatically receives a
 # CreatedBy tag with the OCI principal name (user OCID or instance principal).
-# Immutable tag: cannot be overridden by the resource creator.
+# is_required = false — non-blocking if tag service propagation is slow (<30s).
 # =============================================================================
 resource "oci_identity_tag_default" "created_by" {
   provider          = oci.home
   compartment_id    = local.tenancy_id
-  tag_definition_id = oci_identity_tag.owner.id # reuse Owner tag definition for CreatedBy
-  value             = "$${iam.principal.name}"  # OCI computed — resolves to actual principal
-  is_required       = false                     # non-blocking if tag service is slow
+  tag_definition_id = oci_identity_tag.created_by_tag.id # BUG-FIX: dedicated CreatedBy definition
+  value             = "$${iam.principal.name}"           # OCI computed — resolves to actual principal name
+  is_required       = false
 
   depends_on = [
-    oci_identity_tag.owner,
+    oci_identity_tag.created_by_tag,
     oci_identity_tag_namespace.elz_v1
   ]
 }

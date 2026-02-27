@@ -1,4 +1,4 @@
-# STAR ELZ V1 — Sprint 1 Solutions V2
+# STAR ELZ V1 — Sprint 1 Solutions
 
 **Branch:** `sprint1-solutions-v2`  
 **Module:** `github.com/oci-landing-zones/terraform-oci-modules-iam @ v0.3.1`  

@@ -29,8 +29,8 @@ variable "hub_drg_id" {
              All teams re-apply. Phase 2 resources (route tables, DRG attachments,
              Sim FW, Bastion) are then created.
   EOT
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
   validation {
     condition     = var.hub_drg_id == "" || can(regex("^ocid1\\.drg\\.", var.hub_drg_id))
     error_message = "hub_drg_id must be empty (Phase 1) or a valid OCI DRG OCID starting with ocid1.drg."

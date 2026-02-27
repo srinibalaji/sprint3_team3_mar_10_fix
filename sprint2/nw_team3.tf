@@ -41,7 +41,7 @@ resource "oci_core_vcn" "ss" {
   compartment_id = var.ss_compartment_id
   cidr_blocks    = [local.ss_vcn_cidr]
   display_name   = local.ss_vcn_name
-  dns_label      = "sselznw"
+  dns_label      = local.ss_vcn_dns_label
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
@@ -74,7 +74,7 @@ resource "oci_core_subnet" "ss_app" {
   vcn_id                     = oci_core_vcn.ss.id
   cidr_block                 = local.ss_app_subnet_cidr
   display_name               = local.ss_app_subnet_name
-  dns_label                  = "ssapp"
+  dns_label                  = local.ss_app_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.ss_app.id
 
@@ -91,7 +91,7 @@ resource "oci_core_vcn" "devt" {
   compartment_id = var.devt_compartment_id
   cidr_blocks    = [local.devt_vcn_cidr]
   display_name   = local.devt_vcn_name
-  dns_label      = "devtelznw"
+  dns_label      = local.devt_vcn_dns_label
 
   freeform_tags = merge(local.net_freeform_tags, { "lz-tier" = "development" })
   defined_tags  = local.net_defined_tags
@@ -124,7 +124,7 @@ resource "oci_core_subnet" "devt_app" {
   vcn_id                     = oci_core_vcn.devt.id
   cidr_block                 = local.devt_app_subnet_cidr
   display_name               = local.devt_app_subnet_name
-  dns_label                  = "devtapp"
+  dns_label                  = local.devt_app_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.devt_app.id
 

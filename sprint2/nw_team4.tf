@@ -13,9 +13,8 @@
 # RESOURCES IN THIS FILE:
 #   PHASE 1 (apply first — other teams depend on hub_drg_id output):
 #     oci_core_vcn.hub                  — Hub VCN     10.0.0.0/16
-#     oci_core_internet_gateway.hub     — IGW for north-south traffic
-#     oci_core_route_table.hub_fw       — FW subnet RT: 0.0.0.0/0 → IGW (Phase 1, IGW known)
-#     oci_core_subnet.hub_fw            — FW subnet 10.0.0.0/24 (public)
+#     oci_core_route_table.hub_fw       — FW subnet RT: empty in V1 (Sprint 3: DRG transit)
+#     oci_core_subnet.hub_fw            — FW subnet 10.0.0.0/24 (private — no public IP)
 #     oci_core_drg.hub                  — Hub DRG ← PRIMARY Phase 1 output
 #     oci_core_route_table.hub_mgmt     — MGMT RT: empty Phase 1, DRG rule added Phase 2
 #     oci_core_subnet.hub_mgmt          — MGMT subnet 10.0.1.0/24 (private)
@@ -23,19 +22,25 @@
 #   PHASE 2 (after T4 shares hub_drg_id with all other teams):
 #     oci_core_drg_attachment.hub_vcn   — Attaches Hub VCN to Hub DRG
 #     MGMT route table updated in-place: DRG rule added via dynamic block
-#     oci_core_instance.sim_fw_hub      — Sim Firewall in hub FW subnet (public IP)
+#     oci_core_instance.sim_fw_hub      — Sim Firewall in hub FW subnet (private, no public IP)
 #     oci_bastion_bastion.hub           — OCI Bastion in hub MGMT subnet
 #
 # COMPARTMENT: C1_R_ELZ_NW — var.nw_compartment_id
 #
+# V1 DESIGN — NO INTERNET GATEWAY:
+#   Per STAR ELZ V1 isolated design there is no IGW in the Hub.
+#   Hub Sim FW has no public IP. All validation uses OCI NPA (control plane)
+#   and Bastion SSH sessions (data plane). Internet-facing routing is Sprint 3+ scope.
+#
+# DRG TRANSIT ROUTING — SPRINT 3 BACKLOG:
+#   Hub FW route table is intentionally empty in V1.
+#   OCI DRG v2 defaults to full-mesh — spoke-to-spoke traffic bypasses hub FW.
+#   Sprint 3 will add oci_core_drg_route_table + oci_core_drg_route_distribution
+#   to force all spoke traffic through the Hub VCN attachment. See README Sprint 3 Backlog.
+#
 # CRITICAL AFTER PHASE 1:
 #   Run: terraform output hub_drg_id
-#   Share this OCID with T1, T2, T3 so they can paste into ORM Variables.
-#
-# HUB FW ROUTE TABLE NOTE:
-#   hub_fw route table uses IGW directly — both are Phase 1 resources.
-#   No dynamic block needed: rule is always present.
-#   Hub MGMT route table uses DRG — DRG attachment is Phase 2, so dynamic block used.
+#   Share this OCID with T1, T2, T3 for their Phase 2 apply.
 # =============================================================================
 
 # =============================================================================
@@ -47,49 +52,35 @@ resource "oci_core_vcn" "hub" {
   compartment_id = var.nw_compartment_id
   cidr_blocks    = [local.hub_vcn_cidr]
   display_name   = local.hub_vcn_name
-  dns_label      = "hubelznw"
+  dns_label      = local.hub_vcn_dns_label
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
 }
 
-# Internet Gateway — north-south traffic. Phase 1 (no DRG dependency).
-resource "oci_core_internet_gateway" "hub" {
-  compartment_id = var.nw_compartment_id
-  vcn_id         = oci_core_vcn.hub.id
-  display_name   = local.hub_igw_name
-  enabled        = true
-
-  freeform_tags = local.net_freeform_tags
-  defined_tags  = local.net_defined_tags
-}
-
-# Hub FW Route Table — always has IGW rule (both RT and IGW are Phase 1)
-# No dynamic block needed: rule is unconditional.
+# Hub FW Route Table — empty in V1 (no IGW, no rules)
+# Sprint 3: will add DRG route distribution to force spoke traffic through here.
+# Leave this resource — it establishes the RT OCID that hub_fw subnet references.
 resource "oci_core_route_table" "hub_fw" {
   compartment_id = var.nw_compartment_id
   vcn_id         = oci_core_vcn.hub.id
   display_name   = local.hub_fw_rt_name
 
-  route_rules {
-    description       = "Default internet route via IGW — north-south traffic"
-    destination       = local.anywhere
-    destination_type  = "CIDR_BLOCK"
-    network_entity_id = oci_core_internet_gateway.hub.id
-  }
+  # Intentionally no route_rules in V1.
+  # Sprint 3 backlog: add DRG transit route distribution here.
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
 }
 
-# Hub FW Subnet — public (Sim FW needs public IP for north-south NAT simulation)
+# Hub FW Subnet — private in V1 (no public IPs, no IGW)
 resource "oci_core_subnet" "hub_fw" {
   compartment_id             = var.nw_compartment_id
   vcn_id                     = oci_core_vcn.hub.id
   cidr_block                 = local.hub_fw_subnet_cidr
   display_name               = local.hub_fw_subnet_name
-  dns_label                  = "hubfw"
-  prohibit_public_ip_on_vnic = false # public subnet — Sim FW gets public IP
+  dns_label                  = local.hub_fw_subnet_dns_label
+  prohibit_public_ip_on_vnic = true   # private — no IGW in V1
   route_table_id             = oci_core_route_table.hub_fw.id
 
   freeform_tags = local.net_freeform_tags
@@ -133,7 +124,7 @@ resource "oci_core_subnet" "hub_mgmt" {
   vcn_id                     = oci_core_vcn.hub.id
   cidr_block                 = local.hub_mgmt_subnet_cidr
   display_name               = local.hub_mgmt_subnet_name
-  dns_label                  = "hubmgmt"
+  dns_label                  = local.hub_mgmt_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.hub_mgmt.id
 
@@ -181,8 +172,8 @@ resource "oci_core_instance" "sim_fw_hub" {
   create_vnic_details {
     subnet_id              = oci_core_subnet.hub_fw.id
     display_name           = "VNIC-${local.hub_fw_instance_name}"
-    assign_public_ip       = true # hub FW needs public IP for north-south simulation
-    skip_source_dest_check = true # REQUIRED: enables IP forwarding
+    assign_public_ip       = false   # V1 isolated design — no public IP, no IGW
+    skip_source_dest_check = true    # REQUIRED: enables IP forwarding
     freeform_tags          = local.cmp_freeform_tags
   }
 

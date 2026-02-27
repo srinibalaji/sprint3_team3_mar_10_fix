@@ -39,7 +39,7 @@ resource "oci_core_vcn" "os" {
   compartment_id = var.os_compartment_id
   cidr_blocks    = [local.os_vcn_cidr]
   display_name   = local.os_vcn_name
-  dns_label      = "oselznw"
+  dns_label      = local.os_vcn_dns_label
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
@@ -75,7 +75,7 @@ resource "oci_core_subnet" "os_app" {
   vcn_id                     = oci_core_vcn.os.id
   cidr_block                 = local.os_app_subnet_cidr
   display_name               = local.os_app_subnet_name
-  dns_label                  = "osapp"
+  dns_label                  = local.os_app_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.os_app.id
 

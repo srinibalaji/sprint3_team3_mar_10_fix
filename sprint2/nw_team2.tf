@@ -32,7 +32,7 @@ resource "oci_core_vcn" "ts" {
   compartment_id = var.ts_compartment_id
   cidr_blocks    = [local.ts_vcn_cidr]
   display_name   = local.ts_vcn_name
-  dns_label      = "tselznw"
+  dns_label      = local.ts_vcn_dns_label
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
@@ -65,7 +65,7 @@ resource "oci_core_subnet" "ts_app" {
   vcn_id                     = oci_core_vcn.ts.id
   cidr_block                 = local.ts_app_subnet_cidr
   display_name               = local.ts_app_subnet_name
-  dns_label                  = "tsapp"
+  dns_label                  = local.ts_app_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.ts_app.id
 

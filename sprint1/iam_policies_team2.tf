@@ -1,63 +1,89 @@
+# Copyright (c) 2023, 2025, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl/
+# STAR ELZ V1 — sprint1-solutions-v2
+#
 # =============================================================================
-# STAR ELZ V1 — IAM Policies — TEAM 2 OWNED FILE
+# IAM POLICIES — TEAM 2 OWNED FILE
 # Team 2 domain: SOC + Operations
-# Sprint 1, Week 2 — Day 3
+# Sprint 1, Week 2 | SPRINT1-ISSUE-#12
 # Branch: sprint1/iam-policies-team2
 # =============================================================================
-# YOUR TASK:
-#   Define local.team2_policies — a map with 2 policy objects:
-#     5. "SOC-POLICY"       — read cloud-guard-family, audit-events, all-resources in tenancy
-#                             CRITICAL: read verbs ONLY — no manage, no use (except cloud-shell)
-#     6. "OPS-ADMIN-POLICY" — manage logging-family, ons-family, alarms, metrics,
-#                             object-family in OPS cmp + read all-resources in tenancy
 #
-# Also define statement lists:
-#   local.soc_grants_on_root, local.ops_admin_grants_on_ops_cmp
+# POLICY OBJECTS IN THIS FILE (2 of 9):
+#   3. UG_ELZ_SOC-Policy — SOC read-only grants across tenancy
+#   4. UG_ELZ_OPS-Policy — Operations admin grants on OPS compartment
 #
-# GROUP LOCALS → local.soc_group_name, local.ops_admin_group_name
-# COMPARTMENT  → local.provided_ops_compartment_name
-# TC-04 TEST: a member of SOC attempting oci logging log-group delete must get 403
+# TEST CASES VALIDATED BY THIS FILE:
+#   TC-03 (SoD): DEVT group must NOT appear anywhere in this file.
+#   TC-04 (SOC read-only): NEGATIVE test — member of UG_ELZ_SOC attempting
+#     any write operation (e.g. oci logging log-group delete) must get HTTP 403.
+#     Every statement for soc_group_name uses "read" verb only.
+#     "use cloud-shell" is a UI convenience grant, not data plane access.
+#
+# SPRINT1-FIX (SPRINT1-ISSUE-#12, policy-naming + OCI-syntax):
+#   name changed from "${var.service_label}-soc-policy" to local.soc_policy_name.
+#   OCI policy resource-type syntax already correct in solutions (hyphenated):
+#     cloud-guard-family, audit-events, all-resources, cloud-shell ✓
 # =============================================================================
 
-# TODO: write local.team2_policies and statement lists below this line
 locals {
-    team2_policies = {
-        "SOC-POLICY-TENANCY" : {
-            name : "UG_ELZ_SOC-Policy"
-            description : "SOC - Read all resources, read audit-events"
-            compartment_id : var.tenancy_ocid
-            statements : [
-                "Allow group ${local.provided_soc_group_name} to read all-resources in tenancy",
-                "Allow group ${local.provided_soc_group_name} to read audit-events in tenancy"
-            ]
-        }
-        "SOC-POLICY-COMPARTMENT" : {
-            name : "UG_ELZ_SOC-Policy"
-            description : "SOC - Read log-groups, log-content in SOC cmp"
-            compartment_id : module.lz_compartments.compartments[local.soc_compartment_key].id
-            statements : [
-                "Allow group ${local.provided_soc_group_name} to read log-groups in compartment ${local.provided_soc_compartment_name}",
-                "Allow group ${local.provided_soc_group_name} to read log-content in compartment ${local.provided_soc_compartment_name}"
-            ]
-        }
-        "OPS-ADMIN-POLICY-TENANCY" : {
-            name : "UG_ELZ_OPS-Admin-Policy"
-            description : "OPS - Manage logging, objects, service-connector in OPS cmp"
-            compartment_id : var.tenancy_ocid
-            statements : [
-                "Allow group ${local.provided_ops_admin_group_name} to manage alarms in tenancy",
-                "Allow group ${local.provided_ops_admin_group_name} to manage metrics in tenancy"
-            ]
-        }
-        "OPS-ADMIN-POLICY-COMPARTMENT" : {
-            name : "UG_ELZ_OPS-Admin-Policy"
-            description : "OPS - Manage alarms, metrics"
-            compartment_id : module.lz_compartments.compartments[local.ops_compartment_key].id
-            statements : [
-                "Allow group ${local.provided_ops_admin_group_name} to manage logging-family in compartment ${local.provided_ops_compartment_name}",
-                "Allow group ${local.provided_ops_admin_group_name} to manage objects in compartment ${local.provided_ops_compartment_name}",
-                "Allow group ${local.provided_ops_admin_group_name} to manage serviceconnectors in compartment ${local.provided_ops_compartment_name}"
-            ]
-        }
+  team2_policies = {
+
+    # -------------------------------------------------------------------------
+    # UG_ELZ_SOC-Policy — SOC Analyst Policy (read-only)
+    # Tenancy root: read cloud-guard-family, read audit-events, read all-resources.
+    # CRITICAL TC-04: every verb for soc_group_name is "read".
+    #   "use cloud-shell" is intentional — shells have no implicit write grants.
+    # -------------------------------------------------------------------------
+    "SOC-POLICY" : {
+      name : local.soc_policy_name
+      description : "${local.lz_description} — SOC Analyst policy. Read-only security monitoring, audit, incident response."
+      compartment_id : local.tenancy_id
+      statements : concat(
+        local.soc_grants_on_root
+      )
+      defined_tags : local.policies_defined_tags
+      freeform_tags : local.policies_freeform_tags
+    },
+
+    # -------------------------------------------------------------------------
+    # UG_ELZ_OPS-Policy — Operations Administrator Policy
+    # OPS compartment: manage logging, monitoring, alarms, object-family (log buckets).
+    # Tenancy root: read all-resources (service metrics, cross-cmp dashboards).
+    # No grants in SEC, NW hub, or spoke compartments.
+    # -------------------------------------------------------------------------
+    "OPS-POLICY" : {
+      name : local.ops_policy_name
+      description : "${local.lz_description} — Operations Administrator policy. Logging, monitoring, alarms, deployment pipeline."
+      compartment_id : local.tenancy_id
+      statements : concat(
+        local.ops_admin_grants_on_ops_cmp
+      )
+      defined_tags : local.policies_defined_tags
+      freeform_tags : local.policies_freeform_tags
     }
+  }
+
+  # ---------------------------------------------------------------------------
+  # STATEMENT LISTS — SOC Analyst (UG_ELZ_SOC)
+  # All verbs are "read" — TC-04 compliance
+  # ---------------------------------------------------------------------------
+  soc_grants_on_root = [
+    "allow group ${join(",", local.soc_admin_group_name)} to read cloud-guard-family in tenancy",
+    "allow group ${join(",", local.soc_admin_group_name)} to read audit-events in tenancy",
+    "allow group ${join(",", local.soc_admin_group_name)} to read all-resources in tenancy",
+    "allow group ${join(",", local.soc_admin_group_name)} to use cloud-shell in tenancy"
+  ]
+
+  # ---------------------------------------------------------------------------
+  # STATEMENT LISTS — Operations Administrator (UG_ELZ_OPS)
+  # ---------------------------------------------------------------------------
+  ops_admin_grants_on_ops_cmp = [
+    "allow group ${join(",", local.ops_admin_group_name)} to manage logging-family in compartment ${local.provided_ops_compartment_name}",
+    "allow group ${join(",", local.ops_admin_group_name)} to manage ons-family in compartment ${local.provided_ops_compartment_name}",
+    "allow group ${join(",", local.ops_admin_group_name)} to manage alarms in compartment ${local.provided_ops_compartment_name}",
+    "allow group ${join(",", local.ops_admin_group_name)} to manage metrics in compartment ${local.provided_ops_compartment_name}",
+    "allow group ${join(",", local.ops_admin_group_name)} to manage object-family in compartment ${local.provided_ops_compartment_name}",
+    "allow group ${join(",", local.ops_admin_group_name)} to read all-resources in tenancy"
+  ]
 }

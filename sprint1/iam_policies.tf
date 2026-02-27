@@ -1,72 +1,77 @@
+# Copyright (c) 2023, 2025, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl/
+# STAR ELZ V1 — sprint1-solutions-v2
+#
 # =============================================================================
-# STAR ELZ V1 — IAM Policies — MODULE ORCHESTRATOR
-# This file ONLY calls the lz_policies module and defines shared locals.
-# It does NOT define any individual policy objects or statement lists.
+# IAM POLICIES — MODULE ORCHESTRATOR
+# This file orchestrates the lz_policies module.
+# It does NOT define policy objects or statements — each team owns their file.
 #
-# EACH TEAM OWNS THEIR OWN FILE:
-#   iam_policies_team1.tf — Team 1: NW + SEC policies    (4 policy objects)
-#   iam_policies_team2.tf — Team 2: SOC + OPS policies   (2 policy objects)
-#   iam_policies_team3.tf — Team 3: CSVCS + CIS policies (2 policy objects)
-#   iam_policies_team4.tf — Team 4: Spoke NW policy      (1 policy object)
+# TEAM FILES:
+#   iam_policies_team1.tf — Team 1: UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy  (2 objs)
+#   iam_policies_team2.tf — Team 2: UG_ELZ_SOC-Policy, UG_ELZ_OPS-Policy (2 objs)
+#   iam_policies_team3.tf — Team 3: UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy (2 objs)
+#   iam_policies_team4.tf — Team 4: UG-SPOKE-NW-Policy                    (1 obj)
+#   Total: 9 policy objects, 58 statements
 #
-# POLICY OBJECT INVENTORY (9 total):
-#   NW-ADMIN-ROOT-POLICY  (T1) — 2 stmts  read all-resources + cloud-shell in tenancy
-#   NW-ADMIN-POLICY       (T1) — 6 stmts  manage VCN-family + DRGs in NW + 4 spoke cmps
-#   SEC-ADMIN-ROOT-POLICY (T1) — 8 stmts  manage cloud-guard, tag-namespaces in tenancy
-#   SEC-ADMIN-POLICY      (T1) — 5 stmts  manage Vault, keys, Bastion, SecZone in SEC cmp
-#   SOC-POLICY            (T2) — 4 stmts  read cloud-guard, audit, all-resources in tenancy
-#   OPS-ADMIN-POLICY      (T2) — 6 stmts  manage logging/ons/alarms in OPS cmp
-#   CSVCS-POLICY          (T3) — 4 stmts  manage all-resources in CSVCS + DEVT_CSVCS cmps
-#   OCI-SERVICES-POLICY   (T3) — 19 stmts CIS required Cloud Guard + Object Storage + VSS grants
-#   SPOKE-NW-ADMIN-POLICY (T4) — 4 stmts  manage all-resources per spoke group/compartment
-#   Total: 58 policy statements
+# POLICY NAME CONVENTION:
+#   <GROUP_NAME>-Policy      e.g. UG_ELZ_NW-Policy
+#   OCI-SERVICES-Policy      (service principals, no group)
+#   UG-SPOKE-NW-Policy       (4 spoke groups in one policy object)
 #
-# CRITICAL — depends_on:
-#   lz_policies must depend on BOTH lz_compartments AND lz_groups.
-#   Policy statements reference compartment names (iam_compartments.tf locals)
-#   and group names (module.lz_groups output). Both must exist before apply.
+# ALL POLICIES LIVE AT TENANCY ROOT (C0):
+#   compartment_id = local.tenancy_id  in every policy object.
+#   No -Root or -Admin suffix needed — scope is indicated by statement verb,
+#   not by policy name.
+#
+# SPRINT1-FIX (policy-naming):
+#   Policy names changed from "${var.service_label}-nw-admin-root-policy"
+#   (lowercase, 4-hop interpolation) to local.nw_policy_name = "UG_ELZ_NW-Policy"
+#   (uppercase constant derived from group name in locals.tf). Consistent with
+#   DSTA STAR ELZ naming standard and OCI console display requirements.
+#
+# SPRINT1-FIX (all-teams-active):
+#   All 4 team policy blocks uncommented. Sprint 1 scaffold had all commented
+#   out which prevented any policies from being created (SPRINT1-ISSUE-#10-13).
 # =============================================================================
 
 locals {
-  custom_policies_defined_tags  = null
-  custom_policies_freeform_tags = null
-}
+  # ---------------------------------------------------------------------------
+  # TAG MERGING
+  # ---------------------------------------------------------------------------
+  custom_policies_defined_tags  = null # Override in _override.tf if needed
+  custom_policies_freeform_tags = null # Override in _override.tf if needed
 
-locals {
-  #------------------------------------------------------------------------------------------------------
-  #-- These variables are NOT meant to be overridden
-  #------------------------------------------------------------------------------------------------------
-
-  default_policies_defined_tags  = null
+  default_policies_defined_tags  = local.lz_defined_tags
   default_policies_freeform_tags = local.landing_zone_tags
 
   policies_defined_tags  = local.custom_policies_defined_tags != null ? merge(local.custom_policies_defined_tags, local.default_policies_defined_tags) : local.default_policies_defined_tags
   policies_freeform_tags = local.custom_policies_freeform_tags != null ? merge(local.custom_policies_freeform_tags, local.default_policies_freeform_tags) : local.default_policies_freeform_tags
 
-  #-----------------------------------------------------------
-  #----- Merge all 4 team policy maps — each team edits only their own file
-  #-----------------------------------------------------------
+  # ---------------------------------------------------------------------------
+  # POLICIES CONFIGURATION — all 4 team maps merged
+  # enable_cis_benchmark_checks: lz_policies module validates statements against
+  # known CIS anti-patterns (e.g. overly broad allow any-user to manage).
+  # ---------------------------------------------------------------------------
   policies_configuration = {
     enable_cis_benchmark_checks : true
-    defined_tags                : local.policies_defined_tags
-    freeform_tags               : local.policies_freeform_tags
+    defined_tags : local.policies_defined_tags
+    freeform_tags : local.policies_freeform_tags
 
     supplied_policies : merge(
-      local.team1_policies,  # NW-ADMIN-ROOT-POLICY, NW-ADMIN-POLICY, SEC-ADMIN-ROOT-POLICY, SEC-ADMIN-POLICY
-      # local.team2_policies,  # SOC-POLICY, OPS-ADMIN-POLICY
-      # local.team3_policies,  # CSVCS-POLICY, OCI-SERVICES-POLICY
-      # local.team4_policies   # SPOKE-NW-ADMIN-POLICY
+      local.team1_policies, # UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy
+      local.team2_policies, # UG_ELZ_SOC-Policy, UG_ELZ_OPS-Policy
+      local.team3_policies, # UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy
+      local.team4_policies  # UG-SPOKE-NW-Policy
     )
   }
 }
 
-#------------------------------------------------------------------------
-#----- Module call — same pattern as iam_compartments.tf
-#------------------------------------------------------------------------
 module "lz_policies" {
-  depends_on             = [module.lz_compartments, module.lz_groups]
   source                 = "github.com/oci-landing-zones/terraform-oci-modules-iam//policies?ref=v0.3.1"
   providers              = { oci = oci.home }
-  tenancy_ocid           = var.tenancy_ocid
+  tenancy_ocid           = local.tenancy_id
   policies_configuration = local.policies_configuration
+  # Policies reference compartment names and group names — both must exist first
+  depends_on = [module.lz_compartments, module.lz_groups]
 }

@@ -1,26 +1,45 @@
 # Copyright (c) 2023, 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl/
-# OCI ELZ Landing Zone V1 - aligned to terraform-oci-core-landingzone
+# STAR ELZ V1 — sprint1-solutions-v2
 
+# All regions — used to build regions_map / regions_map_reverse in locals.tf
 data "oci_identity_regions" "these" {}
 
+# Region subscriptions — home region detection
 data "oci_identity_region_subscriptions" "these" {
   tenancy_id = var.tenancy_ocid
 }
 
+# Tenancy — home_region_key + tenancy OCID via local.tenancy_id
 data "oci_identity_tenancy" "this" {
   tenancy_id = var.tenancy_ocid
 }
 
+# Object storage namespace — used for bucket naming in Sprint 3+
 data "oci_objectstorage_namespace" "this" {
   compartment_id = var.tenancy_ocid
 }
 
-data "oci_cloud_guard_cloud_guard_configuration" "this" {
+# Cloud Guard configuration — Sprint 2+ only
+# BUG-FIX: Removed from Sprint 1. This data source fails at plan time on a fresh
+# tenancy where Cloud Guard has not yet been enabled (returns OCI 404 → Terraform abort).
+# Cloud Guard was enabled manually by Oracle in the workshop tenancy. In a clean tenancy
+# this would block every team's first terraform plan before any infrastructure exists.
+# Re-enable in sprint2/ once Cloud Guard is activated via UG_ELZ_SEC-Policy grants.
+#
+# data "oci_cloud_guard_cloud_guard_configuration" "this" {
+#   compartment_id = var.tenancy_ocid
+# }
+
+# Availability Domains — Sprint 2 forward compatibility
+# Used by compute and subnet resources in Sprint 2+
+data "oci_identity_availability_domains" "these" {
   compartment_id = var.tenancy_ocid
 }
 
-# Used by sim_temp.tf for compute images
+# Platform images — Sprint 2 Sim FW and workload compute
+# Query-based: always resolves to latest OL8 image at plan time
+# No hardcoded OCID — image OCIDs are region-specific and change on patch releases
 data "oci_core_images" "platform_oel_images" {
   compartment_id           = var.tenancy_ocid
   operating_system         = "Oracle Linux"
@@ -28,8 +47,4 @@ data "oci_core_images" "platform_oel_images" {
   shape                    = "VM.Standard.E4.Flex"
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"
-}
-
-data "oci_identity_availability_domains" "these" {
-  compartment_id = var.tenancy_ocid
 }

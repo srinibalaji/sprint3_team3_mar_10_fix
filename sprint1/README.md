@@ -10,9 +10,7 @@ Sprint 1 solutions reference implementation. Fixes all naming drift, policy synt
 
 | Sprint | Folder | Purpose |
 |--------|--------|---------|
-| `sprint1/` | Scaffold teams fork from | Clean scaffold, most code commented out |
-| `sprint1-solutions/` | Intermediate reference | Working but with naming drift |
-| `sprint1-solutions-v2/` | **This folder** | Full solutions, all fixes applied |
+| `sprint1/` | **This folder** | Full solutions, all fixes applied |
 
 ---
 
@@ -278,5 +276,5 @@ When you need Level 2 compartments under any C1 compartment:
 - [ ] Git tag `v1-sprint1-complete` pushed to main
 - [ ] State Book V1_Validation TC-01 to TC-06b updated: PASS/FAIL/date
 
-_Sprint 1 Complete
+Sprint 1 Complete
 

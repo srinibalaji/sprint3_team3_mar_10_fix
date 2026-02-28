@@ -11,7 +11,7 @@
 #
 # RESOURCES IN THIS FILE:
 #   PHASE 1:
-#     oci_core_vcn.ts               — TS spoke VCN  10.3.0.0/16
+#     oci_core_vcn.ts               — TS spoke VCN  10.3.0.0/24
 #     oci_core_route_table.ts_app   — RT created now (empty rules). Rule added Phase 2.
 #     oci_core_subnet.ts_app        — App subnet 10.3.0.0/24, private, RT assigned.
 #

@@ -11,7 +11,7 @@
 #
 # RESOURCES IN THIS FILE:
 #   PHASE 1 (no hub_drg_id needed — apply immediately):
-#     oci_core_vcn.os               — OS spoke VCN  10.1.0.0/16
+#     oci_core_vcn.os               — OS spoke VCN  10.1.0.0/24
 #     oci_core_route_table.os_app   — RT created now (empty rules). Rule added Phase 2.
 #     oci_core_subnet.os_app        — App subnet 10.1.0.0/24, private, RT assigned.
 #

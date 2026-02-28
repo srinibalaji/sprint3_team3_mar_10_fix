@@ -222,8 +222,17 @@ oci network vcn list --compartment-id <tenancy_ocid> --all \
   --query "data[?contains(\"display-name\",'ELZ-NW')].\"display-name\"" --output table
 
 # TC-08: 6 subnets exist (2 hub + 4 spoke app subnets)
-oci network subnet list --compartment-id <nw_compartment_id> --all \
-  --query "data[].\"display-name\"" --output table
+# Must query each compartment separately — subnets live in their own spoke compartments
+for CMP in <nw_compartment_id> <os_compartment_id> <ts_compartment_id> <ss_compartment_id> <devt_compartment_id>; do
+  oci network subnet list --compartment-id $CMP --all \
+    --query "data[].\"display-name\"" --output table
+done
+# Expected total: 6 subnets across all 5 compartments
+# Hub (nw): SUB-C1-R-ELZ-NW-FW, SUB-C1-R-ELZ-NW-MGMT
+# OS:   SUB-C1-OS-ELZ-NW-APP
+# TS:   SUB-C1-TS-ELZ-NW-APP
+# SS:   SUB-C1-SS-ELZ-NW-APP
+# DEVT: SUB-C1-DEVT-ELZ-NW-APP
 
 # TC-09: Hub DRG has 5 attachments (1 hub VCN + 4 spoke VCNs)
 oci network drg-attachment list --drg-id <hub_drg_id> --all \

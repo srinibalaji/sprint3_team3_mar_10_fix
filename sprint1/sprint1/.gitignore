@@ -1,0 +1,33 @@
+# =============================================================================
+# STAR ELZ V1 — .gitignore
+# =============================================================================
+# OCI/Terraform credentials and state — NEVER commit these
+# =============================================================================
+
+# Terraform state files — contain resource OCIDs and sensitive outputs
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Terraform working directory
+.terraform/
+.terraform.lock.hcl
+
+# Actual variable values — contain tenancy OCIDs, credentials
+terraform.tfvars
+*.auto.tfvars
+
+# Crash logs
+crash.log
+crash.*.log
+
+# OCI API key files if accidentally placed here
+*.pem
+*.key
+api_key*
+
+# Plan outputs (may contain sensitive data)
+*.tfplan
+
+# ORM zip packages (generated — not source)
+*.zip

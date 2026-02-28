@@ -21,21 +21,21 @@
 #   C0 Tenancy Root
 #   │
 #   ├── C1_R_ELZ_NW (T4 — Hub)
-#   │     VCN: 10.0.0.0/16
+#   │     VCN: 10.0.0.0/16   (Hub — kept /16 for Sprint 3+ subnet expansion)
 #   │     ├── SUB-FW   10.0.0.0/24  — Sim FW (private, no public IP, skip_source_dest_check)
 #   │     ├── SUB-MGMT 10.0.1.0/24  — Bastion (private)
 #   │     └── DRG-HUB ──────────────── attached to Hub VCN + all 4 spoke VCNs (Phase 2)
 #   │
-#   ├── C1_OS_ELZ_NW (T1)     VCN: 10.1.0.0/16
+#   ├── C1_OS_ELZ_NW (T1)     VCN: 10.1.0.0/24
 #   │     └── SUB-APP  10.1.0.0/24  — Sim FW | RT: 0.0.0.0/0 → DRG
 #   │
-#   ├── C1_TS_ELZ_NW (T2)     VCN: 10.3.0.0/16
+#   ├── C1_TS_ELZ_NW (T2)     VCN: 10.3.0.0/24
 #   │     └── SUB-APP  10.3.0.0/24  — Sim FW | RT: 0.0.0.0/0 → DRG
 #   │
-#   ├── C1_SS_ELZ_NW (T3)     VCN: 10.2.0.0/16
+#   ├── C1_SS_ELZ_NW (T3)     VCN: 10.2.0.0/24
 #   │     └── SUB-APP  10.2.0.0/24  — Sim FW | RT: 0.0.0.0/0 → DRG
 #   │
-#   └── C1_DEVT_ELZ_NW (T3)   VCN: 10.4.0.0/16
+#   └── C1_DEVT_ELZ_NW (T3)   VCN: 10.4.0.0/24
 #         └── SUB-APP  10.4.0.0/24  — network only (no Sim FW in V1)
 #               RT: 0.0.0.0/0 → DRG
 #

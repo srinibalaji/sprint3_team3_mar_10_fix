@@ -76,7 +76,7 @@ variable "hub_mgmt_subnet_cidr" {
 variable "os_vcn_cidr" {
   description = "CIDR block for the OS spoke VCN."
   type        = string
-  default     = "10.1.0.0/16"
+  default     = "10.1.0.0/24"
   validation {
     condition     = can(cidrnetmask(var.os_vcn_cidr))
     error_message = "os_vcn_cidr must be a valid CIDR block."
@@ -99,7 +99,7 @@ variable "os_app_subnet_cidr" {
 variable "ts_vcn_cidr" {
   description = "CIDR block for the TS spoke VCN."
   type        = string
-  default     = "10.3.0.0/16"
+  default     = "10.3.0.0/24"
   validation {
     condition     = can(cidrnetmask(var.ts_vcn_cidr))
     error_message = "ts_vcn_cidr must be a valid CIDR block."
@@ -122,7 +122,7 @@ variable "ts_app_subnet_cidr" {
 variable "ss_vcn_cidr" {
   description = "CIDR block for the SS spoke VCN."
   type        = string
-  default     = "10.2.0.0/16"
+  default     = "10.2.0.0/24"
   validation {
     condition     = can(cidrnetmask(var.ss_vcn_cidr))
     error_message = "ss_vcn_cidr must be a valid CIDR block."
@@ -145,7 +145,7 @@ variable "ss_app_subnet_cidr" {
 variable "devt_vcn_cidr" {
   description = "CIDR block for the DEVT spoke VCN."
   type        = string
-  default     = "10.4.0.0/16"
+  default     = "10.4.0.0/24"
   validation {
     condition     = can(cidrnetmask(var.devt_vcn_cidr))
     error_message = "devt_vcn_cidr must be a valid CIDR block."

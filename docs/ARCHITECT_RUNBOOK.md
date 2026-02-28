@@ -80,11 +80,23 @@ oci iam tag get --tag-namespace-id <tag_namespace_ocid> --tag-name CostCenter \
 **TC-03 (SoD validation):**
 
 ```bash
-# UG_ELZ_NW must NOT have manage rights in C1_R_ELZ_SEC
+# UG_ELZ_NW must have only READ (not manage) in spoke compartments
+# Check 1: confirm no manage verb appears for any spoke compartment
 oci iam policy list --compartment-id <tenancy_ocid> --all \
   --query "data[?name=='UG_ELZ_NW-Policy'].statements" --output json | \
-  jq '.[][] | select(contains("SEC") and contains("manage"))'
+  jq '.[][] | select(
+    (contains("C1_OS_ELZ_NW") or contains("C1_TS_ELZ_NW") or
+     contains("C1_SS_ELZ_NW") or contains("C1_DEVT_ELZ_NW"))
+    and contains("manage")
+  )'
 # Expected: no output (empty = PASS)
+# If any output appears: NW admin has manage rights on a spoke — SoD violation
+
+# Check 2: confirm READ verb IS present for spokes (positive confirmation)
+oci iam policy list --compartment-id <tenancy_ocid> --all \
+  --query "data[?name=='UG_ELZ_NW-Policy'].statements" --output json | \
+  jq '[.[][] | select(contains("C1_OS_ELZ_NW") and contains("read"))] | length'
+# Expected: 1 (one read statement per spoke — confirms policy is correctly set)
 ```
 
 **TC-04 (SOC read-only):**

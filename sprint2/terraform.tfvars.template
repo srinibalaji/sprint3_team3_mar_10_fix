@@ -65,13 +65,13 @@ hub_drg_id = ""   # Phase 1: leave empty. Phase 2: ocid1.drg.oc1..aaa (from T4 o
 # hub_vcn_cidr         = "10.0.0.0/16"
 # hub_fw_subnet_cidr   = "10.0.0.0/24"
 # hub_mgmt_subnet_cidr = "10.0.1.0/24"
-# os_vcn_cidr          = "10.1.0.0/16"
+# os_vcn_cidr          = "10.1.0.0/24"   # STAR ELZ architecture: spoke VCNs are /24
 # os_app_subnet_cidr   = "10.1.0.0/24"
-# ts_vcn_cidr          = "10.3.0.0/16"
+# ts_vcn_cidr          = "10.3.0.0/24"
 # ts_app_subnet_cidr   = "10.3.0.0/24"
-# ss_vcn_cidr          = "10.2.0.0/16"
+# ss_vcn_cidr          = "10.2.0.0/24"
 # ss_app_subnet_cidr   = "10.2.0.0/24"
-# devt_vcn_cidr        = "10.4.0.0/16"
+# devt_vcn_cidr        = "10.4.0.0/24"
 # devt_app_subnet_cidr = "10.4.0.0/24"
 
 # =============================================================================

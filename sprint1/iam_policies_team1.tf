@@ -86,14 +86,18 @@ locals {
     "allow group ${join(",", local.nw_admin_group_name)} to manage drgs in compartment ${local.provided_nw_compartment_name}"
   ]
 
-  # NW admin manages virtual-network-family in all 4 spoke compartments
-  # (route table updates, DRG attachments, subnet adjustments)
-  # Does NOT grant compute or security resource access in spoke compartments
+  # NW admin reads virtual-network-family in all 4 spoke compartments.
+  # SoD (A-06): each spoke group manages its own VCN via UG-SPOKE-NW-Policy.
+  # NW hub admin has read-only visibility into spoke topology (dashboards,
+  # route validation) but CANNOT modify spoke subnets or route tables.
+  # TC-03: UG_DEVT_ELZ_NW must not write to SEC — enforced by absence from
+  #         any policy granting access to C1_R_ELZ_SEC.
+  # CHANGED from "manage" to "read" — manage granted SoD-breaking write access.
   nw_admin_grants_on_spoke_cmps = [
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_os_nw_compartment_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_ss_nw_compartment_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_ts_nw_compartment_name}",
-    "allow group ${join(",", local.nw_admin_group_name)} to manage virtual-network-family in compartment ${local.provided_devt_nw_compartment_name}"
+    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment ${local.provided_os_nw_compartment_name}",
+    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment ${local.provided_ss_nw_compartment_name}",
+    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment ${local.provided_ts_nw_compartment_name}",
+    "allow group ${join(",", local.nw_admin_group_name)} to read virtual-network-family in compartment ${local.provided_devt_nw_compartment_name}"
   ]
 
   # ---------------------------------------------------------------------------

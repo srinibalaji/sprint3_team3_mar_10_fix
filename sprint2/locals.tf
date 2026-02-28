@@ -79,8 +79,9 @@ locals {
   ss_app_subnet_name   = "SUB-C1-SS-ELZ-NW-APP"
   devt_app_subnet_name = "SUB-C1-DEVT-ELZ-NW-APP"
 
-  # DRG Name
-  hub_drg_name = "DRG-C1-R-ELZ-NW-HUB"
+  # DRG Names
+  hub_drg_name    = "DRG-C1-R-ELZ-NW-HUB" # Primary hub DRG — all 5 VCN attachments
+  ew_hub_drg_name = "DRG-C1-R-ELZ-NW-EW"  # Inter E-W DRG — V2 placeholder (0 attachments in V1)
 
   # Route Table Names
   hub_fw_rt_name   = "RT-C1-R-ELZ-NW-FW"
@@ -135,17 +136,19 @@ locals {
   hub_fw_subnet_cidr   = var.hub_fw_subnet_cidr   # default 10.0.0.0/24 — FW/untrust
   hub_mgmt_subnet_cidr = var.hub_mgmt_subnet_cidr # default 10.0.1.0/24 — MGMT/bastion
 
-  # Spoke VCNs — /16 each, first /24 used for initial app subnet
-  os_vcn_cidr        = var.os_vcn_cidr        # default 10.1.0.0/16
+  # Spoke VCNs — /24 each per STAR ELZ architecture (one subnet = entire VCN in V1).
+  # Sprint 3+ adds subnets via OCI secondary VCN CIDR blocks (oci_core_vcn_add_vcn_cidr).
+  # Spoke /24 VCNs are fully consumed in V1 — secondary CIDRs (e.g. 10.1.1.0/24) provide growth.
+  os_vcn_cidr        = var.os_vcn_cidr        # default 10.1.0.0/24
   os_app_subnet_cidr = var.os_app_subnet_cidr # default 10.1.0.0/24
 
-  ts_vcn_cidr        = var.ts_vcn_cidr        # default 10.3.0.0/16
+  ts_vcn_cidr        = var.ts_vcn_cidr        # default 10.3.0.0/24
   ts_app_subnet_cidr = var.ts_app_subnet_cidr # default 10.3.0.0/24
 
-  ss_vcn_cidr        = var.ss_vcn_cidr        # default 10.2.0.0/16
+  ss_vcn_cidr        = var.ss_vcn_cidr        # default 10.2.0.0/24
   ss_app_subnet_cidr = var.ss_app_subnet_cidr # default 10.2.0.0/24
 
-  devt_vcn_cidr        = var.devt_vcn_cidr        # default 10.4.0.0/16
+  devt_vcn_cidr        = var.devt_vcn_cidr        # default 10.4.0.0/24
   devt_app_subnet_cidr = var.devt_app_subnet_cidr # default 10.4.0.0/24
 
   # ---------------------------------------------------------------------------

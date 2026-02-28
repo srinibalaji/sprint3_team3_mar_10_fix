@@ -20,16 +20,11 @@ data "oci_objectstorage_namespace" "this" {
   compartment_id = var.tenancy_ocid
 }
 
-# Cloud Guard configuration — Sprint 2+ only
-# BUG-FIX: Removed from Sprint 1. This data source fails at plan time on a fresh
-# tenancy where Cloud Guard has not yet been enabled (returns OCI 404 → Terraform abort).
-# Cloud Guard was enabled manually by Oracle in the workshop tenancy. In a clean tenancy
-# this would block every team's first terraform plan before any infrastructure exists.
-# Re-enable in sprint2/ once Cloud Guard is activated via UG_ELZ_SEC-Policy grants.
-#
-# data "oci_cloud_guard_cloud_guard_configuration" "this" {
-#   compartment_id = var.tenancy_ocid
-# }
+# Cloud Guard configuration status — used to gate Cloud Guard enablement
+# OCI returns existing config or error if Cloud Guard not yet enabled
+data "oci_cloud_guard_cloud_guard_configuration" "this" {
+  compartment_id = var.tenancy_ocid
+}
 
 # Availability Domains — Sprint 2 forward compatibility
 # Used by compute and subnet resources in Sprint 2+

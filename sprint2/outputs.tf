@@ -30,6 +30,11 @@ output "hub_drg_id" {
   value       = oci_core_drg.hub.id
 }
 
+output "ew_hub_drg_id" {
+  description = "OCID of Inter E-W DRG (V2 placeholder). TC-12b: validate exists in C1_R_ELZ_NW."
+  value       = oci_core_drg.ew_hub.id
+}
+
 output "hub_vcn_id" {
   description = "OCID of Hub VCN (10.0.0.0/16)."
   value       = oci_core_vcn.hub.id
@@ -46,27 +51,27 @@ output "hub_mgmt_subnet_id" {
 }
 
 output "os_vcn_id" {
-  description = "OCID of OS spoke VCN (10.1.0.0/16)."
+  description = "OCID of OS spoke VCN (10.1.0.0/24)."
   value       = oci_core_vcn.os.id
 }
 
 output "ts_vcn_id" {
-  description = "OCID of TS spoke VCN (10.3.0.0/16)."
+  description = "OCID of TS spoke VCN (10.3.0.0/24)."
   value       = oci_core_vcn.ts.id
 }
 
 output "ss_vcn_id" {
-  description = "OCID of SS spoke VCN (10.2.0.0/16)."
+  description = "OCID of SS spoke VCN (10.2.0.0/24)."
   value       = oci_core_vcn.ss.id
 }
 
 output "devt_vcn_id" {
-  description = "OCID of DEVT spoke VCN (10.4.0.0/16)."
+  description = "OCID of DEVT spoke VCN (10.4.0.0/24)."
   value       = oci_core_vcn.devt.id
 }
 
 output "os_app_subnet_id" {
-  description = "OCID of OS app subnet (10.1.0.0/24)."
+  description = "OCID of OS app subnet (10.1.0.0/24). Full spoke VCN CIDR in V1."
   value       = oci_core_subnet.os_app.id
 }
 

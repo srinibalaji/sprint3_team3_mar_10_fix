@@ -76,7 +76,7 @@ locals {
   # ---------------------------------------------------------------------------
   provided_nw_admin_group_name         = local.nw_group_name
   provided_sec_admin_group_name        = local.sec_group_name
-  provided_soc_group_name              = local.soc_group_name
+  provided_soc_group_name              = local.soc_group_name_const
   provided_ops_admin_group_name        = local.ops_group_name
   provided_csvcs_admin_group_name      = local.csvcs_group_name
   provided_devt_csvcs_admin_group_name = local.devt_csvcs_group_name
@@ -107,15 +107,9 @@ locals {
   # SPRINT1-FIX: replaces [module.lz_groups.groups[local.key].name] lookups
   #              which crashed when team group map was {} during incremental apply.
   # ---------------------------------------------------------------------------
-  nw_admin_group_name  = [local.provided_nw_admin_group_name]
-  sec_admin_group_name = [local.provided_sec_admin_group_name]
-  # SPRINT1-FIX (BUG-2): soc_group_name renamed to soc_admin_group_name to eliminate
-  # naming collision with local.soc_group_name constant in locals.tf.
-  # Previously local.soc_group_name was ambiguous — pointed to the constant string OR this
-  # list depending on context. Now: soc_group_name = "UG_ELZ_SOC" (constant, locals.tf)
-  #                                  soc_admin_group_name = ["UG_ELZ_SOC"] (list for policy join)
-  # Pattern now consistent with every other group: nw_admin_group_name, sec_admin_group_name, etc.
-  soc_admin_group_name        = [local.provided_soc_group_name]
+  nw_admin_group_name         = [local.provided_nw_admin_group_name]
+  sec_admin_group_name        = [local.provided_sec_admin_group_name]
+  soc_group_name              = [local.provided_soc_group_name]
   ops_admin_group_name        = [local.provided_ops_admin_group_name]
   csvcs_admin_group_name      = [local.provided_csvcs_admin_group_name]
   devt_csvcs_admin_group_name = [local.provided_devt_csvcs_admin_group_name]

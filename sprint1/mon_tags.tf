@@ -55,6 +55,14 @@ resource "oci_identity_tag_namespace" "elz_v1" {
   is_retired     = false
 
   freeform_tags = local.landing_zone_tags
+
+  lifecycle {
+    # CRITICAL: prevent accidental deletion of tag namespace.
+    # Deleting the namespace would orphan all defined tag keys and break
+    # cost reporting, governance dashboards, and tag default enforcement.
+    # To delete: remove this block, apply, then destroy separately.
+    prevent_destroy = true
+  }
 }
 
 # =============================================================================
@@ -105,15 +113,19 @@ resource "oci_identity_tag" "cost_center" {
   freeform_tags = local.landing_zone_tags
 }
 
-# BUG-FIX: Dedicated CreatedBy tag definition required — cannot reuse Owner tag.
-# Using oci_identity_tag.owner.id would create auto-tag C0-star-elz-v1.Owner = <principal>,
-# not C0-star-elz-v1.CreatedBy = <principal>. OCI applies tag defaults using the tag
-# definition's name, not the default resource name. Separate definition required.
-resource "oci_identity_tag" "created_by_tag" {
+# =============================================================================
+# TAG 5 — DataClassification
+# Singapore Government data classification: Official-Open, Official-Closed,
+# Sensitive-Normal, Sensitive-High, Restricted.
+# Default tag (Layer 3 below) pre-stamps every new resource as Official-Closed.
+# Operators override on individual resources requiring higher classification.
+# TC-05b: confirm this tag exists with is_cost_tracking = false.
+# =============================================================================
+resource "oci_identity_tag" "data_classification" {
   provider         = oci.home
   tag_namespace_id = oci_identity_tag_namespace.elz_v1.id
-  name             = "CreatedBy"
-  description      = "Auto-applied by tag default. OCI principal (user OCID or instance principal) that created the resource. CIS 3.2 required."
+  name             = "DataClassification"
+  description      = "SG Govt data classification: Official-Open | Official-Closed | Sensitive-Normal | Sensitive-High | Restricted. Default: Official-Closed."
   is_retired       = false
   is_cost_tracking = false
 
@@ -121,20 +133,25 @@ resource "oci_identity_tag" "created_by_tag" {
 }
 
 # =============================================================================
-# TAG DEFAULT — Layer 3: CreatedBy auto-applied at tenancy root
-# CIS 3.2: Every resource created in the tenancy automatically receives a
-# CreatedBy tag with the OCI principal name (user OCID or instance principal).
-# is_required = false — non-blocking if tag service propagation is slow (<30s).
+# TAG DEFAULT — Layer 3: DataClassification auto-applied at tenancy root
+# CIS 3.2 mandatory tagging: every resource created in this tenancy
+# automatically receives DataClassification = Official-Closed unless
+# explicitly overridden on the resource. Non-blocking (is_required = false).
+#
+# FIX vs original: was incorrectly reusing oci_identity_tag.owner.id which
+# caused Owner to receive "${iam.principal.name}" at creation, then be
+# overridden by lz_defined_tags on apply — semantically wrong and inconsistent.
+# DataClassification is the correct tag key for a static default value.
 # =============================================================================
-resource "oci_identity_tag_default" "created_by" {
+resource "oci_identity_tag_default" "data_classification" {
   provider          = oci.home
   compartment_id    = local.tenancy_id
-  tag_definition_id = oci_identity_tag.created_by_tag.id # BUG-FIX: dedicated CreatedBy definition
-  value             = "$${iam.principal.name}"           # OCI computed — resolves to actual principal name
-  is_required       = false
+  tag_definition_id = oci_identity_tag.data_classification.id
+  value             = "Official-Closed" # SG Govt default classification
+  is_required       = false             # non-blocking — OCI tag service can lag ~10s
 
   depends_on = [
-    oci_identity_tag.created_by_tag,
+    oci_identity_tag.data_classification,
     oci_identity_tag_namespace.elz_v1
   ]
 }

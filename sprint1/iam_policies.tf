@@ -12,7 +12,8 @@
 #   iam_policies_team2.tf — Team 2: UG_ELZ_SOC-Policy, UG_ELZ_OPS-Policy (2 objs)
 #   iam_policies_team3.tf — Team 3: UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy (2 objs)
 #   iam_policies_team4.tf — Team 4: UG-SPOKE-NW-Policy                    (1 obj)
-#   Total: 9 policy objects, 58 statements
+#   Total: 7 policy objects, 60 statements
+#   Note: SIM policies (UG_SIM_EXT-Policy, UG_SIM_CHILD-Policy) are Sprint 4 scope.
 #
 # POLICY NAME CONVENTION:
 #   <GROUP_NAME>-Policy      e.g. UG_ELZ_NW-Policy

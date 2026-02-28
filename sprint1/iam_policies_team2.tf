@@ -69,10 +69,10 @@ locals {
   # All verbs are "read" — TC-04 compliance
   # ---------------------------------------------------------------------------
   soc_grants_on_root = [
-    "allow group ${join(",", local.soc_admin_group_name)} to read cloud-guard-family in tenancy",
-    "allow group ${join(",", local.soc_admin_group_name)} to read audit-events in tenancy",
-    "allow group ${join(",", local.soc_admin_group_name)} to read all-resources in tenancy",
-    "allow group ${join(",", local.soc_admin_group_name)} to use cloud-shell in tenancy"
+    "allow group ${join(",", local.soc_group_name)} to read cloud-guard-family in tenancy",
+    "allow group ${join(",", local.soc_group_name)} to read audit-events in tenancy",
+    "allow group ${join(",", local.soc_group_name)} to read all-resources in tenancy",
+    "allow group ${join(",", local.soc_group_name)} to use cloud-shell in tenancy"
   ]
 
   # ---------------------------------------------------------------------------

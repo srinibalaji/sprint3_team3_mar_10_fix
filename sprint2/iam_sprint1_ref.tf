@@ -23,14 +23,16 @@
 #     UG_ELZ_CSVCS, UG_ELZ_DEVT_CSVCS
 #     UG_OS_ELZ_NW, UG_SS_ELZ_NW, UG_TS_ELZ_NW, UG_DEVT_ELZ_NW
 #
-#   Policies (9 policy objects, 58 statements):
+#   Policies (7 policy objects, 60 statements):
+#   SIM policies are Sprint 4 scope — not in sprint1 state.
 #     UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy, UG_ELZ_SOC-Policy,
 #     UG_ELZ_OPS-Policy, UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy,
 #     UG-SPOKE-NW-Policy
 #
 #   Tag Namespace + Tags (C0 level):
 #     C0-star-elz-v1 namespace
-#     Tags: Environment, Owner, ManagedBy, CostCenter (is_cost_tracking=true)
+#     Tags: Environment, Owner, ManagedBy, CostCenter (is_cost_tracking=true), DataClassification
+#     Tag Default: DataClassification = Official-Closed (auto-applied, CIS 3.2)
 #     Tag Default: CreatedBy (CIS 3.2)
 #
 # HOW SPRINT 2 REFERENCES SPRINT 1 COMPARTMENTS:

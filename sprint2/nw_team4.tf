@@ -12,10 +12,12 @@
 #
 # RESOURCES IN THIS FILE:
 #   PHASE 1 (apply first — other teams depend on hub_drg_id output):
+#     T4 PHASE 1 outputs: hub_drg_id + ew_hub_drg_id
 #     oci_core_vcn.hub                  — Hub VCN     10.0.0.0/16
 #     oci_core_route_table.hub_fw       — FW subnet RT: empty in V1 (Sprint 3: DRG transit)
 #     oci_core_subnet.hub_fw            — FW subnet 10.0.0.0/24 (private — no public IP)
 #     oci_core_drg.hub                  — Hub DRG ← PRIMARY Phase 1 output
+#     oci_core_drg.ew_hub               — Inter E-W DRG (GAP-02 fix — V2 placeholder, 0 attachments)
 #     oci_core_route_table.hub_mgmt     — MGMT RT: empty Phase 1, DRG rule added Phase 2
 #     oci_core_subnet.hub_mgmt          — MGMT subnet 10.0.1.0/24 (private)
 #
@@ -88,11 +90,25 @@ resource "oci_core_subnet" "hub_fw" {
 }
 
 # Hub DRG — THE primary Phase 1 output. Other teams need this OCID.
+# All 5 VCN attachments land here (Phase 2).
 resource "oci_core_drg" "hub" {
   compartment_id = var.nw_compartment_id
   display_name   = local.hub_drg_name
 
   freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
+}
+
+# Inter E-W DRG — V2 placeholder (GAP-02 fix)
+# Represents the future East-West segmentation DRG for inter-agency traffic.
+# V1: provisioned with ZERO attachments. display_name = DRG-C1-R-ELZ-NW-EW.
+# V2 will add DRG route tables and spoke attachments for E-W isolation.
+# TC-12b: validate this DRG exists in C1_R_ELZ_NW (oci network drg list).
+resource "oci_core_drg" "ew_hub" {
+  compartment_id = var.nw_compartment_id
+  display_name   = local.ew_hub_drg_name
+
+  freeform_tags = merge(local.net_freeform_tags, { "v2-scope" = "east-west-segmentation" })
   defined_tags  = local.net_defined_tags
 }
 
@@ -151,7 +167,8 @@ resource "oci_core_drg_attachment" "hub_vcn" {
 }
 
 # [S2-T4] Sim Firewall for Hub ELZ_NW compartment
-# Placed in hub_fw subnet. Public IP — simulates north-south FW.
+# Placed in hub_fw subnet. PRIVATE (no public IP, no IGW in V1 isolated design).
+# skip_source_dest_check = true enables OCI-level IP forwarding.
 resource "oci_core_instance" "sim_fw_hub" {
   count               = local.phase2_enabled ? 1 : 0
   compartment_id      = var.nw_compartment_id

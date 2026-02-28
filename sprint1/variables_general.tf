@@ -113,7 +113,9 @@ variable "lz_cost_center" {
 
 # =============================================================================
 # OUTPUT CONTROL
-# Note: display_output removed — all outputs.tf entries are unconditional.
-# Conditional output control via count is not supported on output blocks in
-# Terraform < 1.9. Use terraform output <name> after apply to query selectively.
 # =============================================================================
+variable "display_output" {
+  description = "Display resource OCIDs and names in Terraform output after apply. Set false to suppress."
+  type        = bool
+  default     = true
+}

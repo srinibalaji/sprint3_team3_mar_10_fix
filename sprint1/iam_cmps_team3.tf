@@ -38,10 +38,7 @@ locals {
     # DEVT_CSVCS — Development Common Services  [C1_R_ELZ_DEVT_CSVCS]
     # Contains: development toolchain shared services (non-production tier)
     # Group:    UG_ELZ_DEVT_CSVCS
-    # Policies: UG_ELZ_CSVCS-Policy (devt_csvcs_admin_grants in iam_policies_team3.tf)
-    #           The CSVCS policy object contains grants for BOTH groups:
-    #           UG_ELZ_CSVCS → C1_R_ELZ_CSVCS (csvcs_admin_grants)
-    #           UG_ELZ_DEVT_CSVCS → C1_R_ELZ_DEVT_CSVCS (devt_csvcs_admin_grants)
+    # Policies: UG_ELZ_CSVCS-Policy (manage all-resources in compartment)
     # TC-03:    UG_DEVT_ELZ_NW must NOT appear in any policy granting access
     #           to this compartment — enforced by its absence from UG-SPOKE-NW-Policy
     # C2 hook:  children : {} — populate to add C2_DEVT_CSVCS_* sub-compartments

@@ -214,7 +214,7 @@ variables:
   os_vcn_cidr:
     type: string
     title: "OS VCN CIDR"
-    default: "10.1.0.0/16"
+    default: "10.1.0.0/24"
 
   os_app_subnet_cidr:
     type: string
@@ -224,7 +224,7 @@ variables:
   ts_vcn_cidr:
     type: string
     title: "TS VCN CIDR"
-    default: "10.3.0.0/16"
+    default: "10.3.0.0/24"
 
   ts_app_subnet_cidr:
     type: string
@@ -234,7 +234,7 @@ variables:
   ss_vcn_cidr:
     type: string
     title: "SS VCN CIDR"
-    default: "10.2.0.0/16"
+    default: "10.2.0.0/24"
 
   ss_app_subnet_cidr:
     type: string
@@ -244,7 +244,7 @@ variables:
   devt_vcn_cidr:
     type: string
     title: "DEVT VCN CIDR"
-    default: "10.4.0.0/16"
+    default: "10.4.0.0/24"
 
   devt_app_subnet_cidr:
     type: string

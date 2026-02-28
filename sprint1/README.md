@@ -1,4 +1,4 @@
-# STAR ELZ V1 — Sprint 1 Solutions
+# STAR ELZ V1 — Sprint 1 Solutions V2
 
 **Branch:** `sprint1-solutions-v2`  
 **Module:** `github.com/oci-landing-zones/terraform-oci-modules-iam @ v0.3.1`  
@@ -10,7 +10,9 @@ Sprint 1 solutions reference implementation. Fixes all naming drift, policy synt
 
 | Sprint | Folder | Purpose |
 |--------|--------|---------|
-| `sprint1/` | **This folder** | Full solutions, all fixes applied |
+| `sprint1/` | Scaffold teams fork from | Clean scaffold, most code commented out |
+| `sprint1-solutions/` | Intermediate reference | Working but with naming drift |
+| `sprint1-solutions-v2/` | **This folder** | Full solutions, all fixes applied |
 
 ---
 
@@ -208,73 +210,3 @@ When you need Level 2 compartments under any C1 compartment:
 3. `terraform plan` → `terraform apply`
 4. No changes needed to `iam_compartments.tf` — the orchestrator merges children automatically.
 5. C3 follows the same pattern: add `children : {}` inside the C2 block.
-
----
-
-## 16-Person Sprint 1 Team Structure
-
-| Team       | Members      | Compartment File              | Groups File                     | Policies File           | Additional Work              |
-| ---------- | ------------ | ----------------------------- | ------------------------------- | ----------------------- | ---------------------------- |
-| **Team 1** | People 1–4   | `iam_cmps_team1.tf`           | `iam_groups_team1.tf`           | `iam_policies_team1.tf` | Review orchestrators         |
-| **Team 2** | People 5–8   | `iam_cmps_team2.tf`           | `iam_groups_team2.tf`           | `iam_policies_team2.tf` | TC-03, TC-04 negative tests  |
-| **Team 3** | People 9–12  | `iam_cmps_team3.tf`           | `iam_groups_team3.tf`           | `iam_policies_team3.tf` | `mon_tags.tf` + TC-05        |
-| **Team 4** | People 13–16 | `iam_cmps_team4.tf` + Console | `iam_groups_team4.tf` + Console | `iam_policies_team4.tf` | TC-01b manual + GitHub setup |
-
-### Daily Role Rotation (4-day cycle, within each team)
-
-| Day   | Person 1       | Person 2       | Person 3       | Person 4       |
-| ----- | -------------- | -------------- | -------------- | -------------- |
-| Day 1 | Write code     | Code review    | Run validation | Document       |
-| Day 2 | Code review    | Write code     | Document       | Run validation |
-| Day 3 | Run validation | Document       | Write code     | Code review    |
-| Day 4 | Document       | Run validation | Code review    | Write code     |
-
----
-
-## GitHub Issues for Sprint 1 Backlog
-
-| #   | Title                                                                                                     | Team   | Priority | Start   | Finish  |
-| --- | --------------------------------------------------------------------------------------------------------- | ------ | -------- | ------- | ------- |
-| —   | `Provision Cloud Guard`                                                                                   | Oracle | —        | 2/23/26 | 2/23/26 |
-| 1   | `[S1-T1] Write & provision NW + SEC compartments (iam_cmps_team1.tf)`                                     | T1     | P0       | 2/24/26 | 2/24/26 |
-| 2   | `[S1-T2] Write & provision SOC + OPS compartments (iam_cmps_team2.tf)`                                    | T2     | P0       | 2/24/26 | 2/24/26 |
-| 3   | `[S1-T3] Write & provision CSVCS + DEVT_CSVCS compartments (iam_cmps_team3.tf)`                           | T3     | P0       | 2/24/26 | 2/24/26 |
-| 4   | `[S1-T4] Write & provision OS + SS + TS + DEVT spoke compartments (iam_cmps_team4.tf)`                    | T4     | P0       | 2/24/26 | 2/24/26 |
-| 5   | `[S1-T4] MANUAL: Create star-sim-ext-cmp + star-sim-child-cmp + UG_SIM_EXT + UG_SIM_CHILD in OCI Console` | T4     | P0       | 2/24/26 | 2/24/26 |
-| 6   | `[S1-T1] Write & provision 2 IAM groups (iam_groups_team1.tf)`                                            | T1     | P0       | 2/25/26 | 2/25/26 |
-| 7   | `[S1-T2] Write & provision 2 IAM groups (iam_groups_team2.tf)`                                            | T2     | P0       | 2/25/26 | 2/25/26 |
-| 8   | `[S1-T3] Write & provision 2 IAM groups (iam_groups_team3.tf)`                                            | T3     | P0       | 2/25/26 | 2/25/26 |
-| 9   | `[S1-T4] Write & provision 4 IAM groups (iam_groups_team4.tf)`                                            | T4     | P0       | 2/25/26 | 2/25/26 |
-| 10  | `[S1-T1] Write & provision policy statements (iam_policies_team1.tf)`                                     | T1     | P0       | 2/25/26 | 2/25/26 |
-| 11  | `[S1-T2] Write & provision policy statements (iam_policies_team2.tf)`                                     | T2     | P0       | 2/25/26 | 2/25/26 |
-| 12  | `[S1-T3] Write & provision policy statements (iam_policies_team3.tf)`                                     | T3     | P0       | 2/25/26 | 2/25/26 |
-| 13  | `[S1-T4] Write & provision policy statements (iam_policies_team4.tf)`                                     | T4     | P0       | 2/25/26 | 2/25/26 |
-| 14  | `[S1-T3] Write & provision ELZ tag namespace + 5 tags (mon_tags.tf)`                                      | T3     | P0       | 2/25/26 | 2/25/26 |
-| 15  | `[S1-ALL] TC-06: Create ORM Stack and execute Apply Job`                                                  | Oracle | P0       | 2/25/26 | 2/25/26 |
-| 16  | `[S1-ALL] TC-06b: Trigger new Plan Job and verify zero drift`                                             | Oracle | P0       | 2/25/26 | 2/25/26 |
-| 17  | `[S1-ALL] TC-01: Validate 10 TF compartments`                                                             | All    | P0       | 2/25/26 | 2/25/26 |
-| 18  | `[S1-T4] TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars`                                    | T4     | P0       | 2/25/26 | 2/25/26 |
-| 19  | `[S1-T2] TC-02: Validate 12 groups (10 TF + 2 manual)`                                                    | All    | P0       | 2/25/26 | 2/25/26 |
-| 20  | `[S1-T2] TC-03: NEGATIVE SoD — DEVT cannot write to SEC`                                                  | T2     | P0       | 2/25/26 | 2/25/26 |
-| 21  | `[S1-T2] TC-04: NEGATIVE — SOC user read-only`                                                            | T2     | P0       | 2/25/26 | 2/25/26 |
-| 22  | `[S1-T3] TC-05: Validate ELZ tags and CostCenter tracking`                                                | T3     | P0       | 2/25/26 | 2/25/26 |
-
----
-
-## Sprint 1 → Sprint 2 Handoff Checklist
-
-- [ ] TC-01: 10 TF compartments PASS
-- [ ] TC-01b: 2 manual compartments + OCIDs in tfvars PASS
-- [ ] TC-02: 12 groups PASS (10 TF + 2 manual)
-- [ ] TC-03: SoD NEGATIVE PASS (screenshot in Issue #20)
-- [ ] TC-04: SOC read-only PASS
-- [ ] TC-05: ELZ tags PASS
-- [ ] TC-06: ORM Stack Apply Job SUCCEEDED
-- [ ] TC-06b: ORM Plan Job shows zero drift PASS
-- [ ] `sprint1_outputs.json` exported and shared with Sprint 2 leads
-- [ ] All issues moved to **Done**
-- [ ] Git tag `v1-sprint1-complete` pushed to main
-- [ ] State Book V1_Validation TC-01 to TC-06b updated: PASS/FAIL/date
-
-Sprint 1 Complete
-

@@ -44,7 +44,7 @@ What gets created per team:
 | T3 | `C1_R_ELZ_CSVCS`, `C1_R_ELZ_DEVT_CSVCS` | `UG_ELZ_CSVCS`, `UG_ELZ_DEVT_CSVCS` |
 | T4 | `C1_OS_ELZ_NW`, `C1_SS_ELZ_NW`, `C1_TS_ELZ_NW`, `C1_DEVT_ELZ_NW` | `UG_OS_ELZ_NW`, `UG_SS_ELZ_NW`, `UG_TS_ELZ_NW`, `UG_DEVT_ELZ_NW` |
 
-Policies and tags are in the shared Sprint 1 orchestrator stack — apply that **last**, after all compartments and groups exist.
+Each team applies their own ORM Stack once. Terraform automatically creates compartments → groups → policies in the correct order via `depends_on` — no manual sequencing needed. All 4 teams apply simultaneously.
 
 > ⚠️ **If tag namespace apply fails with "resource in conflicted state":** This was caused by the old `tag_default` reusing `oci_identity_tag.owner.id`. It is fixed in today's code. The fix adds `DataClassification` as a dedicated tag and applies `lifecycle { prevent_destroy = true }` on the namespace. If ORM still errors, import the existing namespace: `terraform import oci_identity_tag_namespace.elz_v1 <ocid>` then re-apply.
 

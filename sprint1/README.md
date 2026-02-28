@@ -1,18 +1,16 @@
-# STAR ELZ V1 — Sprint 1 Solutions V2
+# STAR ELZ V1 — Sprint 1
 
-**Branch:** `sprint1-solutions-v2`  
+**Branch:** `sprint1`  
 **Module:** `github.com/oci-landing-zones/terraform-oci-modules-iam @ v0.3.1`  
 **CIS Benchmark:** OCI Foundations v2.0, Level 1
 
 ## What This Is
 
-Sprint 1 solutions reference implementation. Fixes all naming drift, policy syntax, and 409 conflict issues from the workshop scaffold (`sprint1/`) and intermediate solutions (`sprint1-solutions/`).
+Sprint 1 reference implementation. Fixes all naming drift, policy syntax, and 409 conflict issues.
 
 | Sprint | Folder | Purpose |
 |--------|--------|---------|
-| `sprint1/` | Scaffold teams fork from | Clean scaffold, most code commented out |
-| `sprint1-solutions/` | Intermediate reference | Working but with naming drift |
-| `sprint1-solutions-v2/` | **This folder** | Full solutions, all fixes applied |
+| `sprint1/` | **This folder** | Full solutions, all fixes applied |
 
 ---
 

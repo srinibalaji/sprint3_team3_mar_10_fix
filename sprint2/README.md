@@ -12,8 +12,7 @@ East-West routing between spokes is testable in Sprint 2 via OCI DRG v2 full-mes
 
 | Sprint | Folder | Purpose |
 |---|---|---|
-| `sprint1/` | IAM scaffold | Teams fork, compartments/groups/policies |
-| `sprint1-solutions/` | IAM solutions | Full solutions with all fixes |
+| `sprint1/` | IAM | Teams fork, compartments/groups/policies |
 | `sprint2/` | This folder | Networking — two-phase apply |
 
 ---
@@ -849,7 +848,7 @@ Files: `nw_team4.tf` (primary), `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf` (DRG
 | C9 | Updated cloud-init from `firewalld` to `iptables-services` approach | `locals.tf` | Oracle Linux 8 — `firewalld` conflicts with `iptables-services` |
 | C10 | Updated cloud-init persistence: `/etc/sysctl.d/99-ipforward.conf` + `service iptables save` | `locals.tf` | Survives reboot; previously runtime only |
 | C11 | Removed sprint freeform tag `v2-networking` → `sprint2-networking` | `locals.tf` | Clean version nomenclature (Han Kiat) |
-| C12 | Renamed `sprint1-solutions-v2` → `sprint1-solutions` in README sprint table | `README.md` | Clean version nomenclature (Han Kiat) |
+| C12 | Renamed `sprint1-solutions-v2` → `sprint1` in README sprint table | `README.md` | Clean version nomenclature (Han Kiat) |
 | C13 | Added TC → Phase mapping table to README | `README.md` | Teams need to know which TCs to run after Phase 1 vs Phase 2 (Han Kiat) |
 | C14 | Added NPA scope note to TC section | `README.md` | Clarify NPA validates OCI control plane only; Linux-side needs Bastion SSH |
 | C15 | Expanded TC-15 with cloud-init status, sysctl, iptables-services, tcpdump steps | `README.md` | Practical Linux-level validation via Bastion SSH |

@@ -268,13 +268,19 @@ oci network route-table list --compartment-id <os_cmp_id> --all \
 
 ### 15:30 — Tag Verification on Network Resources
 
-Confirm Sprint 2 resources carry both Sprint 1 defined tags and Sprint 2 freeform tags:
+Confirm Sprint 2 resources carry Sprint 1 defined tags and Sprint 2 freeform tags.
 
+> **Note on DataClassification:** This tag is applied via a Tag Default at tenancy root — OCI
+> auto-stamps it on new resources but it appears under `system-tags`, not `defined-tags`.
+> You will NOT see it in the defined-tags query below. That is correct behaviour, not a bug.
+> To verify it is stamping, check the OCI Console: open the OS VCN → Tags tab → look for
+> `C0-star-elz-v1.DataClassification = Official-Closed` under Default Tags.
 ```bash
 oci network vcn get --vcn-id <os_vcn_id> \
   --query "data.{freeform: \"freeform-tags\", defined: \"defined-tags\"}" --output json
-# Expect: C0-star-elz-v1.{Environment, Owner, ManagedBy, CostCenter, DataClassification}
-#         freeform: {sprint: "sprint2-networking", ...}
+# Expect defined-tags: C0-star-elz-v1.{Environment, Owner, ManagedBy, CostCenter}
+# Expect freeform-tags: {sprint: "sprint2-networking", ...}
+# DataClassification = Official-Closed visible in OCI Console Tags tab (tag default — not in API defined-tags)
 ```
 
 ### 16:00 — Update State Ledger and Close Sprint 2

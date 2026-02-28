@@ -241,11 +241,19 @@ oci network drg-attachment list --drg-id <hub_drg_id> --all \
 #           DRGA-C1-SS-ELZ-NW, DRGA-C1-DEVT-ELZ-NW
 
 # TC-10: 4 Sim FW instances in RUNNING state
-for cmp in <nw_cmp_id> <os_cmp_id> <ts_cmp_id> <ss_cmp_id>; do
-  oci compute instance list --compartment-id $cmp --all \
+# Set these from terraform output -json > sprint2_outputs.json before running
+NW_CMP=<paste nw_compartment_id>
+OS_CMP=<paste os_compartment_id>
+TS_CMP=<paste ts_compartment_id>
+SS_CMP=<paste ss_compartment_id>
+
+for CMP in $NW_CMP $OS_CMP $TS_CMP $SS_CMP; do
+  oci compute instance list --compartment-id $CMP --all \
     --query "data[?contains(\"display-name\",'SIM')].{Name:\"display-name\",State:\"lifecycle-state\"}" \
     --output table
 done
+# Expected: 4 rows total, all State = RUNNING
+# Hub SIM in NW_CMP, OS/TS/SS SIMs in their respective compartments
 
 # TC-11: Hub Bastion is ACTIVE
 oci bastion bastion list --compartment-id <nw_compartment_id> --all \

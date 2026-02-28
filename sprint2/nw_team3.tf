@@ -11,10 +11,10 @@
 #
 # RESOURCES IN THIS FILE (2 VCNs — 2 compartments):
 #   PHASE 1:
-#     oci_core_vcn.ss                — SS spoke VCN    10.2.0.0/16
+#     oci_core_vcn.ss                — SS spoke VCN    10.2.0.0/24
 #     oci_core_route_table.ss_app    — RT (empty Phase 1, DRG rule added Phase 2)
 #     oci_core_subnet.ss_app         — SS app subnet   10.2.0.0/24, private
-#     oci_core_vcn.devt              — DEVT spoke VCN  10.4.0.0/16
+#     oci_core_vcn.devt              — DEVT spoke VCN  10.4.0.0/24
 #     oci_core_route_table.devt_app  — RT (empty Phase 1, DRG rule added Phase 2)
 #     oci_core_subnet.devt_app       — DEVT app subnet 10.4.0.0/24, private
 #

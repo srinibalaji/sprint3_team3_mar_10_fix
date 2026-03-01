@@ -87,7 +87,7 @@ locals {
   ]
 
   # NW admin reads virtual-network-family in all 4 spoke compartments.
-  # SoD (A-06): each spoke group manages its own VCN via UG-SPOKE-NW-Policy.
+  # SoD (A-06): each spoke group manages its own VCN via per-spoke policy (UG_*_ELZ_NW-Policy).
   # NW hub admin has read-only visibility into spoke topology (dashboards,
   # route validation) but CANNOT modify spoke subnets or route tables.
   # TC-03: UG_DEVT_ELZ_NW must not write to SEC — enforced by absence from

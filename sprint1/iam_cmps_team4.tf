@@ -40,7 +40,7 @@ locals {
     # OS-NW — Operational Systems Spoke  [C1_OS_ELZ_NW]
     # Contains: OS VCN (10.1.0.0/24), subnets, route tables, NSGs, OS workload
     # Group:    UG_OS_ELZ_NW
-    # Policies: UG-SPOKE-NW-Policy (manage all-resources in this compartment only)
+    # Policies: per-spoke policy (manage all-resources in this compartment only)
     # SoD:      UG_OS_ELZ_NW has NO access to SEC, NW hub, OPS, or other spokes
     # C2 hook:  children : {} — populate to add C2_OS_* sub-compartments
     # -------------------------------------------------------------------------
@@ -56,7 +56,7 @@ locals {
     # SS-NW — Shared Services Spoke  [C1_SS_ELZ_NW]
     # Contains: SS VCN (10.2.0.0/24), subnets, route tables, NSGs, SS workload
     # Group:    UG_SS_ELZ_NW
-    # Policies: UG-SPOKE-NW-Policy (manage all-resources in this compartment only)
+    # Policies: per-spoke policy (manage all-resources in this compartment only)
     # C2 hook:  children : {} — populate to add C2_SS_* sub-compartments
     # -------------------------------------------------------------------------
     (local.ss_nw_compartment_key) : {
@@ -71,7 +71,7 @@ locals {
     # TS-NW — Trusted Services Spoke  [C1_TS_ELZ_NW]
     # Contains: TS VCN (10.3.0.0/24), subnets, route tables, NSGs, TS workload
     # Group:    UG_TS_ELZ_NW
-    # Policies: UG-SPOKE-NW-Policy (manage all-resources in this compartment only)
+    # Policies: per-spoke policy (manage all-resources in this compartment only)
     # C2 hook:  children : {} — populate to add C2_TS_* sub-compartments
     # -------------------------------------------------------------------------
     (local.ts_nw_compartment_key) : {
@@ -87,9 +87,9 @@ locals {
     # Contains: DEVT VCN (10.4.0.0/24), subnets, route tables, NSGs
     #           Network-only in V1 — no compute instance deployed here
     # Group:    UG_DEVT_ELZ_NW
-    # Policies: UG-SPOKE-NW-Policy (manage all-resources in this compartment only)
+    # Policies: per-spoke policy (manage all-resources in this compartment only)
     # TC-03:    DEVT group must NOT be able to write to SEC compartment.
-    #           Enforced by absence of SEC from UG-SPOKE-NW-Policy statements.
+    #           Enforced by absence of SEC from per-spoke policy statements.
     # C2 hook:  children : {} — populate to add C2_DEVT_* sub-compartments
     # -------------------------------------------------------------------------
     (local.devt_nw_compartment_key) : {

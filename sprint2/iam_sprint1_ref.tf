@@ -23,11 +23,12 @@
 #     UG_ELZ_CSVCS, UG_DEVT_CSVCS
 #     UG_OS_ELZ_NW, UG_SS_ELZ_NW, UG_TS_ELZ_NW, UG_DEVT_ELZ_NW
 #
-#   Policies (7 policy objects, 60 statements):
+#   Policies (11 policy objects):
 #   SIM policies are Sprint 4 scope — not in sprint1 state.
 #     UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy, UG_ELZ_SOC-Policy,
 #     UG_ELZ_OPS-Policy, UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy,
-#     UG-SPOKE-NW-Policy
+#     UG_OS_ELZ_NW-Policy, UG_SS_ELZ_NW-Policy, UG_TS_ELZ_NW-Policy, UG_DEVT_ELZ_NW-Policy
+#     UG_DEVT_CSVCS-Policy
 #
 #   Tag Namespace + Tags (C0 level):
 #     C0-star-elz-v1 namespace

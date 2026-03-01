@@ -9,8 +9,15 @@
 # Branch: sprint1/iam-policies-team4
 # =============================================================================
 #
-# POLICY OBJECTS IN THIS FILE (1 of 9):
-#   7. UG-SPOKE-NW-Policy — Each spoke group manages all-resources in its own cmp
+# POLICY OBJECTS IN THIS FILE (4 of 11):
+#   8.  UG_OS_ELZ_NW-Policy   — OS spoke: manage all-resources in C1_OS_ELZ_NW
+#   9.  UG_SS_ELZ_NW-Policy   — SS spoke: manage all-resources in C1_SS_ELZ_NW
+#   10. UG_TS_ELZ_NW-Policy   — TS spoke: manage all-resources in C1_TS_ELZ_NW
+#   11. UG_DEVT_ELZ_NW-Policy — DEVT spoke: manage all-resources in C1_DEVT_ELZ_NW
+#
+# DESIGN: 1 group → 1 compartment → 1 policy (matches architecture diagram).
+# Each policy is a separate OCI policy object for clear Console visibility
+# and per-compartment audit trail.
 #
 # CRITICAL SoD RULES (TC-03):
 #   Each spoke group is scoped to its own compartment ONLY.
@@ -22,43 +29,65 @@
 #     - Another spoke's compartment
 #   TC-03 negative test: UG_DEVT_ELZ_NW attempting to create a resource in
 #   C1_R_ELZ_SEC must receive HTTP 403 Authorization failed.
-#
-# SPRINT1-FIX (SPRINT1-ISSUE-#14, policy-naming):
-#   name changed from "${var.service_label}-spoke-nw-admin-policy"
-#   to local.spoke_nw_policy_name = "UG-SPOKE-NW-Policy".
 # =============================================================================
 
 locals {
   team4_policies = {
 
     # -------------------------------------------------------------------------
-    # UG-SPOKE-NW-Policy — Spoke Network Administrator Policy
-    # 4 statements, one per spoke group/compartment pair.
-    # Single policy object — all statements share the same administrative scope.
-    # Split into separate objects in V2 if per-compartment policy attachment required.
+    # UG_OS_ELZ_NW-Policy — OS Spoke Network Administrator
     # -------------------------------------------------------------------------
-    "SPOKE-NW-POLICY" : {
-      name : local.spoke_nw_policy_name
-      description : "${local.lz_description} — Spoke Network Administrator policy. Each spoke group manages its own compartment only."
+    "OS-NW-POLICY" : {
+      name : local.os_nw_policy_name
+      description : "${local.lz_description} — OS Spoke Network policy. UG_OS_ELZ_NW manages C1_OS_ELZ_NW only."
       compartment_id : local.tenancy_id
-      statements : concat(
-        local.spoke_nw_admin_grants
-      )
+      statements : [
+        "allow group ${join(",", local.os_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_os_nw_compartment_name}"
+      ]
+      defined_tags : local.policies_defined_tags
+      freeform_tags : local.policies_freeform_tags
+    },
+
+    # -------------------------------------------------------------------------
+    # UG_SS_ELZ_NW-Policy — SS Spoke Network Administrator
+    # -------------------------------------------------------------------------
+    "SS-NW-POLICY" : {
+      name : local.ss_nw_policy_name
+      description : "${local.lz_description} — SS Spoke Network policy. UG_SS_ELZ_NW manages C1_SS_ELZ_NW only."
+      compartment_id : local.tenancy_id
+      statements : [
+        "allow group ${join(",", local.ss_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_ss_nw_compartment_name}"
+      ]
+      defined_tags : local.policies_defined_tags
+      freeform_tags : local.policies_freeform_tags
+    },
+
+    # -------------------------------------------------------------------------
+    # UG_TS_ELZ_NW-Policy — TS Spoke Network Administrator
+    # -------------------------------------------------------------------------
+    "TS-NW-POLICY" : {
+      name : local.ts_nw_policy_name
+      description : "${local.lz_description} — TS Spoke Network policy. UG_TS_ELZ_NW manages C1_TS_ELZ_NW only."
+      compartment_id : local.tenancy_id
+      statements : [
+        "allow group ${join(",", local.ts_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_ts_nw_compartment_name}"
+      ]
+      defined_tags : local.policies_defined_tags
+      freeform_tags : local.policies_freeform_tags
+    },
+
+    # -------------------------------------------------------------------------
+    # UG_DEVT_ELZ_NW-Policy — DEVT Spoke Network Administrator
+    # -------------------------------------------------------------------------
+    "DEVT-NW-POLICY" : {
+      name : local.devt_nw_policy_name
+      description : "${local.lz_description} — DEVT Spoke Network policy. UG_DEVT_ELZ_NW manages C1_DEVT_ELZ_NW only."
+      compartment_id : local.tenancy_id
+      statements : [
+        "allow group ${join(",", local.devt_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_devt_nw_compartment_name}"
+      ]
       defined_tags : local.policies_defined_tags
       freeform_tags : local.policies_freeform_tags
     }
   }
-
-  # ---------------------------------------------------------------------------
-  # STATEMENT LIST — Spoke Network Administrators
-  # One statement per group/compartment pair.
-  # Compartment names come from locals.tf constants via provided_* locals.
-  # Group names come from locals.tf constants via nw_admin_group_name etc.
-  # ---------------------------------------------------------------------------
-  spoke_nw_admin_grants = [
-    "allow group ${join(",", local.os_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_os_nw_compartment_name}",
-    "allow group ${join(",", local.ss_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_ss_nw_compartment_name}",
-    "allow group ${join(",", local.ts_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_ts_nw_compartment_name}",
-    "allow group ${join(",", local.devt_nw_admin_group_name)} to manage all-resources in compartment ${local.provided_devt_nw_compartment_name}"
-  ]
 }

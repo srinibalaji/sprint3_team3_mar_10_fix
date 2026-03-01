@@ -9,9 +9,10 @@
 # Branch: sprint1/iam-policies-team3
 # =============================================================================
 #
-# POLICY OBJECTS IN THIS FILE (2 of 9):
-#   5. UG_ELZ_CSVCS-Policy — Common + Dev common services grants
-#   6. OCI-SERVICES-Policy  — CIS required OCI service principal grants (no group)
+# POLICY OBJECTS IN THIS FILE (3 of 11):
+#   5. UG_ELZ_CSVCS-Policy  — CSVCS compartment grants (manage + tenancy read)
+#   6. UG_DEVT_CSVCS-Policy — DEVT CSVCS compartment grants (manage + tenancy read)
+#   7. OCI-SERVICES-Policy  — CIS required OCI service principal grants (no group)
 #
 # OCI-SERVICES-Policy NOTE:
 #   Uses "allow service <name>" — no IAM group. Required for Cloud Guard,
@@ -29,15 +30,29 @@ locals {
     # -------------------------------------------------------------------------
     # UG_ELZ_CSVCS-Policy — Common Shared Services Policy
     # CSVCS cmp: manage all-resources (APM, File Transfer, ServiceNow, Jira).
-    # DEVT_CSVCS cmp: manage all-resources (dev toolchain services).
     # Tenancy root: read all-resources for cross-compartment visibility.
     # -------------------------------------------------------------------------
     "CSVCS-POLICY" : {
       name : local.csvcs_policy_name
-      description : "${local.lz_description} — Common Services policy. CSVCS and Dev CSVCS compartment grants."
+      description : "${local.lz_description} — Common Services policy. UG_ELZ_CSVCS manages C1_R_ELZ_CSVCS only."
       compartment_id : local.tenancy_id
       statements : concat(
-        local.csvcs_admin_grants,
+        local.csvcs_admin_grants
+      )
+      defined_tags : local.policies_defined_tags
+      freeform_tags : local.policies_freeform_tags
+    },
+
+    # -------------------------------------------------------------------------
+    # UG_DEVT_CSVCS-Policy — Dev Common Shared Services Policy
+    # DEVT_CSVCS cmp: manage all-resources (dev toolchain services).
+    # Tenancy root: read all-resources for cross-compartment visibility.
+    # -------------------------------------------------------------------------
+    "DEVT-CSVCS-POLICY" : {
+      name : local.devt_csvcs_policy_name
+      description : "${local.lz_description} — Dev CSVCS policy. UG_DEVT_CSVCS manages C1_R_ELZ_DEVT_CSVCS only."
+      compartment_id : local.tenancy_id
+      statements : concat(
         local.devt_csvcs_admin_grants
       )
       defined_tags : local.policies_defined_tags

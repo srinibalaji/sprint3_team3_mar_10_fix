@@ -22,7 +22,7 @@
 #
 # CRITICAL TC-03:
 #   UG_DEVT_ELZ_NW must NOT appear in any policy granting write to SEC cmp.
-#   Its policy (UG-SPOKE-NW-Policy in iam_policies_team4.tf) grants manage
+#   Its policy (per-spoke UG_*_ELZ_NW-Policy in iam_policies_team4.tf) grants manage
 #   all-resources ONLY within C1_DEVT_ELZ_NW — not in C1_R_ELZ_SEC.
 # =============================================================================
 

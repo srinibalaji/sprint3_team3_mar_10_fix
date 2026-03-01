@@ -155,7 +155,7 @@ Before calling Sprint 1 done, you should be able to answer YES to all of these:
 - [ ] Tag namespace `C0-star-elz-v1` active with 5 tags
 - [ ] `DataClassification` tag default active at tenancy root
 - [ ] `CostCenter` has `is_cost_tracking = true`
-- [ ] 7 policies visible under the tenancy — no SoD violations
+- [ ] 11 policies visible under the tenancy — no SoD violations
 - [ ] `sprint_state_ledger.json` updated: `sprint1.status = "complete"`
 
 ---

@@ -10,15 +10,14 @@
 # TEAM FILES:
 #   iam_policies_team1.tf — Team 1: UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy  (2 objs)
 #   iam_policies_team2.tf — Team 2: UG_ELZ_SOC-Policy, UG_ELZ_OPS-Policy (2 objs)
-#   iam_policies_team3.tf — Team 3: UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy (2 objs)
-#   iam_policies_team4.tf — Team 4: UG-SPOKE-NW-Policy                    (1 obj)
-#   Total: 7 policy objects, 60 statements
+#   iam_policies_team3.tf — Team 3: UG_ELZ_CSVCS-Policy, UG_DEVT_CSVCS-Policy, OCI-SERVICES-Policy (3 objs)
+#   iam_policies_team4.tf — Team 4: UG_OS/SS/TS/DEVT_ELZ_NW-Policy           (4 objs)
+#   Total: 11 policy objects
 #   Note: SIM policies (UG_SIM_EXT-Policy, UG_SIM_CHILD-Policy) are Sprint 4 scope.
 #
 # POLICY NAME CONVENTION:
-#   <GROUP_NAME>-Policy      e.g. UG_ELZ_NW-Policy
+#   <GROUP_NAME>-Policy      e.g. UG_ELZ_NW-Policy, UG_OS_ELZ_NW-Policy
 #   OCI-SERVICES-Policy      (service principals, no group)
-#   UG-SPOKE-NW-Policy       (4 spoke groups in one policy object)
 #
 # ALL POLICIES LIVE AT TENANCY ROOT (C0):
 #   compartment_id = local.tenancy_id  in every policy object.
@@ -63,7 +62,7 @@ locals {
       local.team1_policies, # UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy
       local.team2_policies, # UG_ELZ_SOC-Policy, UG_ELZ_OPS-Policy
       local.team3_policies, # UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy
-      local.team4_policies  # UG-SPOKE-NW-Policy
+      local.team4_policies  # UG_OS/SS/TS/DEVT_ELZ_NW-Policy (4 per-spoke policies)
     )
   }
 }

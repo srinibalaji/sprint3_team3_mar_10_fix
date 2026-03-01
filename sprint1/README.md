@@ -71,8 +71,8 @@ Every team file has `children : {}` populated and documented. Set `enable_c2_com
 | `iam_policies.tf` | — | lz_policies module orchestrator |
 | `iam_policies_team1.tf` | T1 | UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy |
 | `iam_policies_team2.tf` | T2 | UG_ELZ_SOC-Policy, UG_ELZ_OPS-Policy |
-| `iam_policies_team3.tf` | T3 | UG_ELZ_CSVCS-Policy, OCI-SERVICES-Policy |
-| `iam_policies_team4.tf` | T4 | UG-SPOKE-NW-Policy |
+| `iam_policies_team3.tf` | T3 | UG_ELZ_CSVCS-Policy, UG_DEVT_CSVCS-Policy, OCI-SERVICES-Policy |
+| `iam_policies_team4.tf` | T4 | UG_OS_ELZ_NW-Policy, UG_SS_ELZ_NW-Policy, UG_TS_ELZ_NW-Policy, UG_DEVT_ELZ_NW-Policy |
 | `mon_tags.tf` | T3 | Tag namespace C0-star-elz-v1, 4 tags, CreatedBy tag default |
 | `outputs.tf` | — | 10 compartment OCIDs, group names, tag namespace OCID |
 | `schema.yaml` | — | ORM UI schema — 5 sections |

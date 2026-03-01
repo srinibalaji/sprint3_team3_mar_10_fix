@@ -154,6 +154,12 @@ locals {
   soc_policy_name          = "${local.soc_group_name_const}-Policy"
   ops_policy_name          = "${local.ops_group_name}-Policy"
   csvcs_policy_name        = "${local.csvcs_group_name}-Policy"
+  devt_csvcs_policy_name   = "${local.devt_csvcs_group_name}-Policy"
   oci_services_policy_name = "OCI-SERVICES-Policy"
-  spoke_nw_policy_name     = "UG-SPOKE-NW-Policy"
+
+  # Per-spoke policies — 1:1 mapping: group → compartment → policy (architecture diagram)
+  os_nw_policy_name   = "${local.os_nw_group_name}-Policy"
+  ss_nw_policy_name   = "${local.ss_nw_group_name}-Policy"
+  ts_nw_policy_name   = "${local.ts_nw_group_name}-Policy"
+  devt_nw_policy_name = "${local.devt_nw_group_name}-Policy"
 }

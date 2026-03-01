@@ -67,7 +67,7 @@ Total onboarding: ~55 minutes to full context.
 | S1-T1–T4 | Policy statements each | T1–T4 | `iam_policies_teamN.tf` | 25 Feb |
 | S1-T3 | ELZ tag namespace + 5 tags | T3 | `mon_tags.tf` | 25 Feb |
 
-10 TF-managed compartments, 10 TF-managed groups, 7 policies (60 statements), 1 tag namespace + 5 tags. 2 manual compartments (C1_SIM_EXT, C1_SIM_CHILD) and 2 manual groups (UG_SIM_EXT, UG_SIM_CHILD) created via OCI Console.
+10 TF-managed compartments, 10 TF-managed groups, 11 policies, 1 tag namespace + 5 tags. 2 manual compartments (C1_SIM_EXT, C1_SIM_CHILD) and 2 manual groups (UG_SIM_EXT, UG_SIM_CHILD) created via OCI Console.
 
 **Gate:** TC-01 through TC-06b all PASS before Sprint 2 Phase 2 apply.
 
@@ -130,7 +130,7 @@ star/
 `sprint_state_ledger.json` is the single source of truth — not a spreadsheet. It contains:
 
 - All 12 compartments with canonical names, TF display names, team ownership
-- All 12 groups and 60 policy statements across 7 policies
+- All 12 groups and 11 policies
 - All 5 VCNs, 2 DRGs, 6 subnets with CIDRs and sprint scope
 - 19 test cases (TC-01 to TC-19) with phase gates and CLI commands
 - Architecture gaps with actions and owners

@@ -85,7 +85,7 @@ All 29 resource display-name constants in `sprint2/locals.tf` were programmatica
 
 **Resolution: ✅ CONFIRMED**
 
-Excel tracking is officially deprecated. `sprint_state_ledger.json` was merged into the repository today and is the single source of truth for state sync across all teams. Policy names follow the `<GROUP_NAME>-Policy` convention and are validated against the ledger. The Sprint 1 stack contains 7 policy objects (60 statements). SIM policies (`UG_SIM_EXT-Policy`, `UG_SIM_CHILD-Policy`) are Sprint 4 scope and are not in the Sprint 1 state.
+Excel tracking is officially deprecated. `sprint_state_ledger.json` was merged into the repository today and is the single source of truth for state sync across all teams. Policy names follow the `<GROUP_NAME>-Policy` convention and are validated against the ledger. The Sprint 1 stack contains 11 policy objects. SIM policies (`UG_SIM_EXT-Policy`, `UG_SIM_CHILD-Policy`) are Sprint 4 scope and are not in the Sprint 1 state.
 
 ---
 
@@ -142,7 +142,7 @@ Service Gateways are officially a Sprint 3 backlog item (Ticket `S3-ALL` created
 
 Dawei requires validation/auditor access, not administrative rights. During today's audit, a Separation of Duties (SoD) violation was identified: the Hub NW admin group (`UG_ELZ_NW`) had `manage virtual-network-family` in all four spoke compartments, which would allow the hub admin to modify spoke subnets and route tables directly.
 
-This was downgraded to `read virtual-network-family` in `iam_policies_team1.tf` (pushed today). The SoD principle (A-06) is now enforced: each spoke team manages their own VCN exclusively via `UG-SPOKE-NW-Policy`, while the hub admin has read-only visibility for validation and dashboard use. TC-03 verifies this boundary.
+This was downgraded to `read virtual-network-family` in `iam_policies_team1.tf` (pushed today). The SoD principle (A-06) is now enforced: each spoke team manages their own VCN exclusively via per-spoke policies (`UG_*_ELZ_NW-Policy`), while the hub admin has read-only visibility for validation and dashboard use. TC-03 verifies this boundary.
 
 ---
 

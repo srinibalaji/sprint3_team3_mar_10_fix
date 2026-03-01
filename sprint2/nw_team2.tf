@@ -108,7 +108,7 @@ resource "oci_core_instance" "sim_fw_ts" {
 
   create_vnic_details {
     subnet_id              = oci_core_subnet.ts_app.id
-    display_name           = "VNIC-${local.ts_fw_instance_name}"
+    display_name           = "vnic_${local.ts_fw_instance_name}"
     assign_public_ip       = false
     skip_source_dest_check = true
     freeform_tags          = local.cmp_freeform_tags

@@ -188,7 +188,7 @@ resource "oci_core_instance" "sim_fw_hub" {
 
   create_vnic_details {
     subnet_id              = oci_core_subnet.hub_fw.id
-    display_name           = "VNIC-${local.hub_fw_instance_name}"
+    display_name           = "vnic_${local.hub_fw_instance_name}"
     assign_public_ip       = false # V1 isolated design — no public IP, no IGW
     skip_source_dest_check = true  # REQUIRED: enables IP forwarding
     freeform_tags          = local.cmp_freeform_tags

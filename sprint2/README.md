@@ -17,37 +17,37 @@ C0 Tenancy Root
 │
 └── C1_R_ELZ_NW  (T4 — Hub)
     ├── vcn_r_elz_nw ── 10.0.0.0/16
-    │   ├── SUB-C1-R-ELZ-NW-FW ── 10.0.0.0/24 [private]
-    │   │   ├── FW-C1-R-ELZ-NW-HUB-SIM  (E4.Flex · skip_sdc · ip_fwd · MASQUERADE)
-    │   │   └── RT-C1-R-ELZ-NW-FW ── [empty — Sprint 3 DRG transit]
-    │   └── SUB-C1-R-ELZ-NW-MGMT ── 10.0.1.0/24 [private]
-    │       ├── BAS-C1-R-ELZ-NW-HUB  (Bastion STANDARD)
-    │       └── RT-C1-R-ELZ-NW-MGMT ── 0/0 → DRG (Phase 2)
+    │   ├── sub_r_elz_nw_fw ── 10.0.0.0/24 [private]
+    │   │   ├── fw_r_elz_nw_hub_sim  (E4.Flex · skip_sdc · ip_fwd · MASQUERADE)
+    │   │   └── rt_r_elz_nw_fw ── [empty — Sprint 3 DRG transit]
+    │   └── sub_r_elz_nw_mgmt ── 10.0.1.0/24 [private]
+    │       ├── bas_r_elz_nw_hub  (Bastion STANDARD)
+    │       └── rt_r_elz_nw_mgmt ── 0/0 → DRG (Phase 2)
     │
     ├── drg_r_hub ── Hub DRG · 5 attachments (Phase 2)
-    │   ├── DRGA-C1-R-ELZ-NW-HUB   (Hub VCN)
-    │   ├── DRGA-C1-OS-ELZ-NW      (OS)
-    │   ├── DRGA-C1-TS-ELZ-NW      (TS)
-    │   ├── DRGA-C1-SS-ELZ-NW      (SS)
-    │   └── DRGA-C1-DEVT-ELZ-NW    (DEVT)
+    │   ├── drga_r_elz_nw_hub   (Hub VCN)
+    │   ├── drga_os_elz_nw      (OS)
+    │   ├── drga_ts_elz_nw      (TS)
+    │   ├── drga_ss_elz_nw      (SS)
+    │   └── drga_devt_elz_nw    (DEVT)
     │
     └── drg_r_ew_hub ── E-W DRG · V2 placeholder · 0 attachments
 
 ├── C1_OS_ELZ_NW  (T1)
 │   └── vcn_os_elz_nw ── 10.1.0.0/24
-│       └── SUB-C1-OS-ELZ-NW-APP · FW-C1-OS-ELZ-NW-SIM · RT: 0/0 → DRG
+│       └── sub_os_elz_nw_app · fw_os_elz_nw_sim · RT: 0/0 → DRG
 
 ├── C1_TS_ELZ_NW  (T2)
 │   └── vcn_ts_elz_nw ── 10.3.0.0/24
-│       └── SUB-C1-TS-ELZ-NW-APP · FW-C1-TS-ELZ-NW-SIM · RT: 0/0 → DRG
+│       └── sub_ts_elz_nw_app · fw_ts_elz_nw_sim · RT: 0/0 → DRG
 
 ├── C1_SS_ELZ_NW  (T3)
 │   └── vcn_ss_elz_nw ── 10.2.0.0/24
-│       └── SUB-C1-SS-ELZ-NW-APP · FW-C1-SS-ELZ-NW-SIM · RT: 0/0 → DRG
+│       └── sub_ss_elz_nw_app · fw_ss_elz_nw_sim · RT: 0/0 → DRG
 
 └── C1_DEVT_ELZ_NW  (T3)
     └── vcn_devt_elz_nw ── 10.4.0.0/24
-        └── SUB-C1-DEVT-ELZ-NW-APP · no Sim FW · RT: 0/0 → DRG
+        └── sub_devt_elz_nw_app · no Sim FW · RT: 0/0 → DRG
 ```
 
 > All subnets: `prohibit_public_ip = true`. All Sim FW VNICs: `skip_source_dest_check = true`.  
@@ -60,12 +60,12 @@ C0 Tenancy Root
 | Resource | Pattern | Example |
 |---|---|---|
 | VCN | `vcn_<agency>_elz_nw` | `vcn_os_elz_nw` |
-| Subnet | `SUB-C1-<AGENCY>-ELZ-NW-<FUNC>` | `SUB-C1-R-ELZ-NW-FW` |
+| Subnet | `sub_<agency>_elz_nw_<func>` | `sub_r_elz_nw_fw` |
 | DRG | `drg_r_<qualifier>` | `drg_r_hub` |
-| DRG Attachment | `DRGA-C1-<AGENCY>-ELZ-NW` | `DRGA-C1-OS-ELZ-NW` |
-| Route Table | `RT-C1-<AGENCY>-ELZ-NW-<FUNC>` | `RT-C1-OS-ELZ-NW-APP` |
-| Sim FW | `FW-C1-<AGENCY>-ELZ-NW[-HUB]-SIM` | `FW-C1-OS-ELZ-NW-SIM` |
-| Bastion | `BAS-C1-R-ELZ-NW-HUB` | — |
+| DRG Attachment | `drga_<agency>_elz_nw` | `drga_os_elz_nw` |
+| Route Table | `rt_<agency>_elz_nw_<func>` | `rt_os_elz_nw_app` |
+| Sim FW | `fw_<agency>_elz_nw[_hub]_sim` | `fw_os_elz_nw_sim` |
+| Bastion | `bas_r_elz_nw_hub` | — |
 
 ---
 
@@ -204,12 +204,12 @@ done
 
 | Subnet | CIDR | Private |
 |---|---|---|
-| SUB-C1-R-ELZ-NW-FW | 10.0.0.0/24 | true |
-| SUB-C1-R-ELZ-NW-MGMT | 10.0.1.0/24 | true |
-| SUB-C1-OS-ELZ-NW-APP | 10.1.0.0/24 | true |
-| SUB-C1-TS-ELZ-NW-APP | 10.3.0.0/24 | true |
-| SUB-C1-SS-ELZ-NW-APP | 10.2.0.0/24 | true |
-| SUB-C1-DEVT-ELZ-NW-APP | 10.4.0.0/24 | true |
+| sub_r_elz_nw_fw | 10.0.0.0/24 | true |
+| sub_r_elz_nw_mgmt | 10.0.1.0/24 | true |
+| sub_os_elz_nw_app | 10.1.0.0/24 | true |
+| sub_ts_elz_nw_app | 10.3.0.0/24 | true |
+| sub_ss_elz_nw_app | 10.2.0.0/24 | true |
+| sub_devt_elz_nw_app | 10.4.0.0/24 | true |
 
 ### TC-09 — Hub DRG: 5 Attachments
 
@@ -248,17 +248,17 @@ oci bastion bastion get --bastion-id $HUB_BASTION_ID \
 # Spoke RTs: 1 rule each — 0/0 → Hub DRG
 for VCN_ID in $OS_VCN_ID $TS_VCN_ID $SS_VCN_ID $DEVT_VCN_ID; do
   oci network route-table list --vcn-id $VCN_ID \
-    --query "data[?starts_with(\"display-name\",'RT-C1')].{name:\"display-name\",rules:\"route-rules\"}" \
+    --query "data[?starts_with(\"display-name\",'rt_')].{name:\"display-name\",rules:\"route-rules\"}" \
     | jq '.[].rules'
 done
 
 # Hub FW RT: EMPTY
 oci network route-table list --vcn-id $HUB_VCN_ID \
-  --query "data[?\"display-name\"=='RT-C1-R-ELZ-NW-FW'].\"route-rules\"" | jq '.'
+  --query "data[?\"display-name\"=='rt_r_elz_nw_fw'].\"route-rules\"" | jq '.'
 
 # Hub MGMT RT: 0/0 → DRG
 oci network route-table list --vcn-id $HUB_VCN_ID \
-  --query "data[?\"display-name\"=='RT-C1-R-ELZ-NW-MGMT'].\"route-rules\"" | jq '.'
+  --query "data[?\"display-name\"=='rt_r_elz_nw_mgmt'].\"route-rules\"" | jq '.'
 ```
 
 ### TC-12b — E-W DRG Exists (V2 placeholder)
@@ -288,7 +288,7 @@ Same pattern, OS → TS. Expected: `REACHABLE` via DRG full-mesh. Traffic bypass
 
 ### TC-15 — Sim FW Linux Validation (Bastion SSH)
 
-Bastion → `FW-C1-R-ELZ-NW-HUB-SIM`:
+Bastion → `fw_r_elz_nw_hub_sim`:
 
 ```bash
 cloud-init status --long                             # status: done

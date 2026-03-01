@@ -10,7 +10,7 @@
     "naming_convention": {
       "note": "Canonical naming sync complete (2026-03-01). tf_display_name now equals canonical_name across all resources. Legacy Excel names retained for traceability only.",
       "canonical": "C1_<TEAM>_ELZ_<DOMAIN> for compartments, UG_<TEAM>_ELZ_<DOMAIN> for groups, vcn_<team>_elz_nw for VCNs",
-      "tf_display_name": "vcn_<team>_elz_nw, SUB-C1-<TEAM>-ELZ-NW-<FUNCTION>",
+      "tf_display_name": "vcn_<team>_elz_nw, sub_<team>_elz_nw_<func>",
       "legacy_excel": "star-<team>-elz-<domain>-cmp \u2014 DRIFTED, do not use in new code"
     }
   },
@@ -1191,7 +1191,7 @@
         "cloud_init": "cloud-init-fw.sh \u2014 iptables MASQUERADE + ip_forward=1",
         "sprint_scope": "Sprint 2 Sim FW (nw_team4.tf) \u2014 V1 simulation of OCI NFW",
         "critical": "Fixed IP 10.0.3.10 MUST be set \u2014 hairpin route table rule hardcodes this. Change = black-hole.",
-        "sprint2_tf_name": "FW-C1-R-ELZ-NW-HUB-SIM",
+        "sprint2_tf_name": "fw_r_elz_nw_hub_sim",
         "sprint3_replacement": "OCI Network Firewall (L7)"
       },
       {
@@ -1205,7 +1205,7 @@
         "public_ip": true,
         "skip_src_dst_check": false,
         "nsg": "nsg_hub_bastion",
-        "sprint_scope": "Sprint 2 \u2014 OCI Bastion Service (BAS-C1-R-ELZ-NW-HUB)",
+        "sprint_scope": "Sprint 2 \u2014 OCI Bastion Service (bas_r_elz_nw_hub)",
         "note": "Sprint 2 uses OCI Bastion Service (oci_bastion_bastion), not a compute instance"
       },
       {

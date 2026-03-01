@@ -173,8 +173,8 @@ git push origin main --tags
 ## ORM Deployment
 
 1. OCI Console → Developer Services → Resource Manager → Stacks → Create Stack
-2. Source: Git → connect to your GitHub repo → select `sprint1/` folder
-3. Working Directory: `sprint1`
+2. Source: Git → connect to your GitHub repo → select `sprint1-solutions-v2/` folder
+3. Working Directory: `sprint1-solutions-v2`
 4. Name: `STAR-ELZ-V1-Sprint1`
 5. Fill in ORM UI form:
    - Section 1: Tenancy OCID + Region

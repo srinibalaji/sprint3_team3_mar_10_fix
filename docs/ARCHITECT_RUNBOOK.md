@@ -178,10 +178,10 @@ Phase 1 resources per team:
 
 | Team | Resources Created |
 |---|---|
-| T1 | `vcn_os_elz_nw` (10.1.0.0/24), `SUB-C1-OS-ELZ-NW-APP`, `RT-C1-OS-ELZ-NW-APP` (empty) |
-| T2 | `vcn_ts_elz_nw` (10.3.0.0/24), `SUB-C1-TS-ELZ-NW-APP`, `RT-C1-TS-ELZ-NW-APP` (empty) |
+| T1 | `vcn_os_elz_nw` (10.1.0.0/24), `sub_os_elz_nw_app`, `rt_os_elz_nw_app` (empty) |
+| T2 | `vcn_ts_elz_nw` (10.3.0.0/24), `sub_ts_elz_nw_app`, `rt_ts_elz_nw_app` (empty) |
 | T3 | `vcn_ss_elz_nw` (10.2.0.0/24) + `vcn_devt_elz_nw` (10.4.0.0/24), subnets, RTs (empty) |
-| T4 | `vcn_r_elz_nw` (10.0.0.0/16), `SUB-C1-R-ELZ-NW-FW`, `SUB-C1-R-ELZ-NW-MGMT`, `drg_r_hub`, `drg_r_ew_hub`, RTs |
+| T4 | `vcn_r_elz_nw` (10.0.0.0/16), `sub_r_elz_nw_fw`, `sub_r_elz_nw_mgmt`, `drg_r_hub`, `drg_r_ew_hub`, RTs |
 
 > ✅ **drg_r_ew_hub is provisioned with zero attachments in V1.** It is a V2 placeholder for East-West segmentation. TC-12b validates its existence.
 
@@ -207,10 +207,10 @@ Phase 2 resources added per team:
 
 | Team | Resources Added |
 |---|---|
-| T1 | `DRGA-C1-OS-ELZ-NW` (DRG attachment), `RT-C1-OS-ELZ-NW-APP` (0.0.0.0/0 → DRG), `FW-C1-OS-ELZ-NW-SIM` |
-| T2 | `DRGA-C1-TS-ELZ-NW`, `RT-C1-TS-ELZ-NW-APP` (0.0.0.0/0 → DRG), `FW-C1-TS-ELZ-NW-SIM` |
-| T3 | `DRGA-C1-SS-ELZ-NW`, `DRGA-C1-DEVT-ELZ-NW`, RTs updated, `FW-C1-SS-ELZ-NW-SIM` |
-| T4 | `DRGA-C1-R-ELZ-NW-HUB`, Hub RTs updated, `FW-C1-R-ELZ-NW-HUB-SIM`, `BAS-C1-R-ELZ-NW-HUB` |
+| T1 | `drga_os_elz_nw` (DRG attachment), `rt_os_elz_nw_app` (0.0.0.0/0 → DRG), `fw_os_elz_nw_sim` |
+| T2 | `drga_ts_elz_nw`, `rt_ts_elz_nw_app` (0.0.0.0/0 → DRG), `fw_ts_elz_nw_sim` |
+| T3 | `drga_ss_elz_nw`, `drga_devt_elz_nw`, RTs updated, `fw_ss_elz_nw_sim` |
+| T4 | `drga_r_elz_nw_hub`, Hub RTs updated, `fw_r_elz_nw_hub_sim`, `bas_r_elz_nw_hub` |
 
 > **4 Sim FW instances total**: hub, OS, TS, SS. DEVT has no Sim FW in V1 (network-only spoke).
 
@@ -228,17 +228,17 @@ for CMP in <nw_compartment_id> <os_compartment_id> <ts_compartment_id> <ss_compa
     --query "data[].\"display-name\"" --output table
 done
 # Expected total: 6 subnets across all 5 compartments
-# Hub (nw): SUB-C1-R-ELZ-NW-FW, SUB-C1-R-ELZ-NW-MGMT
-# OS:   SUB-C1-OS-ELZ-NW-APP
-# TS:   SUB-C1-TS-ELZ-NW-APP
-# SS:   SUB-C1-SS-ELZ-NW-APP
-# DEVT: SUB-C1-DEVT-ELZ-NW-APP
+# Hub (nw): sub_r_elz_nw_fw, sub_r_elz_nw_mgmt
+# OS:   sub_os_elz_nw_app
+# TS:   sub_ts_elz_nw_app
+# SS:   sub_ss_elz_nw_app
+# DEVT: sub_devt_elz_nw_app
 
 # TC-09: Hub DRG has 5 attachments (1 hub VCN + 4 spoke VCNs)
 oci network drg-attachment list --drg-id <hub_drg_id> --all \
   --query "data[].\"display-name\"" --output table
-# Expected: DRGA-C1-R-ELZ-NW-HUB, DRGA-C1-OS-ELZ-NW, DRGA-C1-TS-ELZ-NW,
-#           DRGA-C1-SS-ELZ-NW, DRGA-C1-DEVT-ELZ-NW
+# Expected: drga_r_elz_nw_hub, drga_os_elz_nw, drga_ts_elz_nw,
+#           drga_ss_elz_nw, drga_devt_elz_nw
 
 # TC-10: 4 Sim FW instances in RUNNING state
 # Set these from terraform output -json > sprint2_outputs.json before running
@@ -374,11 +374,11 @@ oci iam tag-default list --compartment-id <tenancy_ocid> \
 
 ### "ping between spokes doesn't work after Phase 2"
 
-**Expected behavior in V1:** Ping between spoke workloads **will not work yet** via the Sim FW. The Hub FW route table (`RT-C1-R-ELZ-NW-FW`) is intentionally empty in V1 — no transit routing is configured. DRG transit route distribution is Sprint 3 scope.
+**Expected behavior in V1:** Ping between spoke workloads **will not work yet** via the Sim FW. The Hub FW route table (`rt_r_elz_nw_fw`) is intentionally empty in V1 — no transit routing is configured. DRG transit route distribution is Sprint 3 scope.
 
 **What to say:** "The routing path is OS → DRG → Hub FW subnet → [no transit route] → dead end. This is the V1 isolated design. The ping test validates DRG attachment and route table existence only. End-to-end inter-spoke ping is TC-14b in Sprint 3."
 
-**What you can test now:** Bastion session from `BAS-C1-R-ELZ-NW-HUB` → Sim FW private IP in the hub FW subnet. That validates the MGMT subnet route (`0.0.0.0/0 → DRG`) and Bastion connectivity.
+**What you can test now:** Bastion session from `bas_r_elz_nw_hub` → Sim FW private IP in the hub FW subnet. That validates the MGMT subnet route (`0.0.0.0/0 → DRG`) and Bastion connectivity.
 
 ---
 

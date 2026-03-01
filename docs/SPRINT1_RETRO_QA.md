@@ -59,12 +59,12 @@ The naming standard documentation is now in `docs/` in the repository and is the
 | Groups | `UG_[<AGENCY>_]ELZ_<FUNCTION>` | `UG_ELZ_NW`, `UG_OS_ELZ_NW` |
 | Policies | `<GROUP_NAME>-Policy` | `UG_ELZ_NW-Policy` |
 | VCNs | `vcn_<agency>_elz_nw` | `vcn_r_elz_nw` |
-| Subnets | `SUB-C1-<AGENCY>-ELZ-NW-<ZONE>` | `SUB-C1-OS-ELZ-NW-APP` |
+| Subnets | `sub_<agency>_elz_nw_<zone>` | `sub_os_elz_nw_app` |
 | DRGs | `drg_r_<qualifier>` | `drg_r_hub` |
-| Route Tables | `RT-C1-<AGENCY>-ELZ-NW-<ZONE>` | `RT-C1-OS-ELZ-NW-APP` |
-| Sim Firewalls | `FW-C1-<AGENCY>-ELZ-NW-SIM` | `FW-C1-OS-ELZ-NW-SIM` |
-| Bastion | `BAS-C1-R-ELZ-NW-HUB` | — |
-| DRG Attachments | `DRGA-C1-<AGENCY>-ELZ-NW` | `DRGA-C1-OS-ELZ-NW` |
+| Route Tables | `rt_<agency>_elz_nw_<zone>` | `rt_os_elz_nw_app` |
+| Sim Firewalls | `fw_<agency>_elz_nw_sim` | `fw_os_elz_nw_sim` |
+| Bastion | `bas_r_elz_nw_hub` | — |
+| DRG Attachments | `drga_<agency>_elz_nw` | `drga_os_elz_nw` |
 | Tag Namespace | `C0-<project>-elz-v<N>` | `C0-star-elz-v1` |
 
 All 29 resource display-name constants in `sprint2/locals.tf` were programmatically validated against this convention — zero drift.
@@ -112,7 +112,7 @@ The comprehensive audit branch was merged today. The scaffold now fully maps to 
 - 2 DRGs in `C1_R_ELZ_NW`: `drg_r_hub` (active, 5 attachments in Phase 2) and `drg_r_ew_hub` (V2 placeholder, 0 attachments)
 - 6 route tables — all spoke RTs updated in-place via dynamic `route_rules` block in Phase 2 (no subnet recreation)
 - 4 Sim FW instances (hub, OS, TS, SS) — DEVT is network-only in V1
-- 1 OCI Bastion Service (`BAS-C1-R-ELZ-NW-HUB`) in hub MGMT subnet
+- 1 OCI Bastion Service (`bas_r_elz_nw_hub`) in hub MGMT subnet
 
 All resources are parameterised. CIDR defaults in `variables_net.tf`, `locals.tf`, `schema.yaml`, and `terraform.tfvars.template` are fully consistent at `/24` for spokes.
 

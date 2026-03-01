@@ -72,40 +72,40 @@ locals {
   devt_vcn_name = "vcn_devt_elz_nw"
 
   # Subnet Names
-  hub_fw_subnet_name   = "SUB-C1-R-ELZ-NW-FW"
-  hub_mgmt_subnet_name = "SUB-C1-R-ELZ-NW-MGMT"
-  os_app_subnet_name   = "SUB-C1-OS-ELZ-NW-APP"
-  ts_app_subnet_name   = "SUB-C1-TS-ELZ-NW-APP"
-  ss_app_subnet_name   = "SUB-C1-SS-ELZ-NW-APP"
-  devt_app_subnet_name = "SUB-C1-DEVT-ELZ-NW-APP"
+  hub_fw_subnet_name   = "sub_r_elz_nw_fw"
+  hub_mgmt_subnet_name = "sub_r_elz_nw_mgmt"
+  os_app_subnet_name   = "sub_os_elz_nw_app"
+  ts_app_subnet_name   = "sub_ts_elz_nw_app"
+  ss_app_subnet_name   = "sub_ss_elz_nw_app"
+  devt_app_subnet_name = "sub_devt_elz_nw_app"
 
   # DRG Names
   hub_drg_name    = "drg_r_hub" # Primary hub DRG — all 5 VCN attachments
   ew_hub_drg_name = "drg_r_ew_hub"  # Inter E-W DRG — V2 placeholder (0 attachments in V1)
 
   # Route Table Names
-  hub_fw_rt_name   = "RT-C1-R-ELZ-NW-FW"
-  hub_mgmt_rt_name = "RT-C1-R-ELZ-NW-MGMT"
-  os_app_rt_name   = "RT-C1-OS-ELZ-NW-APP"
-  ts_app_rt_name   = "RT-C1-TS-ELZ-NW-APP"
-  ss_app_rt_name   = "RT-C1-SS-ELZ-NW-APP"
-  devt_app_rt_name = "RT-C1-DEVT-ELZ-NW-APP"
+  hub_fw_rt_name   = "rt_r_elz_nw_fw"
+  hub_mgmt_rt_name = "rt_r_elz_nw_mgmt"
+  os_app_rt_name   = "rt_os_elz_nw_app"
+  ts_app_rt_name   = "rt_ts_elz_nw_app"
+  ss_app_rt_name   = "rt_ss_elz_nw_app"
+  devt_app_rt_name = "rt_devt_elz_nw_app"
 
   # Sim Firewall Instance Names
-  hub_fw_instance_name = "FW-C1-R-ELZ-NW-HUB-SIM"
-  os_fw_instance_name  = "FW-C1-OS-ELZ-NW-SIM"
-  ts_fw_instance_name  = "FW-C1-TS-ELZ-NW-SIM"
-  ss_fw_instance_name  = "FW-C1-SS-ELZ-NW-SIM"
+  hub_fw_instance_name = "fw_r_elz_nw_hub_sim"
+  os_fw_instance_name  = "fw_os_elz_nw_sim"
+  ts_fw_instance_name  = "fw_ts_elz_nw_sim"
+  ss_fw_instance_name  = "fw_ss_elz_nw_sim"
 
   # Bastion Name
-  hub_bastion_name = "BAS-C1-R-ELZ-NW-HUB"
+  hub_bastion_name = "bas_r_elz_nw_hub"
 
   # DRG Attachment Names
-  hub_drg_attachment_name  = "DRGA-C1-R-ELZ-NW-HUB"
-  os_drg_attachment_name   = "DRGA-C1-OS-ELZ-NW"
-  ts_drg_attachment_name   = "DRGA-C1-TS-ELZ-NW"
-  ss_drg_attachment_name   = "DRGA-C1-SS-ELZ-NW"
-  devt_drg_attachment_name = "DRGA-C1-DEVT-ELZ-NW"
+  hub_drg_attachment_name  = "drga_r_elz_nw_hub"
+  os_drg_attachment_name   = "drga_os_elz_nw"
+  ts_drg_attachment_name   = "drga_ts_elz_nw"
+  ss_drg_attachment_name   = "drga_ss_elz_nw"
+  devt_drg_attachment_name = "drga_devt_elz_nw"
 
   # ---------------------------------------------------------------------------
   # DNS LABELS — single source of truth (OCI VCN/subnet dns_label constraints:

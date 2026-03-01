@@ -28,7 +28,7 @@ East-West routing between spokes is testable in Sprint 2 via OCI DRG v2 full-mes
                                                          │  tenancy parent
 ┌────────────────────────────────────────────────────────▼─────────────────────────────────────────────────────────┐
 │  C1_R_ELZ_NW  ──  HUB COMPARTMENT  (Team 4)                                                                      │
-│  VCN-C1-R-ELZ-NW-HUB   10.0.0.0/16                                                                               │
+│  vcn_r_elz_nw   10.0.0.0/16                                                                               │
 │                                                                                                                  │
 │  ┌──────────────────────────────────────────────────┐  ┌──────────────────────────────────────────────────┐      │
 │  │ SUB-C1-R-ELZ-NW-FW                               │  │ SUB-C1-R-ELZ-NW-MGMT                             │      │
@@ -47,7 +47,7 @@ East-West routing between spokes is testable in Sprint 2 via OCI DRG v2 full-mes
 │  └──────────────────────────────────────────────────┘  └──────────────────────────────────────────────────┘      │
 │                                                                                                                  │
 │  ┌──────────────────────────────────────────────────┐  ┌──────────────────────────────────────────────────┐      │
-│  │ DRG-C1-R-ELZ-NW-HUB  ◀── hub_drg_id              │  │ DRG-C1-R-ELZ-NW-EW                               │      │
+│  │ drg_r_hub  ◀── hub_drg_id              │  │ drg_r_ew_hub                               │      │
 │  │ North-South hub DRG · Phase 1 output             │  │ East-West inter-agency DRG                       │      │
 │  ├──────────────────────────────────────────────────┤  ├──────────────────────────────────────────────────┤      │
 │  │ Phase 2 VCN attachments:                         │  │ V2 placeholder · 0 attachments in V1             │      │
@@ -71,7 +71,7 @@ East-West routing between spokes is testable in Sprint 2 via OCI DRG v2 full-mes
  ┌─────────────────────────┐  ┌─────────────────────────┐  ┌─────────────────────────┐  ┌─────────────────────────┐
  │ C1_OS_ELZ_NW  T1        │  │ C1_TS_ELZ_NW  T2        │  │ C1_SS_ELZ_NW  T3        │  │ C1_DEVT_ELZ_NW  T3      │
  ├─────────────────────────┤  ├─────────────────────────┤  ├─────────────────────────┤  ├─────────────────────────┤
- │ VCN-C1-OS-ELZ-NW        │  │ VCN-C1-TS-ELZ-NW        │  │ VCN-C1-SS-ELZ-NW        │  │ VCN-C1-DEVT-ELZ-NW      │
+ │ vcn_os_elz_nw        │  │ vcn_ts_elz_nw        │  │ vcn_ss_elz_nw        │  │ vcn_devt_elz_nw      │
  │ 10.1.0.0/24             │  │ 10.3.0.0/24             │  │ 10.2.0.0/24             │  │ 10.4.0.0/24             │
  ├─────────────────────────┤  ├─────────────────────────┤  ├─────────────────────────┤  ├─────────────────────────┤
  │ SUB-C1-OS-ELZ-NW-APP    │  │ SUB-C1-TS-ELZ-NW-APP    │  │ SUB-C1-SS-ELZ-NW-APP    │  │ SUB-C1-DEVT-ELZ-NW-APP  │
@@ -94,7 +94,7 @@ East-West routing between spokes is testable in Sprint 2 via OCI DRG v2 full-mes
  ip_fwd=1        net.ipv4.ip_forward=1 via /etc/sysctl.d/99-ipforward.conf (persists across reboot)
  MASQUERADE      iptables POSTROUTING MASQUERADE eth0 — saved via: service iptables save
  Phase 2 gate    All DRG attachments/RT rules/Sim FW/Bastion require hub_drg_id != ''  (count gate)
- DRG-EW          DRG-C1-R-ELZ-NW-EW: 0 attachments in V1 · output: ew_hub_drg_id · TC-12b validates
+ DRG-EW          drg_r_ew_hub: 0 attachments in V1 · output: ew_hub_drg_id · TC-12b validates
  dynamic RT      route_rules dynamic{} block: in-place Phase 2 update — no subnet recreation on apply
  E-W in V1       Spoke↔spoke routing EXISTS via DRG v2 full-mesh · tested TC-18 (NPA) + TC-19 (data plane)
  S3-BACKLOG-01   Hub FW inspection of E-W traffic requires DRG route tables — Sprint 3 scope
@@ -285,14 +285,14 @@ echo "SS  FW : $SS_FW_IP"
 oci network vcn list \
   --compartment-id $(oci iam tenancy get --query 'data.id' --raw-output) \
   --all \
-  --query "data[?starts_with(\"display-name\", 'VCN-C1')]" \
+  --query "data[?starts_with(\"display-name\", 'vcn_')]" \
   | jq '[.[] | {name: .["display-name"], cidr: .["cidr-blocks"][0]}]'
 
 # Quick count — must be 5 before sharing hub_drg_id with other teams
 ... | jq length
 ```
 
-Expected: 5 entries — `VCN-C1-R-ELZ-NW-HUB`, `VCN-C1-OS-ELZ-NW`, `VCN-C1-TS-ELZ-NW`, `VCN-C1-SS-ELZ-NW`, `VCN-C1-DEVT-ELZ-NW`
+Expected: 5 entries — `vcn_r_elz_nw`, `vcn_os_elz_nw`, `vcn_ts_elz_nw`, `vcn_ss_elz_nw`, `vcn_devt_elz_nw`
 
 ---
 
@@ -413,7 +413,7 @@ Expected: One rule, `destination: 0.0.0.0/0`, `networkEntityId: <hub_drg_id>`
 
 ### TC-12b — Inter E-W DRG Exists in C1_R_ELZ_NW (Run: after Phase 2)
 
-`DRG-C1-R-ELZ-NW-EW` is provisioned in Sprint 2 with **zero attachments** in V1. It is the placeholder for Sprint 3 East-West inter-agency segmentation. Validate its existence now so Sprint 3 can attach without a separate apply to create the DRG itself.
+`drg_r_ew_hub` is provisioned in Sprint 2 with **zero attachments** in V1. It is the placeholder for Sprint 3 East-West inter-agency segmentation. Validate its existence now so Sprint 3 can attach without a separate apply to create the DRG itself.
 
 ```bash
 oci network drg get \
@@ -421,7 +421,7 @@ oci network drg get \
   --query 'data.{name:"display-name", state:"lifecycle-state"}' | jq '.'
 ```
 
-Expected: `"display-name": "DRG-C1-R-ELZ-NW-EW"`, `"lifecycle-state": "AVAILABLE"`
+Expected: `"display-name": "drg_r_ew_hub"`, `"lifecycle-state": "AVAILABLE"`
 
 ```bash
 # Confirm zero attachments in V1
@@ -708,7 +708,7 @@ Sprint 2 uses direct resource definitions, not modules. This is intentional — 
 4.  sprint2/nw_team<N>.tf          — copy nw_team1.tf, replace all "os" / "OS" with new agency name
 ```
 
-The Hub DRG (`DRG-C1-R-ELZ-NW-HUB`) accepts additional VCN attachments with zero changes to any other team file. All naming constants go into `locals.tf` following the existing pattern. The phase2 gate (`count = local.phase2_enabled ? 1 : 0`) is already inherited by copying the team1 pattern.
+The Hub DRG (`drg_r_hub`) accepts additional VCN attachments with zero changes to any other team file. All naming constants go into `locals.tf` following the existing pattern. The phase2 gate (`count = local.phase2_enabled ? 1 : 0`) is already inherited by copying the team1 pattern.
 
 > All 4 files live in the same `sprint2/` directory — this is required. Terraform builds one dependency graph across all `nw_teamN.tf` files, which means Team 4's DRG is guaranteed to exist before any spoke RT references `var.hub_drg_id`. Do not split into separate folders or separate Terraform workspaces — that breaks the automatic dependency graph and spoke route tables will fail with "DRG not found."
 
@@ -755,9 +755,9 @@ All naming conventions, tagging, DRG attachment, route table `depends_on`, and c
 
 | Resource Type | Pattern | Example |
 |---|---|---|
-| VCN | `VCN-C1-<AGENCY>-ELZ-NW[-HUB]` | `VCN-C1-R-ELZ-NW-HUB` |
+| VCN | `vcn_<agency>_elz_nw` | `vcn_r_elz_nw` |
 | Subnet | `SUB-C1-<AGENCY>-ELZ-NW-<FUNCTION>` | `SUB-C1-R-ELZ-NW-FW` |
-| DRG | `DRG-C1-R-ELZ-NW-<QUALIFIER>` | `DRG-C1-R-ELZ-NW-HUB` |
+| DRG | `drg_r_<qualifier>` | `drg_r_hub` |
 | Route Table | `RT-C1-<AGENCY>-ELZ-NW-<FUNCTION>` | `RT-C1-OS-ELZ-NW-APP` |
 | Sim FW Instance | `FW-C1-<AGENCY>-ELZ-NW[-HUB]-SIM` | `FW-C1-OS-ELZ-NW-SIM` |
 | Bastion | `BAS-C1-R-ELZ-NW-HUB` | — |
@@ -816,7 +816,7 @@ Files: `nw_team4.tf` (primary), `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf` (DRG
 - [ ] TC-10: 4 Sim FW instances RUNNING + skip_source_dest_check verified PASS
 - [ ] TC-11: Hub Bastion ACTIVE PASS
 - [ ] TC-12: Route tables correct (spokes → DRG, hub FW empty, hub MGMT → DRG) PASS
-- [ ] TC-12b: DRG-C1-R-ELZ-NW-EW exists · AVAILABLE · 0 attachments PASS
+- [ ] TC-12b: drg_r_ew_hub exists · AVAILABLE · 0 attachments PASS
 - [ ] TC-13: NPA POSITIVE spoke to hub PASS
 - [ ] TC-14: NPA spoke-to-spoke via DRG — full-mesh behaviour documented PASS
 - [ ] TC-15: Linux Sim FW — cloud-init done, ip_forward=1, iptables masquerade, ping/traceroute/tcpdump PASS
@@ -863,8 +863,8 @@ Files: `nw_team4.tf` (primary), `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf` (DRG
 | # | Change | File(s) | Reason |
 |---|---|---|---|
 | C21 | Changed spoke VCN CIDR defaults `/16` → `/24` | `variables_net.tf`, `locals.tf`, `schema.yaml`, `terraform.tfvars.template`, `nw_main.tf` | GAP-01: architecture specifies /24 for spokes; /16 defaults caused ORM UI drift from deployed resources |
-| C22 | Added `oci_core_drg.ew_hub` resource (`DRG-C1-R-ELZ-NW-EW`) | `nw_team4.tf` | GAP-02: architecture shows 2 DRGs in C1_R_ELZ_NW; E-W DRG was missing; V2 placeholder, 0 attachments in V1 |
-| C23 | Added `ew_hub_drg_name = "DRG-C1-R-ELZ-NW-EW"` constant | `locals.tf` | Single source of truth — all display names defined in locals.tf |
+| C22 | Added `oci_core_drg.ew_hub` resource (`drg_r_ew_hub`) | `nw_team4.tf` | GAP-02: architecture shows 2 DRGs in C1_R_ELZ_NW; E-W DRG was missing; V2 placeholder, 0 attachments in V1 |
+| C23 | Added `ew_hub_drg_name = "drg_r_ew_hub"` constant | `locals.tf` | Single source of truth — all display names defined in locals.tf |
 | C24 | Added `ew_hub_drg_id` output | `outputs.tf` | TC-12b needs the OCID; Sprint 3 DRG attachment work requires this output at handoff |
 | C25 | Removed contradictory `"Public IP — simulates north-south FW"` comment from `sim_fw_hub` | `nw_team4.tf` | Stale from before C2/C4; `assign_public_ip = false` is correct; comment contradicted live code |
 | C26 | Added TC-12b (E-W DRG validation), TC-18 (NPA E-W all spoke pairs), TC-19 (data plane E-W) | `README.md` | E-W routing is testable in V1 via DRG v2 full-mesh; validation suite now covers all paths |

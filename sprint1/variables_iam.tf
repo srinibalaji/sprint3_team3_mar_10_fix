@@ -183,7 +183,7 @@ variable "c2_os_app_name" {
 # Required before Sprint 4 apply. Leave empty for Sprint 1.
 # =============================================================================
 variable "sim_ext_compartment_id" {
-  description = "OCID of star-sim-ext-cmp — created manually by Team 4 (Sprint 1 Day 1). Leave empty until Sprint 4."
+  description = "OCID of C1_SIM_EXT — created manually by Team 4 (Sprint 1 Day 1). Leave empty until Sprint 4."
   type        = string
   default     = ""
   validation {
@@ -193,7 +193,7 @@ variable "sim_ext_compartment_id" {
 }
 
 variable "sim_child_compartment_id" {
-  description = "OCID of star-sim-child-cmp — created manually by Team 4 (Sprint 1 Day 1). Leave empty until Sprint 4."
+  description = "OCID of C1_SIM_CHILD — created manually by Team 4 (Sprint 1 Day 1). Leave empty until Sprint 4."
   type        = string
   default     = ""
   validation {

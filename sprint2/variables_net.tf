@@ -7,10 +7,10 @@
 # =============================================================================
 # CIDR defaults follow the STAR ELZ IP plan:
 #   10.0.0.0/16 — Hub (T4)
-#   10.1.0.0/16 — OS spoke (T1)
-#   10.2.0.0/16 — SS spoke (T3)
-#   10.3.0.0/16 — TS spoke (T2)
-#   10.4.0.0/16 — DEVT spoke (T3)
+#   10.1.0.0/24 — OS spoke (T1)
+#   10.2.0.0/24 — SS spoke (T3)
+#   10.3.0.0/24 — TS spoke (T2)
+#   10.4.0.0/24 — DEVT spoke (T3)
 #
 # Override only if your tenancy has conflicting address space.
 # =============================================================================

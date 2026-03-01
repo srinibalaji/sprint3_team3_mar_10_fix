@@ -16,8 +16,8 @@
 #   10. C1_DEVT_ELZ_NW — Development/Test spoke: VCN, subnets, NSGs
 #
 # TEAM 4 ALSO OWNS (OCI Console — NOT Terraform) | SPRINT1-ISSUE-#5:
-#   star-sim-ext-cmp   — Manual creation. OCID → var.sim_ext_compartment_id
-#   star-sim-child-cmp — Manual creation. OCID → var.sim_child_compartment_id
+#   C1_SIM_EXT   — Manual creation. OCID → var.sim_ext_compartment_id
+#   C1_SIM_CHILD — Manual creation. OCID → var.sim_child_compartment_id
 #   UG_SIM_EXT         — Manual group creation (Sprint 1 Day 1)
 #   UG_SIM_CHILD       — Manual group creation (Sprint 1 Day 1)
 #   TC-01b: Validate 2 manual compartments + OCIDs in tfvars (SPRINT1-ISSUE-#18)

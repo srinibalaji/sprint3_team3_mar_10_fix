@@ -140,7 +140,7 @@ locals {
   soc_group_name_const  = "UG_ELZ_SOC"
   ops_group_name        = "UG_ELZ_OPS"
   csvcs_group_name      = "UG_ELZ_CSVCS"
-  devt_csvcs_group_name = "UG_ELZ_DEVT_CSVCS"
+  devt_csvcs_group_name = "UG_DEVT_CSVCS"
   os_nw_group_name      = "UG_OS_ELZ_NW"
   ss_nw_group_name      = "UG_SS_ELZ_NW"
   ts_nw_group_name      = "UG_TS_ELZ_NW"

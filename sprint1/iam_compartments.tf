@@ -16,8 +16,8 @@
 #   Total TF-managed: 10 compartments at C1 level
 #
 # MANUAL COMPARTMENTS (2) — Team 4, OCI Console, Sprint 1 Day 1:
-#   star-sim-ext-cmp   — TEMP V1 ONLY (Simulated external agency, DNS Bridge)
-#   star-sim-child-cmp — TEMP V1 ONLY (Hello World workload)
+#   C1_SIM_EXT   — TEMP V1 ONLY (Simulated external agency, DNS Bridge)
+#   C1_SIM_CHILD — TEMP V1 ONLY (Hello World workload)
 #   Paste OCIDs into terraform.tfvars: sim_ext_compartment_id, sim_child_compartment_id
 #
 # HIERARCHY (default):

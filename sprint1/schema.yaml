@@ -205,11 +205,11 @@ variables:
   sim_ext_compartment_id:
     type: string
     title: "Sim External Compartment OCID"
-    description: "OCID of star-sim-ext-cmp created manually in OCI Console by Team 4. Leave empty for Sprint 1. Required before Sprint 4 apply."
+    description: "OCID of C1_SIM_EXT created manually in OCI Console by Team 4. Leave empty for Sprint 1. Required before Sprint 4 apply."
     required: false
 
   sim_child_compartment_id:
     type: string
     title: "Sim Child Compartment OCID"
-    description: "OCID of star-sim-child-cmp created manually in OCI Console by Team 4. Leave empty for Sprint 1. Required before Sprint 4 apply."
+    description: "OCID of C1_SIM_CHILD created manually in OCI Console by Team 4. Leave empty for Sprint 1. Required before Sprint 4 apply."
     required: false

@@ -186,4 +186,4 @@ Adding a 5th spoke requires changes in exactly four places — no other files ne
 3. `sprint1/iam_policies_team<N>.tf` — grant spoke-level VCN management
 4. `sprint2/nw_team<N>.tf` — add VCN, subnet, DRG attachment, RT, Sim FW (copy from `nw_team1.tf` pattern)
 
-The Hub DRG (`DRG-C1-R-ELZ-NW-HUB`) supports additional attachments without modification. No existing spoke is affected.
+The Hub DRG (`drg_r_hub`) supports additional attachments without modification. No existing spoke is affected.

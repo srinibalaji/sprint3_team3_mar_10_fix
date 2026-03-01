@@ -37,7 +37,7 @@ locals {
     # -------------------------------------------------------------------------
     # DEVT_CSVCS — Development Common Services  [C1_R_ELZ_DEVT_CSVCS]
     # Contains: development toolchain shared services (non-production tier)
-    # Group:    UG_ELZ_DEVT_CSVCS
+    # Group:    UG_DEVT_CSVCS
     # Policies: UG_ELZ_CSVCS-Policy (manage all-resources in compartment)
     # TC-03:    UG_DEVT_ELZ_NW must NOT appear in any policy granting access
     #           to this compartment — enforced by its absence from UG-SPOKE-NW-Policy

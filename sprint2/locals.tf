@@ -65,11 +65,11 @@ locals {
   # ---------------------------------------------------------------------------
 
   # VCN Names
-  hub_vcn_name  = "VCN-C1-R-ELZ-NW-HUB"
-  os_vcn_name   = "VCN-C1-OS-ELZ-NW"
-  ts_vcn_name   = "VCN-C1-TS-ELZ-NW"
-  ss_vcn_name   = "VCN-C1-SS-ELZ-NW"
-  devt_vcn_name = "VCN-C1-DEVT-ELZ-NW"
+  hub_vcn_name  = "vcn_r_elz_nw"
+  os_vcn_name   = "vcn_os_elz_nw"
+  ts_vcn_name   = "vcn_ts_elz_nw"
+  ss_vcn_name   = "vcn_ss_elz_nw"
+  devt_vcn_name = "vcn_devt_elz_nw"
 
   # Subnet Names
   hub_fw_subnet_name   = "SUB-C1-R-ELZ-NW-FW"
@@ -80,8 +80,8 @@ locals {
   devt_app_subnet_name = "SUB-C1-DEVT-ELZ-NW-APP"
 
   # DRG Names
-  hub_drg_name    = "DRG-C1-R-ELZ-NW-HUB" # Primary hub DRG — all 5 VCN attachments
-  ew_hub_drg_name = "DRG-C1-R-ELZ-NW-EW"  # Inter E-W DRG — V2 placeholder (0 attachments in V1)
+  hub_drg_name    = "drg_r_hub" # Primary hub DRG — all 5 VCN attachments
+  ew_hub_drg_name = "drg_r_ew_hub"  # Inter E-W DRG — V2 placeholder (0 attachments in V1)
 
   # Route Table Names
   hub_fw_rt_name   = "RT-C1-R-ELZ-NW-FW"

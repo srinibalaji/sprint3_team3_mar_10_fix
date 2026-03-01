@@ -58,8 +58,8 @@ enable_c2_compartments = false
 # Paste OCIDs here before Sprint 4 apply. Leave empty for Sprint 1.
 # Record these OCIDs in State Book: V1_Manual_Resources tab.
 # =============================================================================
-sim_ext_compartment_id   = ""   # ocid1.compartment.oc1..aaa (star-sim-ext-cmp)
-sim_child_compartment_id = ""   # ocid1.compartment.oc1..aaa (star-sim-child-cmp)
+sim_ext_compartment_id   = ""   # ocid1.compartment.oc1..aaa (C1_SIM_EXT)
+sim_child_compartment_id = ""   # ocid1.compartment.oc1..aaa (C1_SIM_CHILD)
 
 # =============================================================================
 # COMPARTMENT NAME OVERRIDES (optional)

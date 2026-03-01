@@ -43,7 +43,7 @@ Teams do not need to write tag blocks on individual resources. `depends_on` is u
 
 **Resolution: ✅ IMPLEMENTED**
 
-Hardcoding is fully deprecated. All global routing names (e.g., `ew_hub_drg_name = "DRG-C1-R-ELZ-NW-EW"`), base CIDR blocks, resource display names, DNS labels, and DRG attachment names are centralised in `locals.tf` and `variables_net.tf`. No resource file defines a string literal for any infrastructure name — all reference `local.*` constants. This ensures a single rename in `locals.tf` propagates everywhere automatically.
+Hardcoding is fully deprecated. All global routing names (e.g., `ew_hub_drg_name = "drg_r_ew_hub"`), base CIDR blocks, resource display names, DNS labels, and DRG attachment names are centralised in `locals.tf` and `variables_net.tf`. No resource file defines a string literal for any infrastructure name — all reference `local.*` constants. This ensures a single rename in `locals.tf` propagates everywhere automatically.
 
 ---
 
@@ -58,9 +58,9 @@ The naming standard documentation is now in `docs/` in the repository and is the
 | Compartments | `C1_<AGENCY>_ELZ_<FUNCTION>` | `C1_R_ELZ_NW` |
 | Groups | `UG_[<AGENCY>_]ELZ_<FUNCTION>` | `UG_ELZ_NW`, `UG_OS_ELZ_NW` |
 | Policies | `<GROUP_NAME>-Policy` | `UG_ELZ_NW-Policy` |
-| VCNs | `VCN-C1-<AGENCY>-ELZ-NW[-QUALIFIER]` | `VCN-C1-R-ELZ-NW-HUB` |
+| VCNs | `vcn_<agency>_elz_nw` | `vcn_r_elz_nw` |
 | Subnets | `SUB-C1-<AGENCY>-ELZ-NW-<ZONE>` | `SUB-C1-OS-ELZ-NW-APP` |
-| DRGs | `DRG-C1-R-ELZ-NW-<QUALIFIER>` | `DRG-C1-R-ELZ-NW-HUB` |
+| DRGs | `drg_r_<qualifier>` | `drg_r_hub` |
 | Route Tables | `RT-C1-<AGENCY>-ELZ-NW-<ZONE>` | `RT-C1-OS-ELZ-NW-APP` |
 | Sim Firewalls | `FW-C1-<AGENCY>-ELZ-NW-SIM` | `FW-C1-OS-ELZ-NW-SIM` |
 | Bastion | `BAS-C1-R-ELZ-NW-HUB` | — |
@@ -107,9 +107,9 @@ Excel tracking is officially deprecated. `sprint_state_ledger.json` was merged i
 
 The comprehensive audit branch was merged today. The scaffold now fully maps to the V1 Isolated Design:
 
-- 5 VCNs (`VCN-C1-R-ELZ-NW-HUB`, `VCN-C1-OS-ELZ-NW`, `VCN-C1-TS-ELZ-NW`, `VCN-C1-SS-ELZ-NW`, `VCN-C1-DEVT-ELZ-NW`)
+- 5 VCNs (`vcn_r_elz_nw`, `vcn_os_elz_nw`, `vcn_ts_elz_nw`, `vcn_ss_elz_nw`, `vcn_devt_elz_nw`)
 - 6 subnets (2 hub, 4 spoke app subnets)
-- 2 DRGs in `C1_R_ELZ_NW`: `DRG-C1-R-ELZ-NW-HUB` (active, 5 attachments in Phase 2) and `DRG-C1-R-ELZ-NW-EW` (V2 placeholder, 0 attachments)
+- 2 DRGs in `C1_R_ELZ_NW`: `drg_r_hub` (active, 5 attachments in Phase 2) and `drg_r_ew_hub` (V2 placeholder, 0 attachments)
 - 6 route tables — all spoke RTs updated in-place via dynamic `route_rules` block in Phase 2 (no subnet recreation)
 - 4 Sim FW instances (hub, OS, TS, SS) — DEVT is network-only in V1
 - 1 OCI Bastion Service (`BAS-C1-R-ELZ-NW-HUB`) in hub MGMT subnet
@@ -122,7 +122,7 @@ All resources are parameterised. CIDR defaults in `variables_net.tf`, `locals.tf
 
 **Resolution: ✅ ACTIONED**
 
-GitHub issues have been bulk-generated for the Sprint 2 board (StarPrj). Validation tasks TC-07 through TC-12b are mapped as explicit tickets for teams to execute via CLI post-deployment. The CLI commands are documented in `ARCHITECT_RUNBOOK.md`. TC-12b (E-W DRG exists) is a new test case added today alongside the `DRG-C1-R-ELZ-NW-EW` resource.
+GitHub issues have been bulk-generated for the Sprint 2 board (StarPrj). Validation tasks TC-07 through TC-12b are mapped as explicit tickets for teams to execute via CLI post-deployment. The CLI commands are documented in `ARCHITECT_RUNBOOK.md`. TC-12b (E-W DRG exists) is a new test case added today alongside the `drg_r_ew_hub` resource.
 
 ---
 

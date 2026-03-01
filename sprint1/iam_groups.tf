@@ -10,7 +10,7 @@
 # TEAM FILES:
 #   iam_groups_team1.tf — Team 1: UG_ELZ_NW, UG_ELZ_SEC             (2 groups)
 #   iam_groups_team2.tf — Team 2: UG_ELZ_SOC, UG_ELZ_OPS            (2 groups)
-#   iam_groups_team3.tf — Team 3: UG_ELZ_CSVCS, UG_ELZ_DEVT_CSVCS   (2 groups)
+#   iam_groups_team3.tf — Team 3: UG_ELZ_CSVCS, UG_DEVT_CSVCS   (2 groups)
 #   iam_groups_team4.tf — Team 4: UG_OS_ELZ_NW, UG_SS_ELZ_NW,
 #                                  UG_TS_ELZ_NW, UG_DEVT_ELZ_NW      (4 groups)
 #   Total TF-managed: 10 groups
@@ -95,7 +95,7 @@ locals {
     groups : merge(
       local.team1_groups, # UG_ELZ_NW, UG_ELZ_SEC
       local.team2_groups, # UG_ELZ_SOC, UG_ELZ_OPS
-      local.team3_groups, # UG_ELZ_CSVCS, UG_ELZ_DEVT_CSVCS
+      local.team3_groups, # UG_ELZ_CSVCS, UG_DEVT_CSVCS
       local.team4_groups  # UG_OS_ELZ_NW, UG_SS_ELZ_NW, UG_TS_ELZ_NW, UG_DEVT_ELZ_NW
     )
   }

@@ -101,7 +101,7 @@ resource "oci_core_drg" "hub" {
 
 # Inter E-W DRG — V2 placeholder (GAP-02 fix)
 # Represents the future East-West segmentation DRG for inter-agency traffic.
-# V1: provisioned with ZERO attachments. display_name = DRG-C1-R-ELZ-NW-EW.
+# V1: provisioned with ZERO attachments. display_name = drg_r_ew_hub.
 # V2 will add DRG route tables and spoke attachments for E-W isolation.
 # TC-12b: validate this DRG exists in C1_R_ELZ_NW (oci network drg list).
 resource "oci_core_drg" "ew_hub" {

@@ -41,7 +41,7 @@ What gets created per team:
 |---|---|---|
 | T1 | `C1_R_ELZ_NW`, `C1_R_ELZ_SEC` | `UG_ELZ_NW`, `UG_ELZ_SEC` |
 | T2 | `C1_R_ELZ_SOC`, `C1_R_ELZ_OPS` | `UG_ELZ_SOC`, `UG_ELZ_OPS` |
-| T3 | `C1_R_ELZ_CSVCS`, `C1_R_ELZ_DEVT_CSVCS` | `UG_ELZ_CSVCS`, `UG_ELZ_DEVT_CSVCS` |
+| T3 | `C1_R_ELZ_CSVCS`, `C1_R_ELZ_DEVT_CSVCS` | `UG_ELZ_CSVCS`, `UG_DEVT_CSVCS` |
 | T4 | `C1_OS_ELZ_NW`, `C1_SS_ELZ_NW`, `C1_TS_ELZ_NW`, `C1_DEVT_ELZ_NW` | `UG_OS_ELZ_NW`, `UG_SS_ELZ_NW`, `UG_TS_ELZ_NW`, `UG_DEVT_ELZ_NW` |
 
 Each team applies their own ORM Stack once. Terraform automatically creates compartments → groups → policies in the correct order via `depends_on` — no manual sequencing needed. All 4 teams apply simultaneously.
@@ -178,12 +178,12 @@ Phase 1 resources per team:
 
 | Team | Resources Created |
 |---|---|
-| T1 | `VCN-C1-OS-ELZ-NW` (10.1.0.0/24), `SUB-C1-OS-ELZ-NW-APP`, `RT-C1-OS-ELZ-NW-APP` (empty) |
-| T2 | `VCN-C1-TS-ELZ-NW` (10.3.0.0/24), `SUB-C1-TS-ELZ-NW-APP`, `RT-C1-TS-ELZ-NW-APP` (empty) |
-| T3 | `VCN-C1-SS-ELZ-NW` (10.2.0.0/24) + `VCN-C1-DEVT-ELZ-NW` (10.4.0.0/24), subnets, RTs (empty) |
-| T4 | `VCN-C1-R-ELZ-NW-HUB` (10.0.0.0/16), `SUB-C1-R-ELZ-NW-FW`, `SUB-C1-R-ELZ-NW-MGMT`, `DRG-C1-R-ELZ-NW-HUB`, `DRG-C1-R-ELZ-NW-EW`, RTs |
+| T1 | `vcn_os_elz_nw` (10.1.0.0/24), `SUB-C1-OS-ELZ-NW-APP`, `RT-C1-OS-ELZ-NW-APP` (empty) |
+| T2 | `vcn_ts_elz_nw` (10.3.0.0/24), `SUB-C1-TS-ELZ-NW-APP`, `RT-C1-TS-ELZ-NW-APP` (empty) |
+| T3 | `vcn_ss_elz_nw` (10.2.0.0/24) + `vcn_devt_elz_nw` (10.4.0.0/24), subnets, RTs (empty) |
+| T4 | `vcn_r_elz_nw` (10.0.0.0/16), `SUB-C1-R-ELZ-NW-FW`, `SUB-C1-R-ELZ-NW-MGMT`, `drg_r_hub`, `drg_r_ew_hub`, RTs |
 
-> ✅ **DRG-C1-R-ELZ-NW-EW is provisioned with zero attachments in V1.** It is a V2 placeholder for East-West segmentation. TC-12b validates its existence.
+> ✅ **drg_r_ew_hub is provisioned with zero attachments in V1.** It is a V2 placeholder for East-West segmentation. TC-12b validates its existence.
 
 ### 14:00 — T4 Captures and Shares DRG OCID
 
@@ -264,9 +264,9 @@ terraform plan   # must show: No changes. Your infrastructure matches the config
 
 # TC-12b: E-W DRG exists in C1_R_ELZ_NW
 oci network drg list --compartment-id <nw_compartment_id> --all \
-  --query "data[?\"display-name\"=='DRG-C1-R-ELZ-NW-EW'].{Name:\"display-name\",State:\"lifecycle-state\"}" \
+  --query "data[?\"display-name\"=='drg_r_ew_hub'].{Name:\"display-name\",State:\"lifecycle-state\"}" \
   --output table
-# Expected: DRG-C1-R-ELZ-NW-EW  AVAILABLE
+# Expected: drg_r_ew_hub  AVAILABLE
 
 # TC-13/14: Route table validation — each spoke RT has 0.0.0.0/0 → DRG
 oci network route-table list --compartment-id <os_cmp_id> --all \

@@ -66,7 +66,7 @@ Every team file has `children : {}` populated and documented. Set `enable_c2_com
 | `iam_groups.tf` | — | lz_groups module orchestrator |
 | `iam_groups_team1.tf` | T1 | UG_ELZ_NW, UG_ELZ_SEC |
 | `iam_groups_team2.tf` | T2 | UG_ELZ_SOC, UG_ELZ_OPS |
-| `iam_groups_team3.tf` | T3 | UG_ELZ_CSVCS, UG_ELZ_DEVT_CSVCS |
+| `iam_groups_team3.tf` | T3 | UG_ELZ_CSVCS, UG_DEVT_CSVCS |
 | `iam_groups_team4.tf` | T4 | UG_OS_ELZ_NW, UG_SS_ELZ_NW, UG_TS_ELZ_NW, UG_DEVT_ELZ_NW |
 | `iam_policies.tf` | — | lz_policies module orchestrator |
 | `iam_policies_team1.tf` | T1 | UG_ELZ_NW-Policy, UG_ELZ_SEC-Policy |
@@ -92,8 +92,8 @@ terraform state list | grep compartments | wc -l
 Verify in OCI Console: Identity → Compartments. All 10 names match `C1_*` constants.
 
 ### TC-01b — 2 Manual Compartments (Team 4)
-- [ ] `star-sim-ext-cmp` created in OCI Console
-- [ ] `star-sim-child-cmp` created in OCI Console
+- [ ] `C1_SIM_EXT` created in OCI Console
+- [ ] `C1_SIM_CHILD` created in OCI Console
 - [ ] OCIDs pasted into `terraform.tfvars`: `sim_ext_compartment_id`, `sim_child_compartment_id`
 - [ ] `terraform output sim_ext_compartment_id` → non-empty
 - [ ] `terraform output sim_child_compartment_id` → non-empty

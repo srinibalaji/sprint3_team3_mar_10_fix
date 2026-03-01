@@ -88,12 +88,12 @@ output "parent_compartment_id" {
 # MANUAL COMPARTMENT OCIDs (from tfvars — Team 4 Console-created)
 # ---------------------------------------------------------------------------
 output "sim_ext_compartment_id" {
-  description = "OCID of star-sim-ext-cmp (manual — Team 4 Sprint 1 Day 1)"
+  description = "OCID of C1_SIM_EXT (manual — Team 4 Sprint 1 Day 1)"
   value       = local.sim_ext_compartment_id
 }
 
 output "sim_child_compartment_id" {
-  description = "OCID of star-sim-child-cmp (manual — Team 4 Sprint 1 Day 1)"
+  description = "OCID of C1_SIM_CHILD (manual — Team 4 Sprint 1 Day 1)"
   value       = local.sim_child_compartment_id
 }
 

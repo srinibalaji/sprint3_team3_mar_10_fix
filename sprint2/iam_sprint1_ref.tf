@@ -20,7 +20,7 @@
 #
 #   Groups (10 TF-managed):
 #     UG_ELZ_NW, UG_ELZ_SEC, UG_ELZ_SOC, UG_ELZ_OPS
-#     UG_ELZ_CSVCS, UG_ELZ_DEVT_CSVCS
+#     UG_ELZ_CSVCS, UG_DEVT_CSVCS
 #     UG_OS_ELZ_NW, UG_SS_ELZ_NW, UG_TS_ELZ_NW, UG_DEVT_ELZ_NW
 #
 #   Policies (7 policy objects, 60 statements):

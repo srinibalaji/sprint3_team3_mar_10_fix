@@ -11,7 +11,7 @@
 #
 # GROUPS IN THIS FILE (2 of 10 TF-managed):
 #   5. UG_ELZ_CSVCS      — Common Services Administrators
-#   6. UG_ELZ_DEVT_CSVCS — Development Common Services Administrators
+#   6. UG_DEVT_CSVCS — Development Common Services Administrators
 #
 # Team 3 also owns: mon_tags.tf (tag namespace C0-star-elz-v1 + CIS tag defaults)
 # =============================================================================
@@ -30,7 +30,7 @@ locals {
     },
 
     # -------------------------------------------------------------------------
-    # UG_ELZ_DEVT_CSVCS — Development Common Services Administrators
+    # UG_DEVT_CSVCS — Development Common Services Administrators
     # -------------------------------------------------------------------------
     (local.devt_csvcs_admin_group_key) : {
       name : local.provided_devt_csvcs_admin_group_name,

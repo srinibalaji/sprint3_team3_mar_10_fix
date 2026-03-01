@@ -21,24 +21,28 @@ Terraform IaC for the STAR ELZ V1 — a sovereign OCI deployment covering IAM, n
 
 ## Getting Started — Reading Order
 
-New to the project? Read these in order:
+Each sprint README is self-contained. Read your sprint README, then your team file — that's enough to start coding.
+
+**Sprint 1 → Sprint 2 path:**
 
 | Step | File | What You'll Learn | Time |
 |---|---|---|---|
 | 1 | **This file** (`README.md`) | Repo layout, team assignments, sprint schedule | 5 min |
-| 2 | [`docs/ARCHITECT_RUNBOOK.md`](docs/ARCHITECT_RUNBOOK.md) | Full deployment guide — sprint-by-sprint CLI commands, TC validation, ORM instructions | 15 min |
-| 3 | [`sprint1/README.md`](sprint1/README.md) | Sprint 1 IAM scope — naming fixes, module patterns, what was built and why | 10 min |
-| 4 | [`sprint1/locals.tf`](sprint1/locals.tf) | **Single source of truth** — all compartment, group, and policy name constants | 5 min |
-| 5 | Your team file: `sprint1/iam_cmps_teamN.tf` + `iam_groups_teamN.tf` + `iam_policies_teamN.tf` | Your compartments, groups, policy statements | 5 min |
-| 6 | [`sprint2/README.md`](sprint2/README.md) | Sprint 2 networking — topology, two-phase apply, all test cases (TC-07 to TC-19) | 15 min |
-| 7 | [`sprint2/locals.tf`](sprint2/locals.tf) | All networking name constants, DNS labels, CIDR plan, phase2 gate | 5 min |
-| 8 | Your team file: `sprint2/nw_teamN.tf` | Your VCN, subnet, DRG attachment, route table, Sim FW | 10 min |
+| 2 | [`sprint1/README.md`](sprint1/README.md) | IAM scope, issue list, file map, all test cases (TC-01 to TC-06b), handoff checklist | 10 min |
+| 3 | [`sprint1/locals.tf`](sprint1/locals.tf) | All compartment, group, and policy name constants | 5 min |
+| 4 | Your team file: `sprint1/iam_cmps_teamN.tf` + `iam_groups_teamN.tf` + `iam_policies_teamN.tf` | Your compartments, groups, policy statements | 5 min |
+| 5 | [`sprint2/README.md`](sprint2/README.md) | Networking topology, two-phase apply, issue list, all test cases (TC-07 to TC-19) | 15 min |
+| 6 | [`sprint2/locals.tf`](sprint2/locals.tf) | All networking name constants, DNS labels, CIDR plan, phase2 gate | 5 min |
+| 7 | Your team file: `sprint2/nw_teamN.tf` | Your VCN, subnet, DRG attachment, route table, Sim FW | 10 min |
 
-**Reference (read as needed):**
+Total onboarding: ~55 minutes to full context.
 
-| File | When to Use |
+**Supplemental docs (optional — for background and rationale only):**
+
+| File | What It Covers |
 |---|---|
-| [`docs/HANDOFF.md`](docs/HANDOFF.md) | Sprint boundary — what to verify before moving to next sprint |
+| [`docs/ARCHITECT_RUNBOOK.md`](docs/ARCHITECT_RUNBOOK.md) | Detailed deployment script with CLI commands — useful for the architect running ORM |
+| [`docs/HANDOFF.md`](docs/HANDOFF.md) | Sprint boundary requirements — what to verify before moving to next sprint |
 | [`docs/SPRINT1_RETRO_QA.md`](docs/SPRINT1_RETRO_QA.md) | Naming convention rationale, architecture QA, Sprint 1 retro notes |
 | [`sprint_state_ledger.json`](sprint_state_ledger.json) | TC status tracking, resource inventory, architecture gaps |
 

@@ -2,6 +2,8 @@
 
 **Branch:** `sprint2` · **Dates:** 2–4 Mar 2026 · **Terraform ≥ 1.3.0** · **OCI Provider ≥ 6.0.0**
 
+> **Coming from Sprint 1?** You need 10 compartment OCIDs from `terraform output -json > sprint1_outputs.json`. Paste them into Sprint 2's `terraform.tfvars` or ORM variables (Section 3). The mapping is documented in [`terraform.tfvars.template`](terraform.tfvars.template). Everything else you need is in this README.
+
 Sprint 2 builds a hub-and-spoke network — 5 VCNs (1 hub + 4 spokes) inside Sprint 1 compartments. V1 is fully isolated: no IGW, no public IPs. Validation uses NPA (control plane) and Bastion SSH (data plane).
 
 E-W spoke↔spoke routing works via DRG v2 full-mesh (TC-18/TC-19). Hub FW inspection of E-W traffic is Sprint 3 (S3-BACKLOG-01).

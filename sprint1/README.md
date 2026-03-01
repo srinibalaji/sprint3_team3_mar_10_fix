@@ -255,3 +255,13 @@ When you need Level 2 compartments under any C1 compartment:
 3. `terraform plan` → `terraform apply`
 4. No changes needed to `iam_compartments.tf` — the orchestrator merges children automatically.
 5. C3 follows the same pattern: add `children : {}` inside the C2 block.
+
+---
+
+## Next: Sprint 2 — Networking
+
+Once all TCs pass and `sprint1_outputs.json` is exported, move to [`sprint2/README.md`](../sprint2/README.md). That README is self-contained — it covers topology, two-phase apply, issue list, and all test cases (TC-07 to TC-19).
+
+**What you carry forward:** 10 compartment OCIDs from Sprint 1 outputs → paste into Sprint 2 `terraform.tfvars` or ORM variables.
+
+**What you don't need to read first:** The files in `docs/` are supplemental. `ARCHITECT_RUNBOOK.md` is the detailed deployment script for whoever is running ORM. `HANDOFF.md` and `SPRINT1_RETRO_QA.md` are background reading for architecture rationale. None are required to start Sprint 2 coding.

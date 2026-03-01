@@ -154,7 +154,37 @@ Cloud Guard was enabled manually in the tenancy. Importing it into Terraform sta
 
 ---
 
-## 6. Outstanding Items — Global Architect & TCE Review
+## 6. Observability & Tracing of Terraform
+
+**Q: Observability and tracing of Terraform implementation — best practices for resource conflicts, success, failures.**
+
+**Resolution: ✅ DOCUMENTED**
+
+Terraform observability is addressed at three layers:
+
+**Layer 1 — ORM Job Logs (production):** Every ORM Plan and Apply job produces a full log accessible in OCI Console → Resource Manager → Stacks → Jobs. These logs capture resource creation order, API errors, conflict states, and timing. ORM retains job history indefinitely. For the Feb 26 drift anomaly, TCE team has been asked to retrieve these logs.
+
+**Layer 2 — CI Pipeline Quality Gates (pre-production):** A comprehensive pipeline guide has been created at [`docs/terraform-pipeline-quality-gates.md`](terraform-pipeline-quality-gates.md). This covers `terraform fmt`, `terraform validate`, `tflint` (OCI ruleset), `checkov` (CIS OCI benchmark), `terragrunt` (DRY config and remote state), and `terratest` (integration testing). The guide includes GitHub Actions CI configuration that gates every PR with format, validate, lint, and security scan checks before code reaches ORM.
+
+**Layer 3 — Drift Detection (ongoing):** Post-apply, run `terraform plan` (or ORM Plan) to detect drift. TC-06b (Sprint 1) and TC-17 (Sprint 2) are explicit zero-drift test cases. For production, schedule a weekly ORM Plan via the ORM API (`oci resource-manager stack create-plan`) with alerting on non-zero changes.
+
+For the OCI Terraform provider documentation referenced in the session: [registry.terraform.io/providers/oracle/oci/latest/docs](https://registry.terraform.io/providers/oracle/oci/latest/docs).
+
+---
+
+## 7. Board Definition & Cloud Testing Environment
+
+**Q: Board definition, pre-validation, and cloud testing environment discussion.**
+
+**Resolution: ✅ ACTIONED**
+
+The GitHub Project Board (StarPrj) has been updated with Sprint 1 (S1-T1 to S1-T4) and Sprint 2 (S2-T1 to S2-T4) issues, each mapped to a team, file, and date. Validation test cases are tracked as separate issues (TC-01 through TC-19).
+
+For cloud testing environment strategy: the current `deployment_identifier` variable (e.g. `C1`, `TEST`) allows multiple ELZ instances in the same tenancy without conflict. Each deployment creates its own compartment hierarchy. For formal pre-prod/prod separation, see Section 8 (Multi-Tenancy / Env Strategy) which is pending TCE/Paxton review. The `terratest` integration testing approach documented in [`docs/terraform-pipeline-quality-gates.md`](terraform-pipeline-quality-gates.md) provides automated apply/validate/destroy cycles against a dedicated test identifier.
+
+---
+
+## 8. Outstanding Items — Global Architect & TCE Review
 
 The following items remain open pending architectural review:
 

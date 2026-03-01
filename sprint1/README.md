@@ -80,6 +80,53 @@ Every team file has `children : {}` populated and documented. Set `enable_c2_com
 
 ---
 
+## Sprint 1 Issue List
+
+### Pre-Sprint
+
+| # | Task | Team | Date |
+|---|---|---|---|
+| S1-PRE | Provision Cloud Guard (manual, tenancy-level) | Oracle | 23 Feb |
+
+### Day 1 — Compartments (24 Feb)
+
+| # | Task | Team | File |
+|---|---|---|---|
+| S1-T1 | Write & provision NW + SEC compartments | T1 | `iam_cmps_team1.tf` |
+| S1-T2 | Write & provision SOC + OPS compartments | T2 | `iam_cmps_team2.tf` |
+| S1-T3 | Write & provision CSVCS + DEVT_CSVCS compartments | T3 | `iam_cmps_team3.tf` |
+| S1-T4 | Write & provision OS + SS + TS + DEVT spoke compartments | T4 | `iam_cmps_team4.tf` |
+| S1-T4 | MANUAL: Create C1_SIM_EXT + C1_SIM_CHILD + UG_SIM_EXT + UG_SIM_CHILD in OCI Console | T4 | Console |
+
+### Day 2 — Groups, Policies, Tags (25 Feb)
+
+| # | Task | Team | File |
+|---|---|---|---|
+| S1-T1 | Write & provision 2 IAM groups | T1 | `iam_groups_team1.tf` |
+| S1-T2 | Write & provision 2 IAM groups | T2 | `iam_groups_team2.tf` |
+| S1-T3 | Write & provision 2 IAM groups | T3 | `iam_groups_team3.tf` |
+| S1-T4 | Write & provision 2 IAM groups | T4 | `iam_groups_team4.tf` |
+| S1-T1 | Write & provision policy statements | T1 | `iam_policies_team1.tf` |
+| S1-T2 | Write & provision policy statements | T2 | `iam_policies_team2.tf` |
+| S1-T3 | Write & provision policy statements | T3 | `iam_policies_team3.tf` |
+| S1-T4 | Write & provision policy statements | T4 | `iam_policies_team4.tf` |
+| S1-T3 | Write & provision ELZ tag namespace + 5 tags | T3 | `mon_tags.tf` |
+
+### Validation (25 Feb)
+
+| # | Task | Team |
+|---|---|---|
+| S1-ALL | TC-06: Create ORM Stack and execute Apply Job | Oracle |
+| S1-ALL | TC-06b: Trigger new Plan Job and verify zero drift | Oracle |
+| S1-ALL | TC-01: Validate 10 TF compartments | All |
+| S1-T4 | TC-01b: Validate 2 manual sim compartments + OCIDs in tfvars | T4 |
+| S1-ALL | TC-02: Validate 12 groups (10 TF + 2 manual) | All |
+| S1-T2 | TC-03: NEGATIVE SoD — DEVT cannot write to SEC | T2 |
+| S1-T2 | TC-04: NEGATIVE — SOC user read-only | T2 |
+| S1-T3 | TC-05: Validate ELZ tags and CostCenter tracking | T3 |
+
+---
+
 ## Sprint 1 → Sprint 2 Handoff Checklist
 
 Run all test cases before declaring Sprint 1 complete.

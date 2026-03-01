@@ -121,16 +121,42 @@ git tag sprint2-complete && git push origin sprint2-complete
 
 ---
 
-## Sprint 2 Issues
+## Sprint 2 Issue List
+
+### VCN + Subnet (Phase 1)
 
 | # | Task | Team | Compartment | File |
 |---|---|---|---|---|
-| S2-T1 | OS: VCN + Subnet + RT + Sim FW | T1 | C1_OS_ELZ_NW | `nw_team1.tf` |
-| S2-T2 | TS: VCN + Subnet + RT + Sim FW | T2 | C1_TS_ELZ_NW | `nw_team2.tf` |
-| S2-T3 | SS+DEVT: VCNs + Subnets + RTs + Sim FW (SS) | T3 | C1_SS/DEVT_ELZ_NW | `nw_team3.tf` |
-| S2-T4 | Hub: VCN + Subnets + DRGs + RTs + Sim FW + Bastion | T4 | C1_R_ELZ_NW | `nw_team4.tf` |
+| S2-T1 | Write & provision VCN + Subnet for OS compartment | T1 | C1_OS_ELZ_NW | `nw_team1.tf` |
+| S2-T2 | Write & provision VCN + Subnet for TS compartment | T2 | C1_TS_ELZ_NW | `nw_team2.tf` |
+| S2-T3 | Write & provision VCN + Subnet for SS + DEVT compartment | T3 | C1_SS/DEVT_ELZ_NW | `nw_team3.tf` |
+| S2-T4 | Write & provision VCN + Subnet + DRG for ELZ_NW compartment | T4 | C1_R_ELZ_NW | `nw_team4.tf` |
 
-All dates: 2–4 Mar 2026. Phase 1 resources (VCN/subnet) apply first; Phase 2 resources (DRG attach/RT rules/Sim FW/Bastion) require `hub_drg_id`.
+### Route Tables (Phase 2)
+
+| # | Task | Team | Compartment | File |
+|---|---|---|---|---|
+| S2-T1 | Write & provision Route Table for OS compartment | T1 | C1_OS_ELZ_NW | `nw_team1.tf` |
+| S2-T2 | Write & provision Route Table for TS compartment | T2 | C1_TS_ELZ_NW | `nw_team2.tf` |
+| S2-T3 | Write & provision Route Table for SS + DEVT compartment | T3 | C1_SS/DEVT_ELZ_NW | `nw_team3.tf` |
+| S2-T4 | Write & provision Route Table for ELZ_NW compartment | T4 | C1_R_ELZ_NW | `nw_team4.tf` |
+
+### Sim Firewall (Phase 2)
+
+| # | Task | Team | Compartment | File |
+|---|---|---|---|---|
+| S2-T1 | Simulate compute / provision Firewall for OS compartment | T1 | C1_OS_ELZ_NW | `nw_team1.tf` |
+| S2-T2 | Simulate compute / provision Firewall for TS compartment | T2 | C1_TS_ELZ_NW | `nw_team2.tf` |
+| S2-T3 | Simulate compute / provision Firewall for SS compartment | T3 | C1_SS_ELZ_NW | `nw_team3.tf` |
+| S2-T4 | Simulate compute / provision Firewall for ELZ_NW compartment | T4 | C1_R_ELZ_NW | `nw_team4.tf` |
+
+### Bastion (Phase 2)
+
+| # | Task | Team | Compartment | File |
+|---|---|---|---|---|
+| S2-T4 | Write & provision Bastion for ELZ_NW compartment | T4 | C1_R_ELZ_NW | `nw_team4.tf` |
+
+All dates: 2–4 Mar 2026. Phase 1 resources (VCN/subnet/DRG) apply first; Phase 2 resources (RT rules/DRG attach/Sim FW/Bastion) require `hub_drg_id`.
 
 ---
 

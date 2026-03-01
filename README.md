@@ -50,12 +50,18 @@ New to the project? Read these in order:
 
 ### Sprint 1 — IAM
 
-| Team | Compartment File | Compartments | Other |
-|---|---|---|---|
-| T1 | `iam_cmps_team1.tf` | C1_R_ELZ_NW, C1_R_ELZ_SEC | `iam_groups_team1.tf` |
-| T2 | `iam_cmps_team2.tf` | C1_R_ELZ_SOC, C1_R_ELZ_OPS | `iam_groups_team2.tf`, `iam_policies_team2.tf` |
-| T3 | `iam_cmps_team3.tf` | C1_R_ELZ_CSVCS, C1_R_ELZ_DEVT_CSVCS | `iam_groups_team3.tf`, `iam_policies_team3.tf`, `mon_tags.tf` |
-| T4 | `iam_cmps_team4.tf` | C1_OS/SS/TS/DEVT_ELZ_NW + manual: C1_SIM_EXT, C1_SIM_CHILD | `iam_groups_team4.tf`, `iam_policies_team4.tf` |
+**Pre-sprint:** Cloud Guard provisioned by Oracle (23 Feb, manual, tenancy-level).
+
+| # | Task | Team | File | Date |
+|---|---|---|---|---|
+| S1-T1 | NW + SEC compartments | T1 | `iam_cmps_team1.tf` | 24 Feb |
+| S1-T2 | SOC + OPS compartments | T2 | `iam_cmps_team2.tf` | 24 Feb |
+| S1-T3 | CSVCS + DEVT_CSVCS compartments | T3 | `iam_cmps_team3.tf` | 24 Feb |
+| S1-T4 | OS + SS + TS + DEVT spoke compartments | T4 | `iam_cmps_team4.tf` | 24 Feb |
+| S1-T4 | MANUAL: C1_SIM_EXT, C1_SIM_CHILD, UG_SIM_EXT, UG_SIM_CHILD | T4 | Console | 24 Feb |
+| S1-T1–T4 | 2 IAM groups each | T1–T4 | `iam_groups_teamN.tf` | 25 Feb |
+| S1-T1–T4 | Policy statements each | T1–T4 | `iam_policies_teamN.tf` | 25 Feb |
+| S1-T3 | ELZ tag namespace + 5 tags | T3 | `mon_tags.tf` | 25 Feb |
 
 10 TF-managed compartments, 10 TF-managed groups, 7 policies (60 statements), 1 tag namespace + 5 tags. 2 manual compartments (C1_SIM_EXT, C1_SIM_CHILD) and 2 manual groups (UG_SIM_EXT, UG_SIM_CHILD) created via OCI Console.
 
@@ -63,12 +69,12 @@ New to the project? Read these in order:
 
 ### Sprint 2 — Networking
 
-| Team | File | Scope | Phase |
-|---|---|---|---|
-| T1 | `nw_team1.tf` | C1_OS_ELZ_NW — vcn_os_elz_nw (10.1.0.0/24), subnet, DRG attach, Sim FW | 1 + 2 |
-| T2 | `nw_team2.tf` | C1_TS_ELZ_NW — vcn_ts_elz_nw (10.3.0.0/24), subnet, DRG attach, Sim FW | 1 + 2 |
-| T3 | `nw_team3.tf` | C1_SS + DEVT_ELZ_NW — vcn_ss/devt_elz_nw (10.2/10.4), subnets, DRG attaches, Sim FW (SS only) | 1 + 2 |
-| T4 | `nw_team4.tf` | C1_R_ELZ_NW — vcn_r_elz_nw (10.0.0.0/16), FW+MGMT subnets, drg_r_hub, drg_r_ew_hub, Sim FW, Bastion | 1 → 2 |
+| # | Task | Team | File | Resource |
+|---|---|---|---|---|
+| S2-T1 | OS: VCN + Subnet + RT + Sim FW | T1 | `nw_team1.tf` | vcn_os_elz_nw (10.1.0.0/24) |
+| S2-T2 | TS: VCN + Subnet + RT + Sim FW | T2 | `nw_team2.tf` | vcn_ts_elz_nw (10.3.0.0/24) |
+| S2-T3 | SS+DEVT: VCNs + Subnets + RTs + Sim FW (SS) | T3 | `nw_team3.tf` | vcn_ss/devt_elz_nw (10.2/10.4) |
+| S2-T4 | Hub: VCN + Subnets + DRGs + RTs + Sim FW + Bastion | T4 | `nw_team4.tf` | vcn_r_elz_nw (10.0.0.0/16) |
 
 Two-phase apply: Phase 1 creates VCNs + subnets + DRG. T4 outputs `hub_drg_id`, shares with T1/T2/T3. Phase 2 creates DRG attachments, route tables, Sim FW, Bastion.
 

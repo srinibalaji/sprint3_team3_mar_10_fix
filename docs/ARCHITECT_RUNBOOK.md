@@ -2,10 +2,8 @@
 
 **File:** `docs/ARCHITECT_RUNBOOK.md`
 **Owner:** Principal Architect (Amit)
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-02-28
 **Purpose:** Exact script for the Sprint 1 + Sprint 2 deployment day. Follow this top-to-bottom. Do not skip steps.
-
-> **New to the project?** Start with the [root README](../README.md) → Getting Started section for the full reading order. This runbook is step 2 of 8.
 
 ---
 
@@ -374,13 +372,24 @@ oci iam tag-default list --compartment-id <tenancy_ocid> \
   --output table
 ```
 
-### "ping between spokes doesn't work after Phase 2"
+### Traffic Flow Reality — What Works Now vs Sprint 3
 
-**Expected behavior in V1:** Ping between spoke workloads **will not work yet** via the Sim FW. The Hub FW route table (`rt_r_elz_nw_fw`) is intentionally empty in V1 — no transit routing is configured. DRG transit route distribution is Sprint 3 scope.
+**DRG v2 full-mesh:** OCI DRG v2 with no custom `drg_route_table` on attachments defaults to full-mesh. Every attached VCN can reach every other attached VCN via the DRG fabric. This means **spoke-to-spoke ping works right now**.
 
-**What to say:** "The routing path is OS → DRG → Hub FW subnet → [no transit route] → dead end. This is the V1 isolated design. The ping test validates DRG attachment and route table existence only. End-to-end inter-spoke ping is TC-14b in Sprint 3."
+**Works — testable in Sprint 2 (NPA + data plane):**
 
-**What you can test now:** Bastion session from `bas_r_elz_nw_hub` → Sim FW private IP in the hub FW subnet. That validates the MGMT subnet route (`0.0.0.0/0 → DRG`) and Bastion connectivity.
+| Path | Method | TC |
+|---|---|---|
+| Spoke → Hub FW subnet (e.g. OS 10.1.0.x → Hub 10.0.0.x) | NPA + Bastion SSH | TC-13, TC-15 |
+| Spoke → Spoke (e.g. OS 10.1.0.x → TS 10.3.0.x) | NPA + ping/traceroute | TC-14, TC-18, TC-19 |
+| Hub MGMT → any spoke (Bastion reachability) | NPA + Bastion SSH | TC-18, TC-15 |
+| Hub Sim FW → all spoke Sim FWs | ping/traceroute/tcpdump/TCP:22 | TC-19 |
+
+**Does NOT work yet — Sprint 3 (S3-BACKLOG-01):**
+
+Forced inspection through Hub FW. Currently OS → TS traffic goes DRG-direct, it does not hairpin through the Hub Sim FW VNIC. The Hub FW route table (`rt_r_elz_nw_fw`) is intentionally empty in V1. Sprint 3 adds `oci_core_drg_route_table` + `oci_core_drg_route_distribution` + VCN ingress route table to force all spoke traffic via the Hub FW.
+
+**What to say:** "Spoke-to-spoke ping works — the DRG v2 full-mesh routes it directly. What we don't have yet is forced inspection through the Hub Firewall. That's the DRG transit routing in Sprint 3. Sprint 2 proves the fabric is connected; Sprint 3 adds the security enforcement point."
 
 ---
 

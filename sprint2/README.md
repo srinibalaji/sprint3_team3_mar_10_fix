@@ -175,6 +175,27 @@ All dates: 2–4 Mar 2026. Phase 1 resources (VCN/subnet/DRG) apply first; Phase
 > **NPA** validates the OCI control plane (route tables, DRG attachments, NSG rules). It cannot verify cloud-init, `ip_forward`, or iptables.  
 > **Data plane** tests (ping, traceroute, tcpdump) require Bastion SSH into Sim FW instances.
 
+### What Works in Sprint 2 (and what doesn't)
+
+OCI DRG v2 with no custom `drg_route_table` on attachments defaults to **full-mesh**: every attached VCN can reach every other attached VCN via the DRG fabric. This means real traffic flows between all 5 VCNs right now.
+
+**Works — testable now (NPA + data plane):**
+
+| Path | NPA | Data Plane | TC |
+|---|---|---|---|
+| Spoke → Hub FW subnet (e.g. OS 10.1.0.x → Hub 10.0.0.x) | REACHABLE | ping/SSH | TC-13, TC-15 |
+| Spoke → Spoke (e.g. OS 10.1.0.x → TS 10.3.0.x) | REACHABLE | ping/traceroute/TCP | TC-14, TC-18, TC-19 |
+| Hub MGMT → any spoke (Bastion reachability) | REACHABLE | Bastion SSH | TC-18, TC-15 |
+| Hub Sim FW → all spoke Sim FWs | REACHABLE | ping/traceroute/tcpdump/TCP:22 | TC-19 |
+
+**Does NOT work yet — Sprint 3 scope (S3-BACKLOG-01):**
+
+| Path | Why | Fix |
+|---|---|---|
+| Spoke → Hub FW **inspection** → Spoke (transit routing) | Hub FW RT (`rt_r_elz_nw_fw`) is empty. No VCN ingress route table. No DRG route distribution. | Sprint 3: add `oci_core_drg_route_table` + `oci_core_drg_route_distribution` to force spoke traffic via Hub FW VNIC |
+
+**What to say if asked:** "Spoke-to-spoke ping works right now — the DRG v2 full-mesh routes it directly. What we don't have yet is forced inspection through the Hub Firewall. That's the DRG transit routing in Sprint 3. Sprint 2 proves the fabric is connected; Sprint 3 adds the security enforcement point."
+
 ### Shell Variables (OCI Cloud Shell)
 
 ```bash

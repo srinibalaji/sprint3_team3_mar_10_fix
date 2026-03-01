@@ -13,48 +13,45 @@ E-W spoke↔spoke routing works via DRG v2 full-mesh (TC-18/TC-19). Hub FW inspe
 ## Network Topology
 
 ```
-                              ┌─────────────────────────────────────┐
-                              │         C1_R_ELZ_NW  (T4 — Hub)    │
-                              │                                     │
-                              │  vcn_r_elz_nw  10.0.0.0/16         │
-                              │  ┌─────────────┐ ┌───────────────┐  │
-                              │  │ sub_r_elz_   │ │ sub_r_elz_    │  │
-                              │  │ nw_fw        │ │ nw_mgmt       │  │
-                              │  │ 10.0.0.0/24  │ │ 10.0.1.0/24   │  │
-                              │  │              │ │               │  │
-                              │  │ fw_r_elz_    │ │ bas_r_elz_    │  │
-                              │  │ nw_hub_sim   │ │ nw_hub        │  │
-                              │  │              │ │ (Bastion)     │  │
-                              │  │ RT: empty    │ │ RT: 0/0→DRG   │  │
-                              │  │ (Sprint 3)   │ │               │  │
-                              │  └─────────────┘ └───────────────┘  │
-                              └──────────────┬──────────────────────┘
-                                             │
-                     ┌───────────────────────┐│┌───────────────────────┐
-                     │  drg_r_hub            │││  drg_r_ew_hub         │
-                     │  5 VCN attachments    ││└───────────────────────┘
-                     │  (E-W full-mesh)      ││   0 attachments (V2)
-                     └───┬─────┬─────┬───┬───┘│
-                         │     │     │   │     │
-            ┌────────────┘     │     │   └────────────┐
-            │                  │     │         │      │
-  ┌─────────┴──────┐ ┌────────┴───────┐ ┌─────┴────────┐ ┌──────────────┐
-  │ C1_OS_ELZ_NW   │ │ C1_SS_ELZ_NW   │ │ C1_TS_ELZ_NW │ │C1_DEVT_ELZ_NW│
-  │ (T1)           │ │ (T3)           │ │ (T2)          │ │(T3)          │
-  │                │ │                │ │               │ │              │
-  │ vcn_os_elz_nw  │ │ vcn_ss_elz_nw  │ │ vcn_ts_elz_nw │ │vcn_devt_     │
-  │ 10.1.0.0/24   │ │ 10.2.0.0/24   │ │ 10.3.0.0/24  │ │elz_nw        │
-  │                │ │                │ │               │ │10.4.0.0/24   │
-  │ sub_os_elz_    │ │ sub_ss_elz_    │ │ sub_ts_elz_   │ │              │
-  │ nw_app         │ │ nw_app         │ │ nw_app        │ │sub_devt_elz_ │
-  │ fw_os_elz_     │ │ fw_ss_elz_     │ │ fw_ts_elz_    │ │nw_app        │
-  │ nw_sim         │ │ nw_sim         │ │ nw_sim        │ │(no Sim FW)   │
-  │ RT: 0/0→DRG    │ │ RT: 0/0→DRG    │ │ RT: 0/0→DRG   │ │RT: 0/0→DRG   │
-  └────────────────┘ └────────────────┘ └───────────────┘ └──────────────┘
+STAR ELZ V1 — Network Topology
 
-  All subnets: private (prohibit_public_ip = true)
-  All Sim FW VNICs: skip_source_dest_check = true
-  Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced inspection)
+C1_R_ELZ_NW  (T4 — Hub)
+├── vcn_r_elz_nw                    10.0.0.0/16
+│   ├── sub_r_elz_nw_fw             10.0.0.0/24   [private]
+│   │   ├── fw_r_elz_nw_hub_sim     Sim FW  (ip_fwd + MASQUERADE)
+│   │   └── rt_r_elz_nw_fw          [empty — Sprint 3 transit routing]
+│   └── sub_r_elz_nw_mgmt           10.0.1.0/24   [private]
+│       ├── bas_r_elz_nw_hub        Bastion (STANDARD)
+│       └── rt_r_elz_nw_mgmt        0/0 → DRG (Phase 2)
+│
+├── drg_r_hub                        5 VCN attachments (E-W full-mesh)
+│   ├── drga_r_elz_nw_hub           Hub VCN
+│   ├── drga_os_elz_nw              OS spoke
+│   ├── drga_ss_elz_nw              SS spoke
+│   ├── drga_ts_elz_nw              TS spoke
+│   └── drga_devt_elz_nw            DEVT spoke
+│
+└── drg_r_ew_hub                     0 attachments (V2 — child tenancy RPC)
+
+C1_OS_ELZ_NW  (T1)
+└── vcn_os_elz_nw                    10.1.0.0/24
+    └── sub_os_elz_nw_app           fw_os_elz_nw_sim    RT: 0/0 → DRG
+
+C1_SS_ELZ_NW  (T3)
+└── vcn_ss_elz_nw                    10.2.0.0/24
+    └── sub_ss_elz_nw_app           fw_ss_elz_nw_sim    RT: 0/0 → DRG
+
+C1_TS_ELZ_NW  (T2)
+└── vcn_ts_elz_nw                    10.3.0.0/24
+    └── sub_ts_elz_nw_app           fw_ts_elz_nw_sim    RT: 0/0 → DRG
+
+C1_DEVT_ELZ_NW  (T3)
+└── vcn_devt_elz_nw                  10.4.0.0/24
+    └── sub_devt_elz_nw_app         (no Sim FW)         RT: 0/0 → DRG
+
+All subnets: prohibit_public_ip = true
+All Sim FW VNICs: skip_source_dest_check = true
+Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced inspection)
 ```
 
 ---

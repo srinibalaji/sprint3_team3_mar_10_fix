@@ -2,8 +2,10 @@
 
 **File:** `docs/ARCHITECT_RUNBOOK.md`
 **Owner:** Principal Architect (Amit)
-**Last Updated:** 2026-02-28
+**Last Updated:** 2026-03-01
 **Purpose:** Exact script for the Sprint 1 + Sprint 2 deployment day. Follow this top-to-bottom. Do not skip steps.
+
+> **New to the project?** Start with the [root README](../README.md) → Getting Started section for the full reading order. This runbook is step 2 of 8.
 
 ---
 

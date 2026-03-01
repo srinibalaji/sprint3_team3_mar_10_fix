@@ -217,18 +217,30 @@ git push origin main --tags
 
 ---
 
-## ORM Deployment
+## ORM Deployment — How Apply Works
+
+**Important:** Sprint 1 uses a **single shared ORM Stack**. All 4 teams work in the same codebase and the same state file. There is one collective Apply, not four separate ones.
+
+| Who | Action | When |
+|---|---|---|
+| All teams | Write your team file, `terraform fmt`, `terraform validate`, push PR | Day 1–2 |
+| Any team member | ORM **Plan** to preview — do this as often as you want to check your work | Anytime |
+| **Oracle / Architect** | ORM **Apply** — one collective apply after all PRs merged | Day 2 (after all code merged) |
+| All teams | Run TC-01 through TC-06b to validate | Immediately after apply |
+
+**Why one collective apply?** All compartments, groups, and policies are in one Terraform state. The IAM module aggregates all team maps into a single module call. Applying per-team would cause partial state and 409 conflicts.
+
+### ORM Stack Setup
 
 1. OCI Console → Developer Services → Resource Manager → Stacks → Create Stack
-2. Source: Git → connect to your GitHub repo → select `sprint1-solutions-v2/` folder
-3. Working Directory: `sprint1-solutions-v2`
-4. Name: `STAR-ELZ-V1-Sprint1`
-5. Fill in ORM UI form:
+2. Source: Git → connect to your GitHub repo → select `sprint1/` folder
+3. Name: `STAR-ELZ-V1-Sprint1`
+4. Fill in ORM UI form:
    - Section 1: Tenancy OCID + Region
    - Section 2: Service Label = `C1`, CIS Level = `1`, Environment = `poc`
    - Sections 3-5: leave defaults unless workshop isolation needed
-6. Plan → Apply
-7. After Apply: verify TC-01 through TC-06b
+5. **Plan** → review output → **Apply**
+6. After Apply: verify TC-01 through TC-06b
 
 ---
 

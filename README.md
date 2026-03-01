@@ -141,13 +141,17 @@ Update `test_cases[].status` to PASS/FAIL as validations complete.
 
 ## Workflow
 
-1. Pick up your issue from the Kanban board
-2. Create branch from `main`: `sprint2/nw-team1`, `sprint2/nw-team2`, etc.
-3. Edit **only your team's file** — never touch another team's file
-4. `terraform fmt` and `terraform validate` before pushing
-5. Open PR — reviewer from a different team
-6. After approval + green CI → merge to `main`
-7. Update issue status and TC in `sprint_state_ledger.json`
+**ORM Apply is collective — one shared stack per sprint, one Apply for all teams.**
+
+| Action | Who | How Often |
+|---|---|---|
+| Write your team file, push PR | Each team member | Daily |
+| `terraform fmt` + `terraform validate` | Each team member | Before every PR |
+| ORM **Plan** (preview only) | Any team member | Anytime — Plan is read-only |
+| ORM **Apply** | Oracle / Architect only | Once per phase, after all PRs merged |
+| TC validation | All teams | Immediately after each Apply |
+
+Each team writes and tests their own file, but Apply is a single coordinated event. This is because all team resources share one Terraform state. See `sprint1/README.md` and `sprint2/README.md` for phase-specific orchestration.
 
 ---
 

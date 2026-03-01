@@ -13,47 +13,49 @@ E-W spoke↔spoke routing works via DRG v2 full-mesh (TC-18/TC-19). Hub FW inspe
 ## Network Topology
 
 ```
-C0 Tenancy Root
-│   Tag Namespace: C0-star-elz-v1
-│   Tags: Environment · Owner · ManagedBy · CostCenter · DataClassification
-│
-└── C1_R_ELZ_NW  (T4 — Hub)
-    ├── vcn_r_elz_nw ── 10.0.0.0/16
-    │   ├── sub_r_elz_nw_fw ── 10.0.0.0/24 [private]
-    │   │   ├── fw_r_elz_nw_hub_sim  (E4.Flex · skip_sdc · ip_fwd · MASQUERADE)
-    │   │   └── rt_r_elz_nw_fw ── [empty — Sprint 3 DRG transit]
-    │   └── sub_r_elz_nw_mgmt ── 10.0.1.0/24 [private]
-    │       ├── bas_r_elz_nw_hub  (Bastion STANDARD)
-    │       └── rt_r_elz_nw_mgmt ── 0/0 → DRG (Phase 2)
-    │
-    ├── drg_r_hub ── Hub DRG · 5 attachments (Phase 2)
-    │   ├── drga_r_elz_nw_hub   (Hub VCN)
-    │   ├── drga_os_elz_nw      (OS)
-    │   ├── drga_ts_elz_nw      (TS)
-    │   ├── drga_ss_elz_nw      (SS)
-    │   └── drga_devt_elz_nw    (DEVT)
-    │
-    └── drg_r_ew_hub ── E-W DRG · V2 placeholder · 0 attachments
+                              ┌─────────────────────────────────────┐
+                              │         C1_R_ELZ_NW  (T4 — Hub)    │
+                              │                                     │
+                              │  vcn_r_elz_nw  10.0.0.0/16         │
+                              │  ┌─────────────┐ ┌───────────────┐  │
+                              │  │ sub_r_elz_   │ │ sub_r_elz_    │  │
+                              │  │ nw_fw        │ │ nw_mgmt       │  │
+                              │  │ 10.0.0.0/24  │ │ 10.0.1.0/24   │  │
+                              │  │              │ │               │  │
+                              │  │ fw_r_elz_    │ │ bas_r_elz_    │  │
+                              │  │ nw_hub_sim   │ │ nw_hub        │  │
+                              │  │              │ │ (Bastion)     │  │
+                              │  │ RT: empty    │ │ RT: 0/0→DRG   │  │
+                              │  │ (Sprint 3)   │ │               │  │
+                              │  └─────────────┘ └───────────────┘  │
+                              └──────────────┬──────────────────────┘
+                                             │
+                     ┌───────────────────────┐│┌───────────────────────┐
+                     │  drg_r_hub            │││  drg_r_ew_hub         │
+                     │  5 VCN attachments    ││└───────────────────────┘
+                     │  (E-W full-mesh)      ││   0 attachments (V2)
+                     └───┬─────┬─────┬───┬───┘│
+                         │     │     │   │     │
+            ┌────────────┘     │     │   └────────────┐
+            │                  │     │         │      │
+  ┌─────────┴──────┐ ┌────────┴───────┐ ┌─────┴────────┐ ┌──────────────┐
+  │ C1_OS_ELZ_NW   │ │ C1_SS_ELZ_NW   │ │ C1_TS_ELZ_NW │ │C1_DEVT_ELZ_NW│
+  │ (T1)           │ │ (T3)           │ │ (T2)          │ │(T3)          │
+  │                │ │                │ │               │ │              │
+  │ vcn_os_elz_nw  │ │ vcn_ss_elz_nw  │ │ vcn_ts_elz_nw │ │vcn_devt_     │
+  │ 10.1.0.0/24   │ │ 10.2.0.0/24   │ │ 10.3.0.0/24  │ │elz_nw        │
+  │                │ │                │ │               │ │10.4.0.0/24   │
+  │ sub_os_elz_    │ │ sub_ss_elz_    │ │ sub_ts_elz_   │ │              │
+  │ nw_app         │ │ nw_app         │ │ nw_app        │ │sub_devt_elz_ │
+  │ fw_os_elz_     │ │ fw_ss_elz_     │ │ fw_ts_elz_    │ │nw_app        │
+  │ nw_sim         │ │ nw_sim         │ │ nw_sim        │ │(no Sim FW)   │
+  │ RT: 0/0→DRG    │ │ RT: 0/0→DRG    │ │ RT: 0/0→DRG   │ │RT: 0/0→DRG   │
+  └────────────────┘ └────────────────┘ └───────────────┘ └──────────────┘
 
-├── C1_OS_ELZ_NW  (T1)
-│   └── vcn_os_elz_nw ── 10.1.0.0/24
-│       └── sub_os_elz_nw_app · fw_os_elz_nw_sim · RT: 0/0 → DRG
-
-├── C1_TS_ELZ_NW  (T2)
-│   └── vcn_ts_elz_nw ── 10.3.0.0/24
-│       └── sub_ts_elz_nw_app · fw_ts_elz_nw_sim · RT: 0/0 → DRG
-
-├── C1_SS_ELZ_NW  (T3)
-│   └── vcn_ss_elz_nw ── 10.2.0.0/24
-│       └── sub_ss_elz_nw_app · fw_ss_elz_nw_sim · RT: 0/0 → DRG
-
-└── C1_DEVT_ELZ_NW  (T3)
-    └── vcn_devt_elz_nw ── 10.4.0.0/24
-        └── sub_devt_elz_nw_app · no Sim FW · RT: 0/0 → DRG
+  All subnets: private (prohibit_public_ip = true)
+  All Sim FW VNICs: skip_source_dest_check = true
+  Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced inspection)
 ```
-
-> All subnets: `prohibit_public_ip = true`. All Sim FW VNICs: `skip_source_dest_check = true`.  
-> Spoke↔spoke works via DRG full-mesh but bypasses Hub FW — Sprint 3 fixes this (S3-BACKLOG-01).
 
 ---
 
@@ -93,26 +95,36 @@ C0 Tenancy Root
 
 ---
 
-## Two-Phase Apply
+## Two-Phase Apply — How It Works
+
+**Important:** Sprint 2 also uses a **single shared ORM Stack**. All 4 teams work in the same codebase. There is one collective Apply per phase — not per team.
 
 ### Prerequisites
 
 Sprint 1 complete: TC-01–TC-06b PASS, `sprint1_outputs.json` exported, git tag `v1-sprint1-complete` pushed.
 
-### Phase 1 — VCNs + Subnets + DRG (all teams simultaneous)
+### Phase 1 — VCNs + Subnets + DRG
 
-1. Create ORM Stack → `sprint2/`
-2. Paste 10 compartment OCIDs (Section 3) from `sprint1_outputs.json`
-3. Leave `hub_drg_id` **empty** (Section 4)
-4. All teams Plan → Apply
-5. Run **TC-07** (5 VCNs) and **TC-08** (6 subnets)
-6. T4: `terraform output hub_drg_id` → share with T1/T2/T3
+| Who | Action |
+|---|---|
+| All teams | Write your team file (VCN + subnet section), push PR, get merged |
+| Any team member | ORM **Plan** anytime to check your work |
+| **Oracle / Architect** | One collective ORM **Apply** after all PRs merged |
+| All teams | Run **TC-07** (5 VCNs) and **TC-08** (6 subnets) |
+| T4 | Run `terraform output hub_drg_id` → share OCID with T1/T2/T3 |
 
-### Phase 2 — DRG Attachments + RTs + Sim FW + Bastion
+### Phase 2 — DRG Attachments + Route Tables + Sim FW + Bastion
 
-1. All teams paste `hub_drg_id` (Section 4)
-2. All teams Plan → Apply
-3. Run **TC-09** through **TC-19**
+| Who | Action |
+|---|---|
+| **Oracle / Architect** | Paste `hub_drg_id` into ORM variable (Section 4) |
+| All teams | Verify Phase 2 code in your team file is ready (DRG attach, RT, Sim FW) |
+| **Oracle / Architect** | One collective ORM **Apply** |
+| All teams | Run **TC-09** through **TC-19** |
+
+**Why one collective apply per phase?** All team resources are in one Terraform state. DRG attachments depend on the DRG created by T4. Route tables reference `var.hub_drg_id`. Applying per-team would create partial state and dependency errors.
+
+**Can I run Plan on my own?** Yes — any team member can trigger ORM Plan at any time to preview changes. Plan is read-only, it never modifies infrastructure. Use it freely to check your code compiles and your resources look correct.
 
 ### After Phase 2
 

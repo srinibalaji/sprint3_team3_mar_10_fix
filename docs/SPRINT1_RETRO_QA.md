@@ -17,7 +17,7 @@ The conflict originated in `mon_tags.tf`, where `oci_identity_tag_default` was i
 
 The file was completely rewritten. Changes made:
 
-- `DataClassification` tag added as a dedicated 5th tag (SG Government classification: Official-Open / Official-Closed / Sensitive-Normal / Sensitive-High / Restricted).
+- `DataClassification` tag added as a dedicated 5th tag (Classification: Official-Open / Official-Closed / Sensitive-Normal / Sensitive-High / Restricted).
 - `oci_identity_tag_default` now correctly references `oci_identity_tag.data_classification.id`, with a static default value of `Official-Closed` (CIS 3.2 compliance).
 - `lifecycle { prevent_destroy = true }` applied to `oci_identity_tag_namespace.elz_v1` to prevent ORM from attempting to delete and recreate the namespace, which was the root cause of the conflicted-state error.
 

@@ -47,13 +47,13 @@
 │
 ③ DRG (Spoke DRG RT)   — 0/0 → Hub VCN attachment (overrides full-mesh)
 │
-④ Hub VCN Ingress RT   — 10.0.0.0/8 → next-hop FW VNIC private IP
+④ Hub VCN Ingress RT   — 0.0.0.0/0 → next-hop FW VNIC private IP
 │
 ⑤ Hub FW Subnet        — Firewall inspects and forwards
 │
-⑥ Hub FW Subnet RT     — 10.3.0.0/24 → drg_r_hub
+⑥ Hub FW Subnet RT     — 10.0.0.0/8 → drg_r_hub
 │
-⑦ DRG (Hub DRG RT)     — 10.3.0.0/24 → TS VCN attachment (import distribution)
+⑦ DRG (Hub DRG RT)     — 10.3.0.0/24 → TS VCN attachment (import distribution)(use the auto-generated drg attachement for VCN attachments - Created by default when you create a DRG)
 │
 ⑧ TS App Subnet        — Packet delivered
 

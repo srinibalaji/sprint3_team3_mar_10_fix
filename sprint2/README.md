@@ -100,6 +100,20 @@ Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced
 
 Sprint 1 complete: TC-01–TC-06b PASS, `sprint1_outputs.json` exported, git tag `v1-sprint1-complete` pushed.
 
+**IAM access for Phase 2 — verified clean:**
+
+All Sprint 2 resources create successfully under existing Sprint 1 policies when applied via ORM (admin principal). The full audit:
+
+| Sprint 2 Resource | OCI Verb | Compartment | Sprint 1 Policy | Status |
+|---|---|---|---|---|
+| VCNs, subnets, RTs, security lists | manage virtual-network-family | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
+| DRGs (2) | manage drgs | C1_R_ELZ_NW | UG_ELZ_NW | ✅ |
+| DRG attachments (5) | manage drgs | C1_R_ELZ_NW | UG_ELZ_NW | ✅ |
+| Sim FW instances (4) | manage instances | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
+| Bastion service (1) | manage bastion-family | C1_R_ELZ_NW | **No grant** — works via ORM admin | ⚡ |
+
+**Bastion note:** The Bastion service (`bas_r_elz_nw_hub`) creates successfully because ORM runs as tenancy admin. However, `UG_ELZ_NW` team members will get HTTP 403 if they try to manage the Bastion via CLI/Console (e.g. creating sessions for TC-15/TC-19). This does not block Phase 2 apply or any Phase 2 test cases — Bastion sessions are Sprint 3 scope. The fix (adding `manage bastion-family in C1_R_ELZ_NW` to `UG_ELZ_NW-Policy`) is applied as a Sprint 1 ORM re-apply at the start of Sprint 3. See `SPRINT1_IAM_PATCH_FOR_S3.md`.
+
 ### Phase 1 — VCNs + Subnets + DRG
 
 | Who | Action |
@@ -483,6 +497,12 @@ Moved to `locals.tf` in Sprint 2.
 - [ ] Git tag `sprint2-complete` pushed
 - [ ] State Book updated
 - [ ] S3-BACKLOG-01 issue created
+- [ ] **Sprint 1 IAM patch queued** — 5 statements to add to `UG_ELZ_NW-Policy` before Sprint 3 apply (see `SPRINT1_IAM_PATCH_FOR_S3.md`)
+
+> **Note for Sprint 3 lead:** Sprint 2 Phase 2 apply works with no IAM changes.
+> The Bastion service creates fine via ORM admin. The IAM patch adds `manage bastion-family`
+> for CLI access and Sprint 3 session creation — apply it as the first action on Sprint 3 day
+> by re-running Sprint 1 ORM Plan → Apply (additive, 5 new statements, zero destroys).
 
 ---
 
@@ -515,3 +535,11 @@ Moved to `locals.tf` in Sprint 2.
 | C33 | VCN names → `vcn_*_elz_nw`, DRG names → `drg_r_*` | `locals.tf`, `README.md` |
 | C34 | `UG_ELZ_DEVT_CSVCS` → `UG_DEVT_CSVCS` | `iam_sprint1_ref.tf` |
 | C35 | Spoke CIDR header `/16` → `/24` | `variables_net.tf` |
+
+### 3 Mar 2026 (cross-sprint IAM audit)
+
+| # | Change | File(s) |
+|---|---|---|
+| C36 | Added Sprint 1 IAM ↔ Sprint 2 resource matrix to Prerequisites | `README.md` |
+| C37 | Documented Bastion CLI access gap (ORM works, CLI 403 for UG_ELZ_NW) | `README.md` |
+| C38 | Noted Sprint 1 patch timing (start of Sprint 3, not Sprint 2) | `README.md` |

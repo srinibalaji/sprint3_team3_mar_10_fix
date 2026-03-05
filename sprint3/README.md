@@ -6,6 +6,10 @@
 
 ---
 
+## What we are building
+
+<img width="720" height="405" alt="Sprint3" src="https://github.com/user-attachments/assets/cefd27bc-5d7e-49c7-ab8a-c85077464c98" />
+
 ## What Sprint 3 Does
 
 Sprint 2 built the roads (5 VCNs, DRG full-mesh, Sim FWs, Bastion, 6 security lists). Traffic flows spoke → DRG → spoke direct — no inspection.

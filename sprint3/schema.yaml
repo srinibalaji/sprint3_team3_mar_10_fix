@@ -1,7 +1,7 @@
 title: "STAR ELZ V1 — Sprint 3: Security, Observability, Forced Inspection"
-description: "Forced firewall inspection, Service Gateway, VCN flow logs, events/alarms, Bastion sessions"
+description: "Forced firewall inspection, Service Gateway, Vault (KMS), Cloud Guard, Security Zones, VCN flow logs, events/alarms, Bastion sessions"
 schemaVersion: 1.1.0
-version: "3.0.0"
+version: "3.1.0"
 locale: "en"
 
 variableGroups:
@@ -52,12 +52,13 @@ variableGroups:
       - ss_app_subnet_id
       - devt_app_subnet_id
 
-  - title: "Sprint 2 — Bastion and Sim FW"
+  - title: "Sprint 2 — Bastion, Sim FW, and Route Tables"
     variables:
       - bastion_id
       - os_fw_instance_id
       - ts_fw_instance_id
       - hub_fw_private_ip_id
+      - hub_fw_rt_id
 
   - title: "Network CIDRs"
     variables:
@@ -66,4 +67,3 @@ variableGroups:
       - ss_app_subnet_cidr
       - ts_app_subnet_cidr
       - devt_app_subnet_cidr
-      - hub_fw_rt_id

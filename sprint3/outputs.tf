@@ -43,3 +43,46 @@ output "hub_ingress_rt_id" {
   description = "OCID of rt_r_elz_nw_hub_ingress (VCN ingress RT on Hub DRG attachment)"
   value       = oci_core_route_table.hub_ingress.id
 }
+
+# ── Vault (KMS) ──
+output "vault_id" {
+  description = "OCID of vlt_r_elz_sec Vault"
+  value       = oci_kms_vault.sec.id
+}
+
+output "vault_management_endpoint" {
+  description = "Management endpoint for vlt_r_elz_sec Vault"
+  value       = oci_kms_vault.sec.management_endpoint
+}
+
+output "vault_crypto_endpoint" {
+  description = "Crypto endpoint for vlt_r_elz_sec Vault (encrypt/decrypt operations)"
+  value       = oci_kms_vault.sec.crypto_endpoint
+}
+
+output "master_key_id" {
+  description = "OCID of key_r_elz_sec_master AES-256 master encryption key"
+  value       = oci_kms_key.master.id
+}
+
+# ── Cloud Guard ──
+output "cg_target_id" {
+  description = "OCID of Cloud Guard target on tenancy root"
+  value       = oci_cloud_guard_target.root.id
+}
+
+output "cg_config_recipe_id" {
+  description = "OCID of custom configuration detector recipe"
+  value       = oci_cloud_guard_detector_recipe.config.id
+}
+
+# ── Security Zones ──
+output "sz_sec_id" {
+  description = "OCID of security zone on C1_R_ELZ_SEC"
+  value       = oci_cloud_guard_security_zone.sec.id
+}
+
+output "sz_nw_id" {
+  description = "OCID of security zone on C1_R_ELZ_NW"
+  value       = oci_cloud_guard_security_zone.nw.id
+}

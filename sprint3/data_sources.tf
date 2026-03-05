@@ -19,3 +19,27 @@ data "oci_core_services" "all_oci_services" {
     regex  = true
   }
 }
+
+# ── Cloud Guard — Oracle-managed detector recipes (used by T3 to clone) ──
+# Configuration detector recipe — detects misconfigured resources
+data "oci_cloud_guard_detector_recipes" "oracle_config" {
+  compartment_id = var.tenancy_ocid
+  display_name   = "OCI Configuration Detector Recipe"
+}
+
+# Activity detector recipe — detects suspicious user/service activity
+data "oci_cloud_guard_detector_recipes" "oracle_activity" {
+  compartment_id = var.tenancy_ocid
+  display_name   = "OCI Activity Detector Recipe"
+}
+
+# Responder recipe — automated responses to detected problems
+data "oci_cloud_guard_responder_recipes" "oracle_responder" {
+  compartment_id = var.tenancy_ocid
+  display_name   = "OCI Responder Recipe"
+}
+
+# ── Security Zone Policies — list all available policies for custom recipes ──
+data "oci_cloud_guard_security_policies" "all" {
+  compartment_id = var.tenancy_ocid
+}

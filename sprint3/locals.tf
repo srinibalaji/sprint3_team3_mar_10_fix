@@ -45,4 +45,20 @@ locals {
   # ── Bastion Sessions (T1, T2) ──
   bastion_session_os_name = "bsn_os_elz_nw_ssh"
   bastion_session_ts_name = "bsn_ts_elz_nw_ssh"
+
+  # ── Vault and Encryption Keys (T3) ──
+  vault_name      = "vlt_r_elz_sec"
+  master_key_name = "key_r_elz_sec_master"
+
+  # ── Cloud Guard (T3) ──
+  cg_config_recipe_name   = "cgdr_r_elz_config"   # Configuration detector recipe (clone of Oracle-managed)
+  cg_activity_recipe_name = "cgdr_r_elz_activity"  # Activity detector recipe (clone of Oracle-managed)
+  cg_responder_recipe_name = "cgrr_r_elz_responder" # Responder recipe (clone of Oracle-managed)
+  cg_target_name          = "cgt_r_elz_root"       # Cloud Guard target on enclosing/root compartment
+
+  # ── Security Zones (T3) ──
+  sz_recipe_sec_name = "szr_r_elz_sec"   # Custom recipe for SEC compartment
+  sz_recipe_nw_name  = "szr_r_elz_nw"    # Custom recipe for NW compartment
+  sz_sec_name        = "sz_r_elz_sec"     # Security zone on C1_R_ELZ_SEC
+  sz_nw_name         = "sz_r_elz_nw"      # Security zone on C1_R_ELZ_NW
 }

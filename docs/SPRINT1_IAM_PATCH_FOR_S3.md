@@ -99,8 +99,10 @@ Or, simpler broad approach:
 | UG_ELZ_NW-Policy | `allow UG_ELZ_NW to read instance-family in compartment C1_TS_ELZ_NW` | Bastion → TS Sim FW target |
 | UG_ELZ_NW-Policy | `allow UG_ELZ_NW to read instance-family in compartment C1_SS_ELZ_NW` | Bastion → SS Sim FW target |
 | UG_ELZ_NW-Policy | `allow UG_ELZ_NW to read instance-family in compartment C1_DEVT_ELZ_NW` | Bastion → DEVT Sim FW target |
+| UG_ELZ_SEC-Policy | `allow UG_ELZ_SEC to manage security-zone in compartment C1_R_ELZ_SEC` | Security Zone on SEC cmp |
+| UG_ELZ_SEC-Policy | `allow UG_ELZ_SEC to manage security-zone in compartment C1_R_ELZ_NW` | Security Zone on NW cmp |
 
-**Total: 5 new statements in UG_ELZ_NW-Policy**
+**Total: 5 new statements in UG_ELZ_NW-Policy + 2 new statements in UG_ELZ_SEC-Policy = 7 statements**
 
 ## When to Apply
 

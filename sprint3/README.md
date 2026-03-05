@@ -67,7 +67,16 @@ Re-apply Sprint 1 ORM stack (additive — no destroy). See `SPRINT1_IAM_PATCH_FO
 | S3-T3-01 | Develop Terraform for OCI Logging — log group and VCN flow logs | New | T3 | 3/9/26 | 3/10/26 | 2 |
 | S3-T3-02 | Develop Terraform for Object Storage bucket for log retention | New | T3 | 3/9/26 | 3/10/26 | 2 |
 | S3-T3-03 | Develop Terraform for OCI events and alarms on DRG changes | New | T3 | 3/9/26 | 3/10/26 | 2 |
+| S3-T3-04 | Develop Terraform for OCI Vault (KMS) and AES-256 master encryption key | New | T3 | 3/9/26 | 3/9/26 | 1 |
+| S3-T3-05 | Develop Terraform for Cloud Guard detector/responder recipes (clone Oracle-managed) | New | T3 | 3/9/26 | 3/10/26 | 2 |
+| S3-T3-06 | Develop Terraform for Cloud Guard target on tenancy root | New | T3 | 3/9/26 | 3/10/26 | 2 |
+| S3-T3-07 | Develop Terraform for Security Zone recipes (SEC encryption + NW isolation) | New | T3 | 3/10/26 | 3/10/26 | 1 |
+| S3-T3-08 | Develop Terraform for Security Zones on C1_R_ELZ_SEC and C1_R_ELZ_NW | New | T3 | 3/10/26 | 3/10/26 | 1 |
+| S3-T4-06 | Develop Terraform for Service Gateway on Hub VCN (centralised Oracle service access) | New | T4 | 3/9/26 | 3/9/26 | 1 |
 | S3-ORA-01 | Deploy Sprint 3 to OCI using Resource Manager | New | Oracle | 3/10/26 | 3/10/26 | 1 |
+| S3-ORA-02 | Sprint 1 IAM patch re-apply (7 new statements: 5 NW + 2 SEC) | New | Oracle | 3/9/26 | 3/9/26 | 1 |
+| S3-ORA-03 | Verify Cloud Guard is ENABLED in tenancy before Sprint 3 apply | New | Oracle | 3/9/26 | 3/9/26 | 1 |
+| S3-ORA-04 | Validate Security Zone policy OCIDs for ap-singapore-2 region | New | Oracle | 3/9/26 | 3/9/26 | 1 |
 
 ---
 
@@ -560,8 +569,16 @@ Option A is cleaner — the attachment stays in the same state as the VCN and su
 | TC-25 | Object Storage bucket exists | `oci os bucket get --bucket-name bkt_r_elz_sec_logs` | Bucket exists, versioning enabled, no public access |
 | TC-26 | Bastion session — OS SSH | `oci bastion session get --session-id $OS_SESSION_ID` | State = ACTIVE, target = OS Sim FW instance |
 | TC-27 | Bastion session — TS SSH | `oci bastion session get --session-id $TS_SESSION_ID` | State = ACTIVE, target = TS Sim FW instance |
+| TC-28 | Vault exists and ACTIVE | `oci kms vault get --vault-id $VAULT_ID --query 'data."lifecycle-state"'` | ACTIVE |
+| TC-29 | Master encryption key — AES-256 HSM | `oci kms key get --key-id $KEY_ID --endpoint $VAULT_MGMT_EP --query 'data.{"alg":"key-shape".algorithm,"len":"key-shape".length,"mode":"protection-mode"}'` | AES / 32 / HSM |
+| TC-30 | Cloud Guard target ACTIVE | `oci cloud-guard target get --target-id $CG_TARGET_ID --query 'data."lifecycle-state"'` | ACTIVE, covers tenancy root |
+| TC-31 | Cloud Guard detector recipes attached | `oci cloud-guard target get --target-id $CG_TARGET_ID --query 'data."target-detector-recipes"[].{name:"display-name"}'` | cgdr_r_elz_config + cgdr_r_elz_activity |
+| TC-32 | Security Zone on SEC — ACTIVE | `oci cloud-guard security-zone get --security-zone-id $SZ_SEC_ID --query 'data."lifecycle-state"'` | ACTIVE |
+| TC-33 | Security Zone on NW — ACTIVE | `oci cloud-guard security-zone get --security-zone-id $SZ_NW_ID --query 'data."lifecycle-state"'` | ACTIVE |
+| TC-34 | SZ NW blocks public subnet | Create public subnet in C1_R_ELZ_NW via Console | HTTP 409 — violates security zone policy |
+| TC-35 | SZ SEC blocks unencrypted volume | Create block volume without CMK in C1_R_ELZ_SEC | HTTP 409 — violates security zone policy |
 
-**Gate:** TC-20 through TC-27 all PASS before Sprint 4.
+**Gate:** TC-20 through TC-35 all PASS before Sprint 4.
 
 ---
 
@@ -587,14 +604,19 @@ oci bastion bastion get --bastion-id $BASTION_ID --query 'data."lifecycle-state"
 
 **Why:** Sprint 3 creates Bastion sessions in `C1_R_ELZ_NW` and targets Sim FW instances in spoke compartments. No existing Sprint 1 policy grants `manage bastion-family` in `C1_R_ELZ_NW`, and no policy grants `read instance-family` on spoke compartments for Bastion target access. This patch also retroactively fixes Sprint 2 Bastion CLI access (Sprint 2 creation worked via ORM admin, but `UG_ELZ_NW` members get 403 on Bastion CLI commands without this).
 
-**What changes:** 5 new statements added to `UG_ELZ_NW-Policy` in `iam_policies_team1.tf`:
+**What changes:** 7 new statements — 5 in `UG_ELZ_NW-Policy`, 2 in `UG_ELZ_SEC-Policy`:
 
 ```hcl
+# UG_ELZ_NW-Policy — iam_policies_team1.tf
 "allow group UG_ELZ_NW to manage bastion-family in compartment C1_R_ELZ_NW",
 "allow group UG_ELZ_NW to read instance-family in compartment C1_OS_ELZ_NW",
 "allow group UG_ELZ_NW to read instance-family in compartment C1_TS_ELZ_NW",
 "allow group UG_ELZ_NW to read instance-family in compartment C1_SS_ELZ_NW",
 "allow group UG_ELZ_NW to read instance-family in compartment C1_DEVT_ELZ_NW"
+
+# UG_ELZ_SEC-Policy — iam_policies_team1.tf
+"allow group UG_ELZ_SEC to manage security-zone in compartment C1_R_ELZ_SEC",
+"allow group UG_ELZ_SEC to manage security-zone in compartment C1_R_ELZ_NW"
 ```
 
 **Process:**
@@ -603,17 +625,34 @@ oci bastion bastion get --bastion-id $BASTION_ID --query 'data."lifecycle-state"
 |---|---|---|
 | 1a | Add 5 statements to `iam_policies_team1.tf` → `nw_admin_grants` list | — |
 | 1b | Commit, push to `main` | — |
-| 1c | Sprint 1 ORM stack → **Plan** | "1 to change" — UG_ELZ_NW-Policy gains 5 statements |
-| 1d | Verify Plan: zero destroys, zero new resources | Only policy update |
+| 1c | Sprint 1 ORM stack → **Plan** | "2 to change" — UG_ELZ_NW-Policy +5, UG_ELZ_SEC-Policy +2 |
+| 1d | Verify Plan: zero destroys, zero new resources | Only policy updates |
 | 1e | **Apply** | ~30 seconds |
 | 1f | Verify | See command below |
 
 ```bash
-# Verify patch applied
+# Verify NW patch
 oci iam policy get --policy-id $NW_POLICY_ID \
   --query 'data.statements[?contains(@, `bastion-family`)]'
-# Expected: "allow group UG_ELZ_NW to manage bastion-family in compartment C1_R_ELZ_NW"
+
+# Verify SEC patch
+oci iam policy get --policy-id $SEC_POLICY_ID \
+  --query 'data.statements[?contains(@, `security-zone`)]'
 ```
+
+### Step 1b — Verify Cloud Guard is ENABLED (prerequisite for Security Zones)
+
+```bash
+oci cloud-guard configuration get --compartment-id $TENANCY_OCID \
+  --query 'data.status'
+# Expected: ENABLED
+
+# If not enabled:
+oci cloud-guard configuration update --compartment-id $TENANCY_OCID \
+  --reporting-region ap-singapore-2 --status ENABLED
+```
+
+Security Zones require Cloud Guard to be enabled. If Cloud Guard is not enabled, `oci_cloud_guard_security_zone` and `oci_cloud_guard_target` resources will fail on apply.
 
 ### Step 2 — Sprint 3 ORM apply (single phase — no gate)
 
@@ -621,10 +660,10 @@ oci iam policy get --policy-id $NW_POLICY_ID \
 |---|---|---|
 | 2a | Create Sprint 3 ORM stack, upload `sprint3/` directory | — |
 | 2b | Configure variables from Sprint 1 + Sprint 2 outputs (see `terraform.tfvars.template`) | — |
-| 2c | **Plan** | "27 to add, 0 to change, 0 to destroy" (26 resources + 1 import) |
+| 2c | **Plan** | "37 to add, 0 to change, 0 to destroy" (36 resources + 1 import) |
 | 2d | Verify Plan: Service Gateway, DRG RTs, flow logs, events, Bastion sessions all present | — |
 | 2e | **Apply** | ~5 minutes |
-| 2f | Run TC-20 through TC-27 | All PASS |
+| 2f | Run TC-20 through TC-35 | All PASS |
 
 ```bash
 # Export Sprint 3 outputs for Sprint 4
@@ -673,9 +712,16 @@ git tag sprint3-complete && git push origin sprint3-complete
 | Events Rule | 1 | — |
 | Monitoring Alarm | 1 | — |
 | Bastion Sessions | 2 | — |
-| **Total** | **26 resources** | **1 imported from Sprint 2** |
+| KMS Vault | 1 (vlt_r_elz_sec) | — |
+| KMS Key | 1 (key_r_elz_sec_master, AES-256 HSM) | — |
+| Cloud Guard Detector Recipes | 2 (config + activity, cloned from Oracle) | — |
+| Cloud Guard Responder Recipe | 1 (cloned from Oracle) | — |
+| Cloud Guard Target | 1 (tenancy root) | — |
+| Security Zone Recipes | 2 (SEC encryption + NW isolation) | — |
+| Security Zones | 2 (C1_R_ELZ_SEC + C1_R_ELZ_NW) | — |
+| **Total** | **36 resources** | **1 imported from Sprint 2** |
 
-Sprint 2 resource count: 38 (32 + 6 security lists). Sprint 3 adds 26 new (including 5 attachment management + 1 imported RT) = **64 total resources under Terraform management across Sprint 2 + Sprint 3.**
+Sprint 2 resource count: 38 (32 + 6 security lists). Sprint 3 adds 36 new (including 5 attachment management + 1 imported RT + 10 security resources) = **74 total resources under Terraform management across Sprint 2 + Sprint 3.**
 
 ---
 
@@ -691,4 +737,4 @@ Sprint 2 resource count: 38 (32 + 6 security lists). Sprint 3 adds 26 new (inclu
 
 ---
 
-**Sprint 3 owner:** DSTA + Oracle | **Gate to Sprint 4:** TC-20 through TC-27 all PASS
+**Sprint 3 owner:** DSTA + Oracle | **Gate to Sprint 4:** TC-20 through TC-35 all PASS

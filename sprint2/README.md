@@ -10,6 +10,10 @@ E-W spoke↔spoke routing works via DRG v2 full-mesh (TC-18/TC-19). Hub FW inspe
 
 ---
 
+## What we are building
+
+<img width="720" height="405" alt="Sprint2" src="https://github.com/user-attachments/assets/82c28bb2-bc5b-408a-a09c-835091f668f2" />
+
 ## Network Topology
 
 ```

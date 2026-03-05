@@ -98,24 +98,36 @@ Sprint 2 Hub FW RT (`rt_r_elz_nw_fw`, created empty) is imported into Sprint 3 s
 
 ## Test Cases
 
-| # | What | Expected |
-|---|---|---|
-| TC-20 | Custom DRG RTs exist | drgrt_r_hub_spoke_mesh + drgrt_spoke_to_hub visible |
-| TC-21 | Spoke attachments use spoke_to_hub RT | drg-route-table-id points to spoke_to_hub |
-| TC-22 | Forced inspection — OS → TS via Hub FW | traceroute hits Hub FW IP before TS |
-| TC-23 | VCN flow logs capturing | Flow entries in lg_r_elz_nw_flow for Hub FW subnet |
-| TC-24 | Events rule fires | Route table Console edit triggers nt_r_elz_sec_alerts |
-| TC-25 | Object Storage bucket | bkt_r_elz_sec_logs exists, versioned, no public |
-| TC-26 | Bastion session — OS SSH | ACTIVE |
-| TC-27 | Bastion session — TS SSH | ACTIVE |
-| TC-28 | Vault ACTIVE | vlt_r_elz_sec lifecycle-state = ACTIVE |
-| TC-29 | Master key AES-256 HSM | AES / 32 / HSM |
-| TC-30 | Cloud Guard target ACTIVE | cgt_r_elz_root covers tenancy |
-| TC-31 | CG detector recipes attached | cgdr_r_elz_config + cgdr_r_elz_activity on target |
-| TC-32 | Security Zone SEC ACTIVE | sz_r_elz_sec on C1_R_ELZ_SEC |
-| TC-33 | Security Zone NW ACTIVE | sz_r_elz_nw on C1_R_ELZ_NW |
-| TC-34 | SZ NW blocks public subnet | HTTP 409 creating public subnet in NW |
-| TC-35 | SZ SEC blocks unencrypted volume | HTTP 409 creating volume without CMK |
+Shell variables (set once after Sprint 3 apply):
+
+```bash
+export DRG_ID=$(terraform output -raw hub_spoke_mesh_drgrt_id | cut -d. -f1-4)  # or from Sprint 2 output
+export VAULT_ID=$(terraform output -raw vault_id)
+export VAULT_EP=$(terraform output -raw vault_management_endpoint)
+export KEY_ID=$(terraform output -raw master_key_id)
+export CG_TARGET=$(terraform output -raw cg_target_id)
+export SZ_SEC=$(terraform output -raw sz_sec_id)
+export SZ_NW=$(terraform output -raw sz_nw_id)
+```
+
+| # | What | CLI / Method | Expected |
+|---|---|---|---|
+| TC-20 | Custom DRG RTs exist | `oci network drg-route-table list --drg-id $HUB_DRG_ID --all --query 'data[].{name:"display-name"}'` | drgrt_r_hub_spoke_mesh + drgrt_spoke_to_hub |
+| TC-21 | Spoke attachments use spoke_to_hub RT | `oci network drg-attachment get --drg-attachment-id $OS_ATTACH_ID --query 'data."drg-route-table-id"'` | Points to spoke_to_hub OCID |
+| TC-22 | Forced inspection — OS → TS via Hub FW | SSH to OS Sim FW via Bastion, run `traceroute 10.3.0.x` | Packet hits Hub FW IP (10.0.x.x) before reaching TS |
+| TC-23 | VCN flow logs capturing | Console → Logging → lg_r_elz_nw_flow → fl_r_elz_nw_fw | Flow entries showing spoke source IPs on Hub FW subnet |
+| TC-24 | Events rule fires | Manually update a route table via Console, then check ONS | Event delivered to nt_r_elz_sec_alerts topic |
+| TC-25 | Object Storage bucket | `oci os bucket get --bucket-name bkt_r_elz_sec_logs --query 'data.{versioning:versioning,access:"public-access-type"}'` | Enabled / NoPublicAccess |
+| TC-26 | Bastion session — OS SSH | `oci bastion session get --session-id $OS_SESSION_ID --query 'data.{state:"lifecycle-state",target:"target-resource-details"."target-resource-id"}'` | ACTIVE, target = OS Sim FW |
+| TC-27 | Bastion session — TS SSH | `oci bastion session get --session-id $TS_SESSION_ID --query 'data.{state:"lifecycle-state"}'` | ACTIVE |
+| TC-28 | Vault ACTIVE | `oci kms vault get --vault-id $VAULT_ID --query 'data."lifecycle-state"'` | ACTIVE |
+| TC-29 | Master key AES-256 HSM | `oci kms key get --key-id $KEY_ID --endpoint $VAULT_EP --query 'data.{"alg":"key-shape".algorithm,"len":"key-shape".length,"mode":"protection-mode"}'` | AES / 32 / HSM |
+| TC-30 | Cloud Guard target ACTIVE | `oci cloud-guard target get --target-id $CG_TARGET --query 'data."lifecycle-state"'` | ACTIVE |
+| TC-31 | CG detector recipes attached | `oci cloud-guard target get --target-id $CG_TARGET --query 'data."target-detector-recipes"[].{name:"display-name"}'` | cgdr_r_elz_config + cgdr_r_elz_activity |
+| TC-32 | Security Zone SEC ACTIVE | `oci cloud-guard security-zone get --security-zone-id $SZ_SEC --query 'data."lifecycle-state"'` | ACTIVE |
+| TC-33 | Security Zone NW ACTIVE | `oci cloud-guard security-zone get --security-zone-id $SZ_NW --query 'data."lifecycle-state"'` | ACTIVE |
+| TC-34 | SZ NW blocks public subnet | Create public subnet in C1_R_ELZ_NW via Console | HTTP 409 — security zone violation |
+| TC-35 | SZ SEC blocks unencrypted volume | Create block volume without CMK in C1_R_ELZ_SEC via Console | HTTP 409 — security zone violation |
 
 **Gate:** TC-20 through TC-35 all PASS before Sprint 4.
 

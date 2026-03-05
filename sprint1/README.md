@@ -12,6 +12,11 @@ Sprint 1 reference implementation. Fixes all naming drift, policy syntax, and 40
 |--------|--------|---------|
 | `sprint1/` | **This folder** | Full solutions, all fixes applied |
 
+
+## What we are building
+
+<img width="720" height="405" alt="Sprint1" src="https://github.com/user-attachments/assets/4103a24d-fa64-432c-a2d0-e30ca0880b57" />
+
 ---
 
 ## Key Changes from sprint1-solutions/

@@ -170,4 +170,4 @@ Sprint 1: ~60 IAM. Sprint 2: 38 networking. Sprint 3: 36 security/observability.
 
 ---
 
-**Sprint 3 owner:** DSTA + Oracle | **Gate to Sprint 4:** TC-20 through TC-35 all PASS
+**Sprint 3 owner:** STAR + Oracle | **Gate to Sprint 4:** TC-20 through TC-35 all PASS

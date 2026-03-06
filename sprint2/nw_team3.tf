@@ -161,8 +161,9 @@ resource "oci_core_instance" "sim_fw_ss" {
   }
 
   source_details {
-    source_type = "image"
-    source_id   = local.sim_fw_image_id
+    source_type             = "image"
+    source_id               = local.sim_fw_image_id
+    boot_volume_size_in_gbs = 50
   }
 
   create_vnic_details {
@@ -171,6 +172,17 @@ resource "oci_core_instance" "sim_fw_ss" {
     assign_public_ip       = false
     skip_source_dest_check = true
     freeform_tags          = local.cmp_freeform_tags
+  }
+
+  agent_config {
+    are_all_plugins_disabled = false
+    is_management_disabled   = false
+    is_monitoring_disabled   = false
+
+    plugins_config {
+      name          = "Bastion"
+      desired_state = "ENABLED"
+    }
   }
 
   metadata = {

@@ -60,16 +60,20 @@ resource "oci_core_vcn" "hub" {
   defined_tags  = local.net_defined_tags
 }
 
-# Hub FW Route Table — empty in V1 (no IGW, no rules)
-# Sprint 3: will add DRG route distribution to force spoke traffic through here.
-# Leave this resource — it establishes the RT OCID that hub_fw subnet references.
+# Hub FW Route Table — SGW route for Cloud Agent / Bastion plugin.
+# Sprint 3: will add DRG transit routes here. SGW rule is a different
+# destination_type (SERVICE_CIDR_BLOCK) and won't conflict.
 resource "oci_core_route_table" "hub_fw" {
   compartment_id = var.nw_compartment_id
   vcn_id         = oci_core_vcn.hub.id
   display_name   = local.hub_fw_rt_name
 
-  # Intentionally no route_rules in V1.
-  # Sprint 3 backlog: add DRG transit route distribution here.
+  route_rules {
+    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
+    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
+    destination_type  = "SERVICE_CIDR_BLOCK"
+    network_entity_id = oci_core_service_gateway.hub.id
+  }
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
@@ -112,12 +116,38 @@ resource "oci_core_drg" "ew_hub" {
   defined_tags  = local.net_defined_tags
 }
 
-# Hub MGMT Route Table — empty Phase 1, DRG rule added Phase 2
+# Service Gateway — required for Bastion Managed SSH and cloud-init yum access.
+# Cloud Agent on Sim FW instances needs a route to OCI services (Oracle Services Network)
+# for the Bastion plugin to initialise. Without this, plugin state → INVALID.
+# Also required for dnf/yum (iptables-services install during cloud-init).
+resource "oci_core_service_gateway" "hub" {
+  compartment_id = var.nw_compartment_id
+  vcn_id         = oci_core_vcn.hub.id
+  display_name   = local.hub_sgw_name
+
+  services {
+    service_id = data.oci_core_services.all_oci_services.services[0].id
+  }
+
+  freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
+}
+
+# Hub MGMT Route Table — SGW always present, DRG rule added Phase 2
 resource "oci_core_route_table" "hub_mgmt" {
   compartment_id = var.nw_compartment_id
   vcn_id         = oci_core_vcn.hub.id
   display_name   = local.hub_mgmt_rt_name
 
+  # Service Gateway — always present (Cloud Agent + yum)
+  route_rules {
+    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
+    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
+    destination_type  = "SERVICE_CIDR_BLOCK"
+    network_entity_id = oci_core_service_gateway.hub.id
+  }
+
+  # DRG route — Phase 2 only (spoke access for Bastion sessions)
   dynamic "route_rules" {
     for_each = local.phase2_enabled ? [1] : []
     content {

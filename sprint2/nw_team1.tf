@@ -46,13 +46,21 @@ resource "oci_core_vcn" "os" {
 }
 
 # [S2-T1] Route Table for OS compartment
-# Phase 1: created with no route rules.
-# Phase 2: DRG default route added via dynamic block (in-place update).
+# SGW rule always present (Cloud Agent + yum). DRG rule added Phase 2.
 resource "oci_core_route_table" "os_app" {
   compartment_id = var.os_compartment_id
   vcn_id         = oci_core_vcn.os.id
   display_name   = local.os_app_rt_name
 
+  # Service Gateway — Cloud Agent + yum (always present)
+  route_rules {
+    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
+    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
+    destination_type  = "SERVICE_CIDR_BLOCK"
+    network_entity_id = oci_core_service_gateway.os.id
+  }
+
+  # DRG route — Phase 2 only
   dynamic "route_rules" {
     for_each = local.phase2_enabled ? [1] : []
     content {
@@ -67,6 +75,20 @@ resource "oci_core_route_table" "os_app" {
   defined_tags  = local.net_defined_tags
 
   depends_on = [oci_core_drg_attachment.os]
+}
+
+# Service Gateway for OS VCN — Cloud Agent on Sim FW needs OCI service access
+resource "oci_core_service_gateway" "os" {
+  compartment_id = var.os_compartment_id
+  vcn_id         = oci_core_vcn.os.id
+  display_name   = "sgw_os_elz_nw"
+
+  services {
+    service_id = data.oci_core_services.all_oci_services.services[0].id
+  }
+
+  freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
 }
 
 # Subnet references route table directly — OCI native pattern (no separate attachment resource)

@@ -39,10 +39,18 @@ resource "oci_core_vcn" "ts" {
 }
 
 # [S2-T2] Route Table for TS compartment
+# SGW rule always present (Cloud Agent + yum). DRG rule added Phase 2.
 resource "oci_core_route_table" "ts_app" {
   compartment_id = var.ts_compartment_id
   vcn_id         = oci_core_vcn.ts.id
   display_name   = local.ts_app_rt_name
+
+  route_rules {
+    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
+    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
+    destination_type  = "SERVICE_CIDR_BLOCK"
+    network_entity_id = oci_core_service_gateway.ts.id
+  }
 
   dynamic "route_rules" {
     for_each = local.phase2_enabled ? [1] : []
@@ -58,6 +66,19 @@ resource "oci_core_route_table" "ts_app" {
   defined_tags  = local.net_defined_tags
 
   depends_on = [oci_core_drg_attachment.ts]
+}
+
+resource "oci_core_service_gateway" "ts" {
+  compartment_id = var.ts_compartment_id
+  vcn_id         = oci_core_vcn.ts.id
+  display_name   = "sgw_ts_elz_nw"
+
+  services {
+    service_id = data.oci_core_services.all_oci_services.services[0].id
+  }
+
+  freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
 }
 
 resource "oci_core_subnet" "ts_app" {

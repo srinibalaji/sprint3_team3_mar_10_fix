@@ -46,3 +46,17 @@ data "oci_core_images" "platform_oel8" {
 # omitted. It fails plan on fresh tenancies where Cloud Guard is not yet
 # enabled. Cloud Guard was manually enabled by Oracle for Sprint 1.
 # Sprint 2 networking does not depend on Cloud Guard state.
+
+# ---------------------------------------------------------------------------
+# OCI Services Network — required for Service Gateway (Bastion Managed SSH)
+# Cloud Agent on Sim FW instances needs a route to OCI services for the
+# Bastion plugin to initialise. Without this, plugin state → INVALID.
+# Also required for dnf/yum access (cloud-init iptables-services install).
+# ---------------------------------------------------------------------------
+data "oci_core_services" "all_oci_services" {
+  filter {
+    name   = "name"
+    values = ["All .* Services In Oracle Services Network"]
+    regex  = true
+  }
+}

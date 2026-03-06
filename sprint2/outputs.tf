@@ -120,6 +120,11 @@ output "hub_bastion_id" {
   value       = length(oci_bastion_bastion.hub) > 0 ? oci_bastion_bastion.hub[0].id : "not-provisioned-complete-phase2-first"
 }
 
+output "hub_sgw_id" {
+  description = "OCID of Hub Service Gateway. Required for Bastion Managed SSH and Cloud Agent."
+  value       = oci_core_service_gateway.hub.id
+}
+
 # ---------------------------------------------------------------------------
 # SUMMARY MAP — full network topology for sprint2_outputs.json handoff
 # ---------------------------------------------------------------------------

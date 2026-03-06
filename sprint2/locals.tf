@@ -100,6 +100,9 @@ locals {
   # Bastion Name
   hub_bastion_name = "bas_r_elz_nw_hub"
 
+  # Service Gateway Name
+  hub_sgw_name = "sgw_r_elz_nw_hub"
+
   # DRG Attachment Names
   hub_drg_attachment_name  = "drga_r_elz_nw_hub"
   os_drg_attachment_name   = "drga_os_elz_nw"
@@ -181,13 +184,13 @@ locals {
   # ---------------------------------------------------------------------------
   sim_fw_image_id = data.oci_core_images.platform_oel8.images[0].id
 
-  # Sim FW cloud-init — Oracle Linux 8 (E4.Flex primary NIC: eth0)
+  # Sim FW cloud-init — Oracle Linux 8 (E4.Flex primary NIC: ens3)
+  # OL8 uses consistent network device naming — primary NIC is ens3, not eth0.
   # Enables persistent IP forwarding and NAT masquerade via iptables-services.
   # NOTE: firewalld is intentionally NOT used — it conflicts with iptables-services
   # on OL8 when both are active. iptables-services is the correct OL/RHEL approach.
   # OCI requirement: skip_source_dest_check = true must ALSO be set on the VNIC
   # (done in each team file) — cloud-init alone is insufficient for OCI forwarding.
-  # SPRINT 3 NOTE: DNS label constants moved to locals.tf (dns_label block above).
   sim_fw_userdata = base64encode(<<-EOT
     #!/bin/bash
     # STAR ELZ V1 — Sim Firewall bootstrap (Oracle Linux 8 / E4.Flex)
@@ -200,15 +203,19 @@ locals {
     # Step 2: Install iptables-services (Oracle Linux / RHEL persistence layer)
     dnf -y install iptables-services
 
-    # Step 3: Add NAT masquerade rule on primary interface
-    # OCI E4.Flex: primary NIC is eth0. Adjust if using a different shape.
-    iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    # Step 3: Detect primary interface (ens3 on OL8 E4.Flex, eth0 on older shapes)
+    PRIMARY_IF=$(ip -o -4 route show default 2>/dev/null | awk '{print $5}' | head -1)
+    [ -z "$PRIMARY_IF" ] && PRIMARY_IF=$(ip -o link show up | grep -v lo | awk -F': ' '{print $2}' | head -1)
+    [ -z "$PRIMARY_IF" ] && PRIMARY_IF="ens3"
 
-    # Step 4: Persist iptables rules and enable service across reboots
+    # Step 4: Add NAT masquerade rule on primary interface
+    iptables -t nat -A POSTROUTING -o $PRIMARY_IF -j MASQUERADE
+
+    # Step 5: Persist iptables rules and enable service across reboots
     service iptables save
     systemctl enable --now iptables
 
-    echo "Sim FW bootstrap complete $(date)" >> /var/log/star-elz-simfw-init.log
+    echo "Sim FW bootstrap complete — interface=$PRIMARY_IF $(date)" >> /var/log/star-elz-simfw-init.log
   EOT
   )
 }

@@ -241,7 +241,16 @@ SIM_FW_HUB_ID="ocid1.instance.oc1..aaa"
 SIM_FW_OS_ID="ocid1.instance.oc1..aaa"
 SIM_FW_TS_ID="ocid1.instance.oc1..aaa"
 SIM_FW_SS_ID="ocid1.instance.oc1..aaa"
-REGION="ap-singapore-2"
+REGION="ap-singapore-1"
+
+# Subnet OCIDs — needed for NPA tests (TC-13, TC-14, TC-18)
+HUB_FW_SUBNET="ocid1.subnet.oc1..aaa"     # terraform output hub_fw_subnet_id
+HUB_MGMT_SUBNET="ocid1.subnet.oc1..aaa"   # terraform output hub_mgmt_subnet_id
+OS_APP_SUBNET="ocid1.subnet.oc1..aaa"      # terraform output os_app_subnet_id
+TS_APP_SUBNET="ocid1.subnet.oc1..aaa"      # terraform output ts_app_subnet_id
+SS_APP_SUBNET="ocid1.subnet.oc1..aaa"      # terraform output ss_app_subnet_id
+DEVT_APP_SUBNET="ocid1.subnet.oc1..aaa"    # terraform output devt_app_subnet_id
+TENANCY_ID=$(oci iam tenancy get --query 'data.id' --raw-output)
 
 # Resolve Sim FW private IPs (dynamically assigned)
 get_private_ip() {
@@ -364,30 +373,27 @@ Same pattern, OS → TS. Expected: `REACHABLE` via DRG full-mesh. Traffic bypass
 
 ### TC-15 — Sim FW Linux Validation (Bastion SSH)
 
-**How to create a Bastion Managed SSH session (no SSH key in Terraform needed):**
+**Create Bastion Managed SSH session:**
 
-Console → Identity & Security → Bastion → `bas_r_elz_nw_hub` → Create Session:
-- Session type: **Managed SSH**
-- Target instance: select the Sim FW (e.g. `fw_r_elz_nw_hub_sim`)
-- OS username: `opc`
-- SSH key: paste your public key from `~/.ssh/id_rsa.pub` on your laptop (or generate one with `ssh-keygen -t rsa -b 4096`)
+Console → Bastion → `bas_r_elz_nw_hub` → Create Session → Managed SSH → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste your `~/.ssh/id_rsa.pub` → Create. Copy the SSH ProxyCommand from session details and run it.
 
-Copy the SSH ProxyCommand from the session details and run it in your terminal. No SSH key is needed in the Terraform code — the OCI Cloud Agent on the instance handles authentication using the key you paste at session creation time. No Service Gateway or internet access is needed — the Cloud Agent communicates with OCI Bastion via the internal metadata service channel.
+**Prerequisites:** Service Gateway in VCN with route rule `All Oracle Services Network → SGW` (Cloud Agent needs OSN access). Bastion plugin ENABLED via `agent_config`. Wait 3–5 min after apply.
 
-**Prerequisite:** The Bastion plugin must be ENABLED on the Sim FW instance (`agent_config.plugins_config` in Terraform). Wait 3–5 minutes after ORM apply for the plugin to start.
-
-Once connected to `fw_r_elz_nw_hub_sim`:
+**Once connected — verify Sim FW is working:**
 
 ```bash
-cloud-init status --long                             # status: done
-sudo cat /var/log/star-elz-simfw-init.log            # "Sim FW bootstrap complete"
-sysctl net.ipv4.ip_forward                           # = 1
-cat /etc/sysctl.d/99-ipforward.conf                  # net.ipv4.ip_forward=1
-sudo iptables -t nat -L POSTROUTING -v -n            # MASQUERADE on eth0
-sudo systemctl is-enabled iptables                   # enabled
-ping -c 4 $OS_FW_IP && ping -c 4 $TS_FW_IP && ping -c 4 $SS_FW_IP
-traceroute -n $OS_FW_IP                              # 2–3 hops via DRG
-sudo tcpdump -ni eth0 icmp                           # while pinging
+# cloud-init completed?
+cloud-init status --long                          # status: done
+sudo cat /var/log/star-elz-simfw-init.log         # "Sim FW bootstrap complete — interface=ens3"
+
+# IP forwarding active?
+sysctl net.ipv4.ip_forward                        # = 1
+
+# MASQUERADE on correct interface (ens3, not eth0)?
+sudo iptables -t nat -L POSTROUTING -v -n         # MASQUERADE on ens3
+
+# Ping spoke Sim FWs
+ping -c 2 $OS_FW_IP && ping -c 2 $TS_FW_IP && ping -c 2 $SS_FW_IP
 ```
 
 ### TC-16 — DEVT: No Compute
@@ -475,8 +481,9 @@ sprint2/nw_team<N>.tf            — copy nw_team1.tf, replace os/OS
 | No IGW in V1 | Isolated design. NPA + Bastion only. IGW is Sprint 3+. |
 | Phase 2 gate | `local.phase2_enabled = var.hub_drg_id != ""` via `count`. |
 | Sim FW | OL8 E4.Flex. `iptables-services` (not firewalld). Persistent `ip_forward=1`. `MASQUERADE` on `eth0`. Boot volume 50GB (OCI minimum). |
-| Bastion Managed SSH | No SSH key in Terraform. User pastes key in Console at session creation. Cloud Agent handles auth. No Service Gateway needed — agent uses OCI internal metadata channel. |
-| Bastion plugin | `agent_config.plugins_config` with `Bastion = ENABLED` on all Sim FW instances. Plugin takes 3–5 min after apply to start. |
+| Bastion Managed SSH | No SSH key in Terraform. User pastes key in Console at session creation. Cloud Agent handles auth. **Service Gateway required** — Cloud Agent needs route to Oracle Services Network for Bastion plugin initialisation and yum access. |
+| Bastion plugin | `agent_config.plugins_config` with `Bastion = ENABLED` on all Sim FW instances. Plugin takes 3–5 min after apply to start. Requires SGW route rule in subnet RT. |
+| Service Gateway | One SGW per VCN (Hub + 4 spokes). Route rule `All Oracle Services Network → SGW` in every subnet RT. Required for Cloud Agent, Bastion plugin, and cloud-init yum/dnf. |
 | DEVT spoke | Network-only. No Sim FW. Compute Sprint 4+. |
 | Hub FW RT empty | Placeholder. Sprint 3 adds DRG transit routing. |
 | DRG v2 full-mesh | Spoke↔spoke works now but bypasses Hub FW. S3-BACKLOG-01 fixes. |
@@ -569,4 +576,10 @@ Moved to `locals.tf` in Sprint 2.
 | C39 | Added `agent_config` with Bastion plugin ENABLED on all 4 Sim FW instances | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
 | C40 | Added `boot_volume_size_in_gbs = 50` — OL8 image default 47GB below OCI 50GB minimum | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
 | C41 | Updated TC-15 with Bastion Managed SSH session creation instructions | `README.md` |
-| C42 | Confirmed: no SSH key in Terraform needed for Managed SSH, no Service Gateway needed for Bastion | `README.md` |
+| C42 | **CORRECTED:** Service Gateway IS required for Bastion Managed SSH — Cloud Agent needs OSN route for plugin init + yum | `README.md` |
+| C43 | Added Service Gateway to Hub VCN + route rules to Hub FW and Hub MGMT RTs | `nw_team4.tf`, `data_sources.tf`, `locals.tf` |
+| C44 | Added Service Gateway to OS/TS/SS/DEVT spoke VCNs + route rules to spoke RTs | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf` |
+| C45 | Added `oci_core_services` data source and `hub_sgw_id` output | `data_sources.tf`, `outputs.tf` |
+| C46 | **CRITICAL:** Fixed cloud-init `eth0` → auto-detect primary interface (ens3 on OL8 E4.Flex) | `locals.tf` |
+| C47 | Added missing subnet OCIDs to TC shell variables block (NPA tests need them) | `README.md` |
+| C48 | Simplified TC-15 validation steps, fixed ens3 references | `README.md` |

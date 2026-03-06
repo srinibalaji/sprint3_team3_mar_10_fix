@@ -120,3 +120,9 @@ variable "hub_fw_rt_id" {
   description = "OCID of rt_r_elz_nw_fw — imported from Sprint 2 state to add spoke CIDRs and SG route"
   type        = string
 }
+
+# ── Service Gateway (created in Sprint 2) ──
+variable "hub_sgw_id" {
+  description = "OCID of sgw_r_elz_nw_hub — Sprint 2 Service Gateway, referenced in Hub FW RT SGW route rule"
+  type        = string
+}

@@ -1,177 +1,223 @@
-# STAR ELZ V1 — Sprint 3
+# STAR ELZ V1 — Sprint 3: Security, Observability, Forced Inspection
 
-**Dates:** 9–10 March 2026 | **Module:** Security, Observability, Forced Inspection
-**Prerequisite:** Sprint 1 (IAM) ✅ | Sprint 2 (Networking) ✅ | Sprint 1 IAM Patch ⚡ (see Deployment)
-**Deployment:** Sprint 1 re-apply (IAM patch) → Sprint 3 ORM single Plan → Apply
+**Branch:** `sprint3` · **Dates:** 9–10 Mar 2026 · **Terraform ≥ 1.3.0** · **OCI Provider ≥ 6.0.0**
+
+> **Coming from Sprint 2?** You need 23 OCIDs from `terraform output -json > sprint2_outputs.json`. Sprint 1 IAM patch must be applied first — see Deployment.
+
+Sprint 2 built the roads (5 VCNs, DRG full-mesh, Sim FWs, Bastion, SGWs, security lists). Traffic flowed spoke → DRG → spoke **direct** — no inspection.
+
+Sprint 3 adds: forced inspection through Hub FW, security services (Vault, Cloud Guard, Security Zones), observability (flow logs, events, alarms), log publishing (SCH), vulnerability scanning (VSS), and certificate management (internal CA).
+
+After apply: OS → DRG → Hub FW → inspect → DRG → TS. Flow logs prove it. Security Zones block insecure resources. Cloud Guard monitors continuously.
 
 ---
 
-## What we are building
+## Network Topology — After Sprint 3
 
-<img width="720" height="405" alt="Sprint3" src="https://github.com/user-attachments/assets/cefd27bc-5d7e-49c7-ab8a-c85077464c98" />
+```
+Forced Inspection Flow:
+  OS → spoke RT (0/0→DRG) → DRG spoke_to_hub (0/0→Hub att)
+  → VCN ingress RT (10/8→Hub FW VNIC) → Hub Sim FW (MASQUERADE ens3)
+  → Hub FW RT (spoke CIDRs→DRG) → DRG hub_spoke_mesh (import dist)
+  → destination spoke
 
-## What Sprint 3 Does
+                       ┌──────────────────────────────────────┐
+                       │  drg_r_hub                            │
+                       │  drgrt_spoke_to_hub   drgrt_r_hub_   │
+                       │  0/0 → Hub att        spoke_mesh     │
+                       │  (OS/TS/SS/DEVT)      import dist    │
+                       │                       (Hub att)      │
+                       └───┬──────┬─────┬─────┬──────┬────────┘
+                        OS att TS att SS att DEVT  Hub att
+                                                     │
+                    ┌────────────────────────────────┘
+                    │ Hub VCN  10.0.0.0/16
+                    │ VCN ingress RT: 10/8 → Hub FW VNIC
+                    │
+                    │ sub_r_elz_nw_fw (10.0.0.0/24)
+                    │   fw_r_elz_nw_hub_sim (ens3 MASQUERADE)
+                    │   RT: 10.1/24→DRG, 10.2/24→DRG, 10.3/24→DRG, 10.4/24→DRG, +SGW
+                    │
+                    │ sub_r_elz_nw_mgmt (10.0.1.0/24)
+                    │   bas_r_elz_nw_hub (Bastion)
+                    │   RT: 0/0→DRG, +SGW
+                    │
+                    │ sgw_r_elz_nw_hub → All OSN (Sprint 2, referenced via var)
 
-Sprint 2 built the roads (5 VCNs, DRG full-mesh, Sim FWs, Bastion, 6 security lists). Traffic flows spoke → DRG → spoke direct — no inspection.
+Spokes (Sprint 2 — unchanged):
+  OS 10.1.0/24 · TS 10.3.0/24 · SS 10.2.0/24 · DEVT 10.4.0/24
+  All: RT 0/0→DRG + SGW→OSN · SL allow 10/8 · SGW per VCN
 
-Sprint 3 adds forced inspection, security services, and observability:
+Security Services (C1_R_ELZ_SEC — T3):
+  vlt_r_elz_sec + key     KMS Vault + AES-256 HSM key
+  cgt_r_elz_root          Cloud Guard target (tenancy root)
+  sz_r_elz_sec/nw         Security Zones (encryption + network)
+  lg_r_elz_nw_flow        Log group + 6 flow logs
+  bkt_r_elz_sec_logs      Object Storage (versioned, private)
+  sch_r_elz_sec_log..     SCH: flow logs → bucket
+  vssr_r_elz_sec_host     VSS: host scan recipe + target
+  ca_r_elz_sec_internal   Internal CA (V2+ TLS)
+  nt_r_elz_sec_alerts     Topic + events rule + alarm
+```
 
-**Forced inspection (T4):** Custom DRG route tables replace auto-generated. Spoke DRG RT has static 0/0 → Hub VCN attachment. VCN ingress RT steers traffic to Hub Sim FW VNIC. Hub FW subnet RT returns inspected traffic to DRG. Service Gateway centralises Oracle service access on Hub VCN.
+---
 
-**Security services (T3):** OCI Vault (KMS) with AES-256 HSM master key. Cloud Guard detector/responder recipes (cloned from Oracle-managed). Cloud Guard target on tenancy root. Security Zones on C1_R_ELZ_SEC (encryption policies) and C1_R_ELZ_NW (network isolation).
+## Sprint 2 → Sprint 3 — What Changes
 
-**Observability (T3):** VCN flow logs on all 6 subnets. Object Storage bucket for log retention. Events rule on DRG/routing changes. Monitoring alarm on Hub FW subnet drops.
+| Sprint 2 Resource | Sprint 3 Action |
+|---|---|
+| DRG auto-generated RTs | **Replaced** with custom RTs |
+| DRG attachments (5) | **Reassigned** to custom DRG RTs |
+| Hub FW RT (SGW rule) | **Imported** + spoke CIDR routes added |
+| SGWs (5) | **No change** — referenced via `var.hub_sgw_id` |
+| Security lists (6) | **No change** — events rule monitors |
+| Bastion service | Sprint 3 creates **sessions** on it |
 
-**Bastion sessions (T1, T2):** SSH sessions to OS and TS Sim FWs for TC-22 forced inspection traceroute validation.
-
-**After apply:** OS → DRG → Hub FW → inspect → DRG → TS. Flow logs prove it. Security Zones prevent insecure resource creation. Cloud Guard monitors continuously.
+No duplicate resources. Two ORM stacks, two state files, zero conflict.
 
 ---
 
 ## Issue List
 
-| # | Task | Status | Team | Start | End | Days |
-|---|---|---|---|---|---|---|
-| S3-T4-01 | Custom DRG route tables (replace auto-generated) | New | T4 | 3/9 | 3/9 | 1 |
-| S3-T4-02 | DRG route distribution (import policy) | New | T4 | 3/9 | 3/9 | 1 |
-| S3-T4-03 | Spoke DRG RT with static route to Hub | New | T4 | 3/9 | 3/9 | 1 |
-| S3-T4-04 | VCN ingress route table on Hub DRG attachment | New | T4 | 3/9 | 3/9 | 1 |
-| S3-T4-05 | Hub FW subnet RT update (spoke CIDRs + SG route) | New | T4 | 3/9 | 3/9 | 1 |
-| S3-T4-06 | Service Gateway on Hub VCN | New | T4 | 3/9 | 3/9 | 1 |
-| S3-T1-01 | Bastion session — OS spoke | New | T1 | 3/9 | 3/9 | 1 |
-| S3-T2-01 | Bastion session — TS spoke | New | T2 | 3/9 | 3/9 | 1 |
-| S3-T3-01 | OCI Logging — log group + 6 VCN flow logs | New | T3 | 3/9 | 3/10 | 2 |
-| S3-T3-02 | Object Storage bucket for log retention | New | T3 | 3/9 | 3/10 | 2 |
-| S3-T3-03 | Events rule + monitoring alarm on DRG changes | New | T3 | 3/9 | 3/10 | 2 |
-| S3-T3-04 | OCI Vault (KMS) + AES-256 master encryption key | New | T3 | 3/9 | 3/9 | 1 |
-| S3-T3-05 | Cloud Guard detector/responder recipes (clone Oracle-managed) | New | T3 | 3/9 | 3/10 | 2 |
-| S3-T3-06 | Cloud Guard target on tenancy root | New | T3 | 3/9 | 3/10 | 2 |
-| S3-T3-07 | Security Zone recipes (SEC encryption + NW isolation) | New | T3 | 3/10 | 3/10 | 1 |
-| S3-T3-08 | Security Zones on C1_R_ELZ_SEC + C1_R_ELZ_NW | New | T3 | 3/10 | 3/10 | 1 |
-| S3-ORA-01 | Deploy Sprint 3 to OCI using Resource Manager | New | Oracle | 3/10 | 3/10 | 1 |
-| S3-ORA-02 | Sprint 1 IAM patch re-apply (7 statements: 5 NW + 2 SEC) | New | Oracle | 3/9 | 3/9 | 1 |
-| S3-ORA-03 | Verify Cloud Guard ENABLED in tenancy | New | Oracle | 3/9 | 3/9 | 1 |
-| S3-ORA-04 | Validate Security Zone policy OCIDs for ap-singapore-2 | New | Oracle | 3/9 | 3/9 | 1 |
+| # | Task | Team | File |
+|---|---|---|---|
+| S3-T4-01 | Custom DRG RTs + distribution + static route | T4 | `sec_team4.tf` |
+| S3-T4-02 | VCN ingress RT + Hub FW RT update (import) | T4 | `sec_team4.tf` |
+| S3-T4-03 | 5 DRG attachment management (RT reassignment) | T4 | `sec_team4.tf` |
+| S3-T1-01 | Bastion session — OS spoke | T1 | `sec_team1.tf` |
+| S3-T2-01 | Bastion session — TS spoke | T2 | `sec_team2.tf` |
+| S3-T3-01 | Log group + 6 flow logs + SCH + bucket | T3 | `sec_team3.tf` |
+| S3-T3-02 | Events rule + alarm + notification topic | T3 | `sec_team3.tf` |
+| S3-T3-03 | VSS recipe + target | T3 | `sec_team3.tf` |
+| S3-T3-04 | Internal CA | T3 | `sec_team3.tf` |
+| S3-T3-05 | Vault + master key | T3 | `sec_team3_security.tf` |
+| S3-T3-06 | Cloud Guard recipes + target | T3 | `sec_team3_security.tf` |
+| S3-T3-07 | Security Zone recipes + zones | T3 | `sec_team3_security.tf` |
+| S3-ORA-01 | Sprint 1 IAM patch (9 statements) | Oracle | IAM patch doc |
+| S3-ORA-02 | Verify Cloud Guard ENABLED | Oracle | Console |
 
 ---
 
-## File Map
+## Deployment
 
-| File | Owner | Resources |
-|---|---|---|
-| `sec_team4.tf` | T4 | 13: custom DRG RTs, route distribution, static route, VCN ingress RT, Hub FW RT (import), Service Gateway, 5 DRG attachment mgmt |
-| `sec_team3.tf` | T3 | 11: log group, 6 flow logs, bucket, notification topic, events rule, alarm |
-| `sec_team3_security.tf` | T3 | 10: Vault, master key, 3 CG recipes, CG target, 2 SZ recipes, 2 SZ zones |
-| `sec_team1.tf` | T1 | 1: Bastion session (OS Sim FW SSH) |
-| `sec_team2.tf` | T2 | 1: Bastion session (TS Sim FW SSH) |
-| `locals.tf` | — | 29 name constants |
-| `variables_general.tf` | — | 5 vars (tenancy, region, home_region, service_label, ssh_key) |
-| `variables_iam.tf` | — | 10 compartment OCIDs from Sprint 1 |
-| `variables_s2_ref.tf` | — | 30 Sprint 2 output OCIDs |
-| `variables_net.tf` | — | 5 CIDR variables |
-| `data_sources.tf` | — | 6 data sources (ObjStorage ns, OCI services, CG config/activity/responder, SZ policies) |
-| `providers.tf` | — | OCI + OCI home |
-| `outputs.tf` | — | 16 outputs for Sprint 4 |
-| `schema.yaml` | — | ORM UI — 7 groups, 42 variables |
-| `s2_sprint2_ref.tf` | — | Sprint 2 inventory (read-only) |
-| `terraform.tfvars.template` | — | Template with CLI commands per OCID |
+**Step 1 — Sprint 1 IAM patch.** Add 9 statements. Plan → Apply. "2 to change". See `docs/SPRINT1_IAM_PATCH_FOR_S3.md`.
 
----
+**Step 1b — Cloud Guard ENABLED.** Console → Cloud Guard → verify.
 
-## Sprint 2 → Sprint 3 Handover
+**Step 2 — Sprint 3 ORM.** Create stack → `sprint3/` → paste OCIDs → Plan → Apply. "39 to add, 1 to import".
 
-Verify before Sprint 3: 5 VCNs, 6 subnets (all private), DRG with 5 attachments ATTACHED, 6 security lists, 4 Sim FW RUNNING, Bastion ACTIVE, tag namespace C0-star-elz-v1 ACTIVE, zero ORM drift.
-
-Sprint 2 security lists (6 SLs, allow-all internal 10.0.0.0/8) remain unchanged. NSG tightening is V2. Sprint 3 events rule monitors security list changes.
-
-Sprint 2 Hub FW RT (`rt_r_elz_nw_fw`, created empty) is imported into Sprint 3 state via `import{}` block. Sprint 3 adds spoke CIDR routes and Service Gateway route. Requires `hub_fw_rt_id` OCID.
-
----
-
-## Deployment — Sprint 3 Day (9 March)
-
-**Step 1 — Sprint 1 IAM patch.** Add 7 statements to Sprint 1 `iam_policies_team1.tf`: 5 in UG_ELZ_NW-Policy (bastion-family + 4× read instance-family), 2 in UG_ELZ_SEC-Policy (manage security-zone in SEC + NW). Commit, Plan → Apply. Expected: "2 to change". Zero destroys. See `docs/SPRINT1_IAM_PATCH_FOR_S3.md`.
-
-**Step 1b — Verify Cloud Guard ENABLED.** Console: `Identity & Security → Cloud Guard`. Must be ENABLED before Security Zones can be created.
-
-**Step 2 — Sprint 3 ORM apply.** Create stack, configure 42 variables from Sprint 1 + Sprint 2 outputs, Plan → Apply. Expected: "37 to add" (36 resources + 1 import).
-
-**Step 3 — Validate.** Run TC-20 through TC-35.
+**Step 3 — Validate.** TC-20 through TC-39.
 
 ---
 
 ## Test Cases
 
-Shell variables (set once after Sprint 3 apply):
+### Variables
 
 ```bash
-export DRG_ID=$(terraform output -raw hub_spoke_mesh_drgrt_id | cut -d. -f1-4)  # or from Sprint 2 output
-export VAULT_ID=$(terraform output -raw vault_id)
-export VAULT_EP=$(terraform output -raw vault_management_endpoint)
-export KEY_ID=$(terraform output -raw master_key_id)
-export CG_TARGET=$(terraform output -raw cg_target_id)
-export SZ_SEC=$(terraform output -raw sz_sec_id)
-export SZ_NW=$(terraform output -raw sz_nw_id)
+HUB_DRG_ID="<paste>"           # Sprint 2 output
+VAULT_ID=$(terraform output -raw vault_id)
+KEY_ID=$(terraform output -raw master_key_id)
+VAULT_EP=$(terraform output -raw vault_management_endpoint)
+CG_TARGET=$(terraform output -raw cg_target_id)
+SZ_SEC=$(terraform output -raw sz_sec_id)
+SZ_NW=$(terraform output -raw sz_nw_id)
 ```
 
-| # | What | CLI / Method | Expected |
-|---|---|---|---|
-| TC-20 | Custom DRG RTs exist | `oci network drg-route-table list --drg-id $HUB_DRG_ID --all --query 'data[].{name:"display-name"}'` | drgrt_r_hub_spoke_mesh + drgrt_spoke_to_hub |
-| TC-21 | Spoke attachments use spoke_to_hub RT | `oci network drg-attachment get --drg-attachment-id $OS_ATTACH_ID --query 'data."drg-route-table-id"'` | Points to spoke_to_hub OCID |
-| TC-22 | Forced inspection — OS → TS via Hub FW | SSH to OS Sim FW via Bastion, run `traceroute 10.3.0.x` | Packet hits Hub FW IP (10.0.x.x) before reaching TS |
-| TC-23 | VCN flow logs capturing | Console → Logging → lg_r_elz_nw_flow → fl_r_elz_nw_fw | Flow entries showing spoke source IPs on Hub FW subnet |
-| TC-24 | Events rule fires | Manually update a route table via Console, then check ONS | Event delivered to nt_r_elz_sec_alerts topic |
-| TC-25 | Object Storage bucket | `oci os bucket get --bucket-name bkt_r_elz_sec_logs --query 'data.{versioning:versioning,access:"public-access-type"}'` | Enabled / NoPublicAccess |
-| TC-26 | Bastion session — OS SSH | `oci bastion session get --session-id $OS_SESSION_ID --query 'data.{state:"lifecycle-state",target:"target-resource-details"."target-resource-id"}'` | ACTIVE, target = OS Sim FW |
-| TC-27 | Bastion session — TS SSH | `oci bastion session get --session-id $TS_SESSION_ID --query 'data.{state:"lifecycle-state"}'` | ACTIVE |
-| TC-28 | Vault ACTIVE | `oci kms vault get --vault-id $VAULT_ID --query 'data."lifecycle-state"'` | ACTIVE |
-| TC-29 | Master key AES-256 HSM | `oci kms key get --key-id $KEY_ID --endpoint $VAULT_EP --query 'data.{"alg":"key-shape".algorithm,"len":"key-shape".length,"mode":"protection-mode"}'` | AES / 32 / HSM |
-| TC-30 | Cloud Guard target ACTIVE | `oci cloud-guard target get --target-id $CG_TARGET --query 'data."lifecycle-state"'` | ACTIVE |
-| TC-31 | CG detector recipes attached | `oci cloud-guard target get --target-id $CG_TARGET --query 'data."target-detector-recipes"[].{name:"display-name"}'` | cgdr_r_elz_config + cgdr_r_elz_activity |
-| TC-32 | Security Zone SEC ACTIVE | `oci cloud-guard security-zone get --security-zone-id $SZ_SEC --query 'data."lifecycle-state"'` | ACTIVE |
-| TC-33 | Security Zone NW ACTIVE | `oci cloud-guard security-zone get --security-zone-id $SZ_NW --query 'data."lifecycle-state"'` | ACTIVE |
-| TC-34 | SZ NW blocks public subnet | Create public subnet in C1_R_ELZ_NW via Console | HTTP 409 — security zone violation |
-| TC-35 | SZ SEC blocks unencrypted volume | Create block volume without CMK in C1_R_ELZ_SEC via Console | HTTP 409 — security zone violation |
+### Forced Inspection (T4)
 
-**Gate:** TC-20 through TC-35 all PASS before Sprint 4.
+**TC-20 — Custom DRG RTs.** Console → DRGs → `drg_r_hub` → Route Tables. Expect: `drgrt_r_hub_spoke_mesh` + `drgrt_spoke_to_hub`.
 
----
+**TC-21 — Spoke RT assignment.** Console → DRG Attachments → each spoke → DRG RT = `drgrt_spoke_to_hub`.
 
-## Resource Count — 36 Total
+**TC-22 — Forced inspection proof.** Bastion SSH to OS Sim FW:
+```bash
+traceroute -n 10.3.0.x   # TS Sim FW — replace with actual IP
+```
+Hub FW IP (10.0.0.x) appears as hop before TS = forced inspection working.
 
-| Category | Count |
-|---|---|
-| DRG Route Tables + Distribution + Rule | 5 |
-| VCN Route Tables (ingress + FW import) | 2 |
-| DRG Attachment Management | 5 |
-| Service Gateway | 1 |
-| Log Group + 6 Flow Logs | 7 |
-| Object Storage Bucket | 1 |
-| Notification Topic + Events Rule + Alarm | 3 |
-| Bastion Sessions | 2 |
-| KMS Vault + Key | 2 |
-| Cloud Guard Recipes + Target | 4 |
-| Security Zone Recipes + Zones | 4 |
-| **Total** | **36** |
+### Observability (T3)
 
-Sprint 1: ~60 IAM. Sprint 2: 38 networking. Sprint 3: 36 security/observability. **~134 total under Terraform.**
+**TC-23 — Flow logs.** Console → Logging → `lg_r_elz_nw_flow` → `fl_r_elz_nw_fw`. Spoke source IPs visible.
 
----
+**TC-24 — Events rule.** Console → edit any route table → check `nt_r_elz_sec_alerts` for event.
 
-## Known Considerations
+**TC-25 — Bucket.** Console → Object Storage → `bkt_r_elz_sec_logs`. Versioned, NoPublicAccess.
 
-**Cloud Guard target conflict:** If an existing target covers tenancy root, `oci_cloud_guard_target.root` will fail. Check Console first. Import or skip if exists.
+**TC-26 — SCH.** Console → Service Connectors → `sch_r_elz_sec_log_to_bucket` → ACTIVE.
 
-**Security Zone policy OCIDs:** Hardcoded for OCI public regions. Verify in Console for ap-singapore-2 before apply. For isolated region, OCIDs may differ.
+### Bastion (T1, T2)
 
-**Security Zone on existing resources:** Existing non-compliant resources are NOT modified. Cloud Guard flags them. Only new creation is blocked.
+**TC-27/28 — Sessions.** Console → Bastion → Sessions → OS + TS both ACTIVE.
 
-**Hub FW RT import:** First apply shows RT as "imported" with new routes added. Expected.
+### Vault (T3)
 
-**Bastion sessions expire:** 30-min TTL, `ignore_changes` on TTL. Expire naturally.
+**TC-29 — Vault.** Console → Vault → `vlt_r_elz_sec` → ACTIVE.
 
-**Events rule cross-compartment:** Lives in SEC, monitors NW events via `read all-resources in tenancy`.
+**TC-30 — Key.** Same vault → `key_r_elz_sec_master` → AES / 256 / HSM.
+
+### Cloud Guard (T3)
+
+**TC-31 — Target.** Console → Cloud Guard → Targets → `cgt_r_elz_root` → ACTIVE.
+
+**TC-32 — Recipes.** Same target → Detector Recipes → both attached.
+
+### Security Zones (T3)
+
+**TC-33/34 — Zones ACTIVE.** Console → Security Zones → `sz_r_elz_sec` + `sz_r_elz_nw`.
+
+**TC-35 — NW blocks public subnet.** Console → create public subnet in `C1_R_ELZ_NW` → 409.
+
+**TC-36 — SEC blocks unencrypted volume.** Console → create volume without CMK in `C1_R_ELZ_SEC` → 409.
+
+### VSS (T3)
+
+**TC-37 — Recipe.** Console → Scanning → Recipes → `vssr_r_elz_sec_host`.
+
+**TC-38 — Target.** Console → Scanning → Targets → `vsst_r_elz_nw`.
+
+### Certificates (T3)
+
+**TC-39 — Internal CA.** Console → Certificates → CAs → `ca_r_elz_sec_internal` → ACTIVE.
 
 ---
 
-**Sprint 3 owner:** STAR + Oracle | **Gate to Sprint 4:** TC-20 through TC-35 all PASS
+## Resource Count — 39
+
+| Category | Count | Owner |
+|---|---|---|
+| DRG Route Tables + Distribution + Rule | 5 | T4 |
+| VCN Route Tables (ingress + FW import) | 2 | T4 |
+| DRG Attachment Management | 5 | T4 |
+| Bastion Sessions | 2 | T1, T2 |
+| Log Group + 6 Flow Logs | 7 | T3 |
+| Bucket + SCH | 2 | T3 |
+| Topic + Events + Alarm | 3 | T3 |
+| VSS Recipe + Target | 2 | T3 |
+| Internal CA | 1 | T3 |
+| Vault + Key | 2 | T3 |
+| Cloud Guard Recipes + Target | 4 | T3 |
+| Security Zone Recipes + Zones | 4 | T3 |
+| **Total** | **39** | |
+
+Sprint 1: ~60 IAM · Sprint 2: 40 networking · Sprint 3: 39 security · **~139 total**
+
+---
+
+## Handoff Checklist
+
+- [ ] TC-20/21: DRG RTs + spoke assignment
+- [ ] TC-22: Forced inspection — traceroute proves Hub FW hop
+- [ ] TC-23/24: Flow logs + events
+- [ ] TC-25/26: Bucket + SCH
+- [ ] TC-27/28: Bastion sessions
+- [ ] TC-29/30: Vault + key
+- [ ] TC-31/32: Cloud Guard
+- [ ] TC-33–36: Security Zones + blocks non-compliant
+- [ ] TC-37/38: VSS
+- [ ] TC-39: Internal CA
+- [ ] `sprint3_outputs.json` shared
+- [ ] Git tag `sprint3-complete`
+- [ ] Sprint 4 backlog (compute, AD Bridge, DNS, Hello World)
+
+**Sprint 3 owner:** DSTA + Oracle | **Gate to Sprint 4:** TC-20–TC-39 all PASS

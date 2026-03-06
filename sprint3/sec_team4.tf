@@ -2,7 +2,7 @@
 # STAR ELZ V1 — Sprint 3 — sec_team4.tf (T4)
 #
 # T4 owns: DRG route tables, forced inspection routing,
-#          Service Gateway, Hub FW return path.
+#          Hub FW return path, VCN ingress RT.
 #
 # What this file creates:
 #   1. Custom DRG Route Table — Hub (import distribution)
@@ -10,9 +10,11 @@
 #   3. Custom DRG Route Table — Spoke (static 0/0 → Hub)
 #   4. Static route rule on Spoke DRG RT
 #   5. VCN Ingress Route Table on Hub DRG attachment
-#   6. Hub FW Subnet RT update (spoke CIDRs → DRG return path)
-#   7. Service Gateway on Hub VCN (centralised Oracle service access)
-#   8. Service Gateway route rule on Hub FW subnet RT
+#   6. Hub FW Subnet RT update (spoke CIDRs → DRG + SGW from Sprint 2)
+#   7. 5 DRG attachment reassignments (hub + 4 spokes)
+#
+# NOTE: Service Gateway was moved to Sprint 2 (nw_team4.tf).
+#       Sprint 3 references it via var.hub_sgw_id.
 #
 # What this file modifies (in Sprint 2 state — see note below):
 #   - 4 spoke DRG attachments: drg_route_table_id → spoke_to_hub
@@ -167,43 +169,19 @@ resource "oci_core_route_table" "hub_fw" {
     description       = "DEVT spoke → DRG (post-inspection)"
   }
 
-  # Service Gateway — Oracle services via private backbone
+  # Service Gateway — inherited from Sprint 2 (var.hub_sgw_id)
   route_rules {
-    network_entity_id = oci_core_service_gateway.hub.id
+    network_entity_id = var.hub_sgw_id
     destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
     destination_type  = "SERVICE_CIDR_BLOCK"
-    description       = "Oracle services → Service Gateway (private backbone)"
+    description       = "Oracle services → Service Gateway (Sprint 2)"
   }
 
   defined_tags = local.common_tags
 }
 
 # ═══════════════════════════════════════════════════════════════
-# 7. SERVICE GATEWAY — centralised Oracle service access
-# ═══════════════════════════════════════════════════════════════
-# Service Gateway provides private access to Oracle services
-# (Object Storage, OCI APIs, Vault, Logging) without internet.
-# Placed in Hub VCN only — all child/spoke Oracle service traffic
-# routes via DRG → Hub FW → Service Gateway.
-#
-# Defence architecture decision: spokes do NOT get their own SG.
-# This ensures all Oracle service traffic is inspectable by NGFW.
-# See DRG Routing Guide Section 8 — Service Gateway parent vs child.
-
-resource "oci_core_service_gateway" "hub" {
-  compartment_id = var.nw_compartment_id
-  vcn_id         = var.hub_vcn_id
-  display_name   = local.hub_service_gw_name
-
-  services {
-    service_id = data.oci_core_services.all_oci_services.services[0].id
-  }
-
-  defined_tags = local.common_tags
-}
-
-# ═══════════════════════════════════════════════════════════════
-# 8. DRG ATTACHMENT REASSIGNMENT
+# 7. DRG ATTACHMENT REASSIGNMENT
 # ═══════════════════════════════════════════════════════════════
 # The 5 DRG attachments exist in Sprint 2 state. Sprint 3 needs to:
 #   - Assign spoke_to_hub DRG RT to OS/TS/SS/DEVT attachments

@@ -22,8 +22,8 @@ locals {
   hub_import_dist_name      = "drgrd_r_hub_vcn_import"  # Import distribution — auto-learn VCN CIDRs
   hub_ingress_rt_name       = "rt_r_elz_nw_hub_ingress" # VCN ingress RT on Hub DRG attachment
 
-  # ── Service Gateway (T4) ──
-  hub_service_gw_name = "sgw_r_elz_nw_hub" # Hub VCN — centralised Oracle service access
+  # NOTE: Service Gateway name (sgw_r_elz_nw_hub) is in Sprint 2 locals.tf.
+  # Sprint 3 references the SGW via var.hub_sgw_id, not by name.
 
   # ── Logging (T3) ──
   nw_log_group_name      = "lg_r_elz_nw_flow"
@@ -61,4 +61,14 @@ locals {
   sz_recipe_nw_name  = "szr_r_elz_nw"    # Custom recipe for NW compartment
   sz_sec_name        = "sz_r_elz_sec"     # Security zone on C1_R_ELZ_SEC
   sz_nw_name         = "sz_r_elz_nw"      # Security zone on C1_R_ELZ_NW
+
+  # ── VSS — Vulnerability Scanning (T3) ──
+  vss_recipe_name = "vssr_r_elz_sec_host"     # Host scan recipe
+  vss_target_name = "vsst_r_elz_nw"           # Scan target — C1_R_ELZ_NW instances
+
+  # ── Service Connector Hub (T3) ──
+  sch_connector_name = "sch_r_elz_sec_log_to_bucket" # Flow logs → Object Storage
+
+  # ── Certificates Manager (T3) ──
+  cert_ca_name = "ca_r_elz_sec_internal"   # Internal CA for V2+ TLS endpoints
 }

@@ -59,6 +59,7 @@ variableGroups:
       - ts_fw_instance_id
       - hub_fw_private_ip_id
       - hub_fw_rt_id
+      - hub_sgw_id
 
   - title: "Network CIDRs"
     variables:

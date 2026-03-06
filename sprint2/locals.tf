@@ -103,6 +103,15 @@ locals {
   # Service Gateway Name
   hub_sgw_name = "sgw_r_elz_nw_hub"
 
+  # Security List Names — Sprint 2 validation (allow internal 10.0.0.0/8)
+  # Sprint 3 replaces with NSGs and tightened rules
+  hub_fw_seclist_name   = "sl_r_elz_nw_fw"
+  hub_mgmt_seclist_name = "sl_r_elz_nw_mgmt"
+  os_app_seclist_name   = "sl_os_elz_nw_app"
+  ts_app_seclist_name   = "sl_ts_elz_nw_app"
+  ss_app_seclist_name   = "sl_ss_elz_nw_app"
+  devt_app_seclist_name = "sl_devt_elz_nw_app"
+
   # DRG Attachment Names
   hub_drg_attachment_name  = "drga_r_elz_nw_hub"
   os_drg_attachment_name   = "drga_os_elz_nw"

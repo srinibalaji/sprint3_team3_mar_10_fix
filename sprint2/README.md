@@ -368,10 +368,11 @@ sprint2/nw_team<N>.tf            — copy nw_team1.tf, replace os/OS
 |---|---|
 | No IGW in V1 | Isolated design. NPA + Bastion only. IGW is Sprint 3+. |
 | Phase 2 gate | `local.phase2_enabled = var.hub_drg_id != ""` via `count`. |
-| Sim FW | OL8 E4.Flex. `iptables-services` (not firewalld). Persistent `ip_forward=1`. `MASQUERADE` on `eth0`. Boot volume 50GB (OCI minimum). |
+| Sim FW | OL8 E4.Flex. `iptables-services`. Persistent `ip_forward=1`. `MASQUERADE` on auto-detected interface (ens3 on E4.Flex). Boot volume 50GB. |
 | Bastion Managed SSH | No SSH key in Terraform. User pastes key in Console at session creation. Cloud Agent handles auth. **Service Gateway required** — Cloud Agent needs route to Oracle Services Network for Bastion plugin initialisation and yum access. |
 | Bastion plugin | `agent_config.plugins_config` with `Bastion = ENABLED` on all Sim FW instances. Plugin takes 3–5 min after apply to start. Requires SGW route rule in subnet RT. |
 | Service Gateway | One SGW per VCN (Hub + 4 spokes). Route rule `All Oracle Services Network → SGW` in every subnet RT. Required for Cloud Agent, Bastion plugin, and cloud-init yum/dnf. |
+| Security Lists | One per subnet (6 total). Allow all egress `0/0` + all ingress from `10.0.0.0/8`. Required for NPA validation (ICMP) and ping tests. Sprint 3 replaces with NSGs. |
 | DEVT spoke | Network-only. No Sim FW. Compute Sprint 4+. |
 | Hub FW RT empty | Placeholder. Sprint 3 adds DRG transit routing. |
 | DRG v2 full-mesh | Spoke↔spoke works now but bypasses Hub FW. S3-BACKLOG-01 fixes. |

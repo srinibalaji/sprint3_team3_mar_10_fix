@@ -100,6 +100,30 @@ resource "oci_core_subnet" "os_app" {
   dns_label                  = local.os_app_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.os_app.id
+  security_list_ids          = [oci_core_security_list.os_app.id]
+
+  freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
+}
+
+# Security list — allow all internal for Sprint 2 validation (ping, SSH, NPA)
+# Sprint 3 replaces with NSGs
+resource "oci_core_security_list" "os_app" {
+  compartment_id = var.os_compartment_id
+  vcn_id         = oci_core_vcn.os.id
+  display_name   = local.os_app_seclist_name
+
+  egress_security_rules {
+    protocol    = "all"
+    destination = "0.0.0.0/0"
+    stateless   = false
+  }
+
+  ingress_security_rules {
+    protocol  = "all"
+    source    = "10.0.0.0/8"
+    stateless = false
+  }
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags

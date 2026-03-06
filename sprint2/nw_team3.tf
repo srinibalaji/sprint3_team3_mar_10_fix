@@ -97,6 +97,28 @@ resource "oci_core_subnet" "ss_app" {
   dns_label                  = local.ss_app_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.ss_app.id
+  security_list_ids          = [oci_core_security_list.ss_app.id]
+
+  freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
+}
+
+resource "oci_core_security_list" "ss_app" {
+  compartment_id = var.ss_compartment_id
+  vcn_id         = oci_core_vcn.ss.id
+  display_name   = local.ss_app_seclist_name
+
+  egress_security_rules {
+    protocol    = "all"
+    destination = "0.0.0.0/0"
+    stateless   = false
+  }
+
+  ingress_security_rules {
+    protocol  = "all"
+    source    = "10.0.0.0/8"
+    stateless = false
+  }
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
@@ -167,6 +189,28 @@ resource "oci_core_subnet" "devt_app" {
   dns_label                  = local.devt_app_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.devt_app.id
+  security_list_ids          = [oci_core_security_list.devt_app.id]
+
+  freeform_tags = merge(local.net_freeform_tags, { "lz-tier" = "development" })
+  defined_tags  = local.net_defined_tags
+}
+
+resource "oci_core_security_list" "devt_app" {
+  compartment_id = var.devt_compartment_id
+  vcn_id         = oci_core_vcn.devt.id
+  display_name   = local.devt_app_seclist_name
+
+  egress_security_rules {
+    protocol    = "all"
+    destination = "0.0.0.0/0"
+    stateless   = false
+  }
+
+  ingress_security_rules {
+    protocol  = "all"
+    source    = "10.0.0.0/8"
+    stateless = false
+  }
 
   freeform_tags = merge(local.net_freeform_tags, { "lz-tier" = "development" })
   defined_tags  = local.net_defined_tags

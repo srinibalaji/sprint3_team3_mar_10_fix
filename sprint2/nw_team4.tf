@@ -88,6 +88,28 @@ resource "oci_core_subnet" "hub_fw" {
   dns_label                  = local.hub_fw_subnet_dns_label
   prohibit_public_ip_on_vnic = true # private — no IGW in V1
   route_table_id             = oci_core_route_table.hub_fw.id
+  security_list_ids          = [oci_core_security_list.hub_fw.id]
+
+  freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
+}
+
+resource "oci_core_security_list" "hub_fw" {
+  compartment_id = var.nw_compartment_id
+  vcn_id         = oci_core_vcn.hub.id
+  display_name   = local.hub_fw_seclist_name
+
+  egress_security_rules {
+    protocol    = "all"
+    destination = "0.0.0.0/0"
+    stateless   = false
+  }
+
+  ingress_security_rules {
+    protocol  = "all"
+    source    = "10.0.0.0/8"
+    stateless = false
+  }
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
@@ -173,6 +195,28 @@ resource "oci_core_subnet" "hub_mgmt" {
   dns_label                  = local.hub_mgmt_subnet_dns_label
   prohibit_public_ip_on_vnic = true
   route_table_id             = oci_core_route_table.hub_mgmt.id
+  security_list_ids          = [oci_core_security_list.hub_mgmt.id]
+
+  freeform_tags = local.net_freeform_tags
+  defined_tags  = local.net_defined_tags
+}
+
+resource "oci_core_security_list" "hub_mgmt" {
+  compartment_id = var.nw_compartment_id
+  vcn_id         = oci_core_vcn.hub.id
+  display_name   = local.hub_mgmt_seclist_name
+
+  egress_security_rules {
+    protocol    = "all"
+    destination = "0.0.0.0/0"
+    stateless   = false
+  }
+
+  ingress_security_rules {
+    protocol  = "all"
+    source    = "10.0.0.0/8"
+    stateless = false
+  }
 
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags

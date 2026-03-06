@@ -193,267 +193,86 @@ All dates: 2–4 Mar 2026. Phase 1 resources (VCN/subnet/DRG) apply first; Phase
 
 ### Phase → TC Mapping
 
-| Phase | Gate | TCs |
-|---|---|---|
-| Phase 1 | T4 confirms `hub_drg_id` | TC-07, TC-08 |
-| Phase 2 | All teams applied | TC-09, TC-10, TC-11, TC-12, TC-12b |
-| Phase 2 | After TC-09 | TC-13, TC-14, TC-18 |
-| Phase 2 | After TC-11 (Bastion ACTIVE) | TC-15, TC-16, TC-19 |
-| Final | All TCs pass | TC-17 |
+### What Sprint 2 Proves
 
-> **NPA** validates the OCI control plane (route tables, DRG attachments, NSG rules). It cannot verify cloud-init, `ip_forward`, or iptables.  
-> **Data plane** tests (ping, traceroute, tcpdump) require Bastion SSH into Sim FW instances.
+Sprint 2 validates hub-and-spoke connectivity using OCI DRG v2 full-mesh. Every spoke can reach every other spoke and the hub through the DRG fabric. This is control plane routing (NPA) AND data plane routing (actual ping/traceroute via Bastion SSH).
 
-### What Works in Sprint 2 (and what doesn't)
+**What works now:** Spoke ↔ spoke, spoke ↔ hub — all REACHABLE via DRG full-mesh.
 
-OCI DRG v2 with no custom `drg_route_table` on attachments defaults to **full-mesh**: every attached VCN can reach every other attached VCN via the DRG fabric. This means real traffic flows between all 5 VCNs right now.
+**What doesn't work yet (Sprint 3):** Forced inspection through Hub Firewall. Spoke-to-spoke traffic bypasses Hub FW — goes directly through DRG fabric. Sprint 3 adds custom DRG route tables to force all traffic via Hub FW.
 
-**Works — testable now (NPA + data plane):**
-
-| Path | NPA | Data Plane | TC |
-|---|---|---|---|
-| Spoke → Hub FW subnet (e.g. OS 10.1.0.x → Hub 10.0.0.x) | REACHABLE | ping/SSH | TC-13, TC-15 |
-| Spoke → Spoke (e.g. OS 10.1.0.x → TS 10.3.0.x) | REACHABLE | ping/traceroute/TCP | TC-14, TC-18, TC-19 |
-| Hub MGMT → any spoke (Bastion reachability) | REACHABLE | Bastion SSH | TC-18, TC-15 |
-| Hub Sim FW → all spoke Sim FWs | REACHABLE | ping/traceroute/tcpdump/TCP:22 | TC-19 |
-
-**Does NOT work yet — Sprint 3 scope (S3-BACKLOG-01):**
-
-| Path | Why | Fix |
-|---|---|---|
-| Spoke → Hub FW **inspection** → Spoke (transit routing) | Hub FW RT (`rt_r_elz_nw_fw`) is empty. No VCN ingress route table. No DRG route distribution. | Sprint 3: add `oci_core_drg_route_table` + `oci_core_drg_route_distribution` to force spoke traffic via Hub FW VNIC |
-
-**What to say if asked:** "Spoke-to-spoke ping works right now — the DRG v2 full-mesh routes it directly. What we don't have yet is forced inspection through the Hub Firewall. That's the DRG transit routing in Sprint 3. Sprint 2 proves the fabric is connected; Sprint 3 adds the security enforcement point."
-
-### Shell Variables (OCI Cloud Shell)
+### Shell Variables (set once — paste OCIDs from `terraform output -json`)
 
 ```bash
-# Paste from: terraform output -json > sprint2_outputs.json
-HUB_DRG_ID="ocid1.drg.oc1..aaa"
-EW_HUB_DRG_ID="ocid1.drg.oc1..aaa"
-HUB_VCN_ID="ocid1.vcn.oc1..aaa"
-OS_VCN_ID="ocid1.vcn.oc1..aaa"
-TS_VCN_ID="ocid1.vcn.oc1..aaa"
-SS_VCN_ID="ocid1.vcn.oc1..aaa"
-DEVT_VCN_ID="ocid1.vcn.oc1..aaa"
-HUB_BASTION_ID="ocid1.bastion.oc1..aaa"
-SIM_FW_HUB_ID="ocid1.instance.oc1..aaa"
-SIM_FW_OS_ID="ocid1.instance.oc1..aaa"
-SIM_FW_TS_ID="ocid1.instance.oc1..aaa"
-SIM_FW_SS_ID="ocid1.instance.oc1..aaa"
-REGION="ap-singapore-1"
-
-# Subnet OCIDs — needed for NPA tests (TC-13, TC-14, TC-18)
-HUB_FW_SUBNET="ocid1.subnet.oc1..aaa"     # terraform output hub_fw_subnet_id
-HUB_MGMT_SUBNET="ocid1.subnet.oc1..aaa"   # terraform output hub_mgmt_subnet_id
-OS_APP_SUBNET="ocid1.subnet.oc1..aaa"      # terraform output os_app_subnet_id
-TS_APP_SUBNET="ocid1.subnet.oc1..aaa"      # terraform output ts_app_subnet_id
-SS_APP_SUBNET="ocid1.subnet.oc1..aaa"      # terraform output ss_app_subnet_id
-DEVT_APP_SUBNET="ocid1.subnet.oc1..aaa"    # terraform output devt_app_subnet_id
+HUB_DRG_ID="<paste>"          # terraform output hub_drg_id
+EW_HUB_DRG_ID="<paste>"       # terraform output ew_hub_drg_id
+HUB_VCN_ID="<paste>"          # terraform output hub_vcn_id
+OS_VCN_ID="<paste>"           # terraform output os_vcn_id
+TS_VCN_ID="<paste>"           # terraform output ts_vcn_id
+SS_VCN_ID="<paste>"           # terraform output ss_vcn_id
+DEVT_VCN_ID="<paste>"         # terraform output devt_vcn_id
+HUB_FW_SUBNET="<paste>"       # terraform output hub_fw_subnet_id
+HUB_MGMT_SUBNET="<paste>"     # terraform output hub_mgmt_subnet_id
+OS_APP_SUBNET="<paste>"       # terraform output os_app_subnet_id
+TS_APP_SUBNET="<paste>"       # terraform output ts_app_subnet_id
+SS_APP_SUBNET="<paste>"       # terraform output ss_app_subnet_id
+DEVT_APP_SUBNET="<paste>"     # terraform output devt_app_subnet_id
+HUB_BASTION_ID="<paste>"      # terraform output hub_bastion_id
+SIM_FW_HUB_ID="<paste>"       # terraform output sim_fw_hub_id
+SIM_FW_OS_ID="<paste>"        # terraform output sim_fw_os_id
+SIM_FW_TS_ID="<paste>"        # terraform output sim_fw_ts_id
+SIM_FW_SS_ID="<paste>"        # terraform output sim_fw_ss_id
 TENANCY_ID=$(oci iam tenancy get --query 'data.id' --raw-output)
-
-# Resolve Sim FW private IPs (dynamically assigned)
-get_private_ip() {
-  local inst_id=$1
-  local attach_id=$(oci compute vnic-attachment list --instance-id $inst_id \
-    --query 'data[0].id' --raw-output)
-  local vnic_id=$(oci compute vnic-attachment get --vnic-attachment-id $attach_id \
-    --query 'data."vnic-id"' --raw-output)
-  oci network vnic get --vnic-id $vnic_id --query 'data."private-ip"' --raw-output
-}
-HUB_FW_IP=$(get_private_ip $SIM_FW_HUB_ID)
-OS_FW_IP=$(get_private_ip $SIM_FW_OS_ID)
-TS_FW_IP=$(get_private_ip $SIM_FW_TS_ID)
-SS_FW_IP=$(get_private_ip $SIM_FW_SS_ID)
 ```
 
-### TC-07 — 5 VCNs Created
+### Phase 1 Tests (after first apply — `hub_drg_id` empty)
+
+**TC-07 — 5 VCNs exist.** Console → Networking → VCNs. Verify: `vcn_r_elz_nw`, `vcn_os_elz_nw`, `vcn_ts_elz_nw`, `vcn_ss_elz_nw`, `vcn_devt_elz_nw`.
+
+**TC-08 — 6 subnets, all private.** Console → each VCN → Subnets. All show `prohibit_public_ip = true`.
+
+### Phase 2 Tests (after re-apply with `hub_drg_id`)
+
+**TC-09 — DRG has 5 attachments.** Console → DRGs → `drg_r_hub` → Attachments. All 5 ATTACHED.
+
+**TC-10 — 4 Sim FW RUNNING.** Console → Compute → Instances. All 4 RUNNING. VNIC Details → `skip_source_dest_check = true`.
+
+**TC-11 — Bastion ACTIVE.** Console → Bastion → `bas_r_elz_nw_hub` → ACTIVE.
+
+**TC-12 — Route tables correct.**
+- Spoke RTs (4): DRG rule `0/0 → drg_r_hub` + SGW rule `All OSN → SGW`
+- Hub FW RT: SGW rule only (DRG transit routes added Sprint 3)
+- Hub MGMT RT: DRG rule + SGW rule
+
+**TC-12b — E-W DRG exists.** Console → DRGs → `drg_r_ew_hub` → AVAILABLE, 0 attachments.
+
+**TC-13 — NPA: Spoke → Hub.** Console → Network Path Analyzer → Source: `OS_APP_SUBNET` → Dest: `HUB_FW_SUBNET` → ICMP. Expected: REACHABLE via DRG.
+
+**TC-14 — NPA: Spoke → Spoke.** Source: `OS_APP_SUBNET` → Dest: `TS_APP_SUBNET`. Expected: REACHABLE via DRG full-mesh (bypasses Hub FW — expected, Sprint 3 fixes).
+
+**TC-15 — Bastion SSH into Hub Sim FW.**
+
+Console → Bastion → Create Session → Managed SSH → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste your `~/.ssh/id_rsa.pub` → Create. Copy SSH command and run it.
+
+Once connected:
 
 ```bash
-oci network vcn list \
-  --compartment-id $(oci iam tenancy get --query 'data.id' --raw-output) --all \
-  --query "data[?starts_with(\"display-name\",'vcn_')]" \
-  | jq '[.[] | {name:.["display-name"], cidr:.["cidr-blocks"][0]}]'
+sysctl net.ipv4.ip_forward                         # = 1
+sudo iptables -t nat -L POSTROUTING -v -n          # MASQUERADE on ens3
+ping -c 2 <OS_FW_IP>                               # replace with actual IP from Console
+ping -c 2 <TS_FW_IP>
+ping -c 2 <SS_FW_IP>
 ```
 
-Expected: `vcn_r_elz_nw`, `vcn_os_elz_nw`, `vcn_ts_elz_nw`, `vcn_ss_elz_nw`, `vcn_devt_elz_nw`
+All pings return `0% packet loss` = DRG full-mesh connectivity proven end-to-end.
 
-### TC-08 — 6 Subnets (all private)
+**TC-16 — DEVT has no compute.** Console → Compute → compartment `C1_DEVT_ELZ_NW` → 0 instances.
 
-```bash
-for VCN_ID in $HUB_VCN_ID $OS_VCN_ID $TS_VCN_ID $SS_VCN_ID $DEVT_VCN_ID; do
-  oci network subnet list --vcn-id $VCN_ID \
-    --query 'data[].{name:"display-name",cidr:"cidr-block",private:"prohibit-public-ip-on-vnic"}' | jq '.[]'
-done
-```
+**TC-17 — Zero drift.** ORM → Plan → `0 to add, 0 to change, 0 to destroy`.
 
-| Subnet | CIDR | Private |
-|---|---|---|
-| sub_r_elz_nw_fw | 10.0.0.0/24 | true |
-| sub_r_elz_nw_mgmt | 10.0.1.0/24 | true |
-| sub_os_elz_nw_app | 10.1.0.0/24 | true |
-| sub_ts_elz_nw_app | 10.3.0.0/24 | true |
-| sub_ss_elz_nw_app | 10.2.0.0/24 | true |
-| sub_devt_elz_nw_app | 10.4.0.0/24 | true |
+**TC-18 — NPA: all spoke pairs.** Run NPA for each pair via Console (OS↔TS, OS↔SS, OS↔DEVT, TS↔SS, TS↔DEVT, SS↔DEVT) + Hub MGMT → each spoke. All REACHABLE.
 
-### TC-09 — Hub DRG: 5 Attachments
-
-```bash
-oci network drg-attachment list --drg-id $HUB_DRG_ID --all \
-  --query 'data[].{name:"display-name",state:"lifecycle-state"}' | jq '.[]'
-```
-
-Expected: 5 × `ATTACHED`
-
-### TC-10 — 4 Sim FW RUNNING + skip_source_dest_check
-
-```bash
-for INST_ID in $SIM_FW_HUB_ID $SIM_FW_OS_ID $SIM_FW_TS_ID $SIM_FW_SS_ID; do
-  oci compute instance get --instance-id $INST_ID \
-    --query 'data.{name:"display-name",state:"lifecycle-state"}' | jq '.'
-  ATTACH_ID=$(oci compute vnic-attachment list --instance-id $INST_ID --query 'data[0].id' --raw-output)
-  VNIC_ID=$(oci compute vnic-attachment get --vnic-attachment-id $ATTACH_ID --query 'data."vnic-id"' --raw-output)
-  oci network vnic get --vnic-id $VNIC_ID \
-    --query 'data.{vnic:"display-name",skip_sdc:"skip-source-dest-check"}' | jq '.'
-done
-```
-
-Expected: All `RUNNING`, all `skip_sdc: true`
-
-### TC-11 — Bastion ACTIVE
-
-```bash
-oci bastion bastion get --bastion-id $HUB_BASTION_ID \
-  --query 'data.{name:"name",state:"lifecycle-state"}' | jq '.'
-```
-
-### TC-12 — Route Tables
-
-```bash
-# Spoke RTs: 1 rule each — 0/0 → Hub DRG
-for VCN_ID in $OS_VCN_ID $TS_VCN_ID $SS_VCN_ID $DEVT_VCN_ID; do
-  oci network route-table list --vcn-id $VCN_ID \
-    --query "data[?starts_with(\"display-name\",'rt_')].{name:\"display-name\",rules:\"route-rules\"}" \
-    | jq '.[].rules'
-done
-
-# Hub FW RT: EMPTY
-oci network route-table list --vcn-id $HUB_VCN_ID \
-  --query "data[?\"display-name\"=='rt_r_elz_nw_fw'].\"route-rules\"" | jq '.'
-
-# Hub MGMT RT: 0/0 → DRG
-oci network route-table list --vcn-id $HUB_VCN_ID \
-  --query "data[?\"display-name\"=='rt_r_elz_nw_mgmt'].\"route-rules\"" | jq '.'
-```
-
-### TC-12b — E-W DRG Exists (V2 placeholder)
-
-```bash
-oci network drg get --drg-id $EW_HUB_DRG_ID \
-  --query 'data.{name:"display-name",state:"lifecycle-state"}' | jq '.'
-oci network drg-attachment list --drg-id $EW_HUB_DRG_ID --all | jq '.data | length'
-```
-
-Expected: `drg_r_ew_hub` · `AVAILABLE` · 0 attachments
-
-### TC-13 — NPA: Spoke → Hub
-
-```bash
-oci network path-analyzer-test create --protocol 1 \
-  --source-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"$OS_APP_SUBNET\"}" \
-  --destination-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"$HUB_FW_SUBNET\"}" \
-  --compartment-id $(oci iam tenancy get --query 'data.id' --raw-output)
-```
-
-Expected: DRG transit, no `DROPPED`. Repeat for TS/SS/DEVT → Hub.
-
-### TC-14 — NPA: Spoke → Spoke
-
-Same pattern, OS → TS. Expected: `REACHABLE` via DRG full-mesh. Traffic bypasses Hub FW — expected V1 behaviour, S3-BACKLOG-01.
-
-### TC-15 — Sim FW Linux Validation (Bastion SSH)
-
-**Create Bastion Managed SSH session:**
-
-Console → Bastion → `bas_r_elz_nw_hub` → Create Session → Managed SSH → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste your `~/.ssh/id_rsa.pub` → Create. Copy the SSH ProxyCommand from session details and run it.
-
-**Prerequisites:** Service Gateway in VCN with route rule `All Oracle Services Network → SGW` (Cloud Agent needs OSN access). Bastion plugin ENABLED via `agent_config`. Wait 3–5 min after apply.
-
-**Once connected — verify Sim FW is working:**
-
-```bash
-# cloud-init completed?
-cloud-init status --long                          # status: done
-sudo cat /var/log/star-elz-simfw-init.log         # "Sim FW bootstrap complete — interface=ens3"
-
-# IP forwarding active?
-sysctl net.ipv4.ip_forward                        # = 1
-
-# MASQUERADE on correct interface (ens3, not eth0)?
-sudo iptables -t nat -L POSTROUTING -v -n         # MASQUERADE on ens3
-
-# Ping spoke Sim FWs
-ping -c 2 $OS_FW_IP && ping -c 2 $TS_FW_IP && ping -c 2 $SS_FW_IP
-```
-
-### TC-16 — DEVT: No Compute
-
-```bash
-oci compute instance list --compartment-id <devt_compartment_id> \
-  --lifecycle-state RUNNING | jq '.data | length'    # Expected: 0
-```
-
-### TC-17 — Zero Drift
-
-ORM → Plan → `0 to add, 0 to change, 0 to destroy`
-
-### TC-18 — NPA E-W: All Spoke Pairs
-
-```bash
-declare -A SUBNETS=([OS]=$OS_APP_SUBNET [TS]=$TS_APP_SUBNET [SS]=$SS_APP_SUBNET [DEVT]=$DEVT_APP_SUBNET)
-TENANCY_ID=$(oci iam tenancy get --query 'data.id' --raw-output)
-
-for SRC in OS TS SS DEVT; do
-  for DST in OS TS SS DEVT; do
-    [ "$SRC" = "$DST" ] && continue
-    echo "=== $SRC → $DST ==="
-    oci network path-analyzer-test create --protocol 1 \
-      --source-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"${SUBNETS[$SRC]}\"}" \
-      --destination-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"${SUBNETS[$DST]}\"}" \
-      --compartment-id $TENANCY_ID --query 'data.result."path-analysis-result"' --raw-output
-  done
-done
-
-# Hub MGMT → each spoke (Bastion reachability)
-for DST in OS TS SS DEVT; do
-  oci network path-analyzer-test create --protocol 1 \
-    --source-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"$HUB_MGMT_SUBNET\"}" \
-    --destination-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"${SUBNETS[$DST]}\"}" \
-    --compartment-id $TENANCY_ID --query 'data.result."path-analysis-result"' --raw-output
-done
-```
-
-Expected: All 16 paths `REACHABLE`.
-
-### TC-19 — Data Plane E-W (Bastion SSH)
-
-From Hub Sim FW (TC-15 session):
-
-```bash
-# Ping
-ping -c 4 -W 2 $OS_FW_IP && ping -c 4 -W 2 $TS_FW_IP && ping -c 4 -W 2 $SS_FW_IP
-
-# Traceroute (gateway → DRG fabric → spoke)
-traceroute -n -m 5 $OS_FW_IP
-
-# tcpdump (confirm packets on eth0)
-sudo tcpdump -ni eth0 icmp -v   # while pinging from second terminal
-
-# TCP port 22
-nc -zv $OS_FW_IP 22 && nc -zv $TS_FW_IP 22 && nc -zv $SS_FW_IP 22
-```
-
-Record: *"DRG v2 full-mesh confirmed. Hub↔spoke PASS. Hub FW not in spoke↔spoke path — S3-BACKLOG-01."*
+**TC-19 — Data plane from Hub Sim FW.** From TC-15 session, ping all spokes + traceroute one. Record: "DRG v2 full-mesh confirmed. Hub↔spoke PASS. Spoke↔spoke bypasses Hub FW — S3-BACKLOG-01."
 
 ---
 

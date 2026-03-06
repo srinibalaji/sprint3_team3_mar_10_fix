@@ -364,7 +364,19 @@ Same pattern, OS → TS. Expected: `REACHABLE` via DRG full-mesh. Traffic bypass
 
 ### TC-15 — Sim FW Linux Validation (Bastion SSH)
 
-Bastion → `fw_r_elz_nw_hub_sim`:
+**How to create a Bastion Managed SSH session (no SSH key in Terraform needed):**
+
+Console → Identity & Security → Bastion → `bas_r_elz_nw_hub` → Create Session:
+- Session type: **Managed SSH**
+- Target instance: select the Sim FW (e.g. `fw_r_elz_nw_hub_sim`)
+- OS username: `opc`
+- SSH key: paste your public key from `~/.ssh/id_rsa.pub` on your laptop (or generate one with `ssh-keygen -t rsa -b 4096`)
+
+Copy the SSH ProxyCommand from the session details and run it in your terminal. No SSH key is needed in the Terraform code — the OCI Cloud Agent on the instance handles authentication using the key you paste at session creation time. No Service Gateway or internet access is needed — the Cloud Agent communicates with OCI Bastion via the internal metadata service channel.
+
+**Prerequisite:** The Bastion plugin must be ENABLED on the Sim FW instance (`agent_config.plugins_config` in Terraform). Wait 3–5 minutes after ORM apply for the plugin to start.
+
+Once connected to `fw_r_elz_nw_hub_sim`:
 
 ```bash
 cloud-init status --long                             # status: done
@@ -462,7 +474,9 @@ sprint2/nw_team<N>.tf            — copy nw_team1.tf, replace os/OS
 |---|---|
 | No IGW in V1 | Isolated design. NPA + Bastion only. IGW is Sprint 3+. |
 | Phase 2 gate | `local.phase2_enabled = var.hub_drg_id != ""` via `count`. |
-| Sim FW | OL8 E4.Flex. `iptables-services` (not firewalld). Persistent `ip_forward=1`. `MASQUERADE` on `eth0`. |
+| Sim FW | OL8 E4.Flex. `iptables-services` (not firewalld). Persistent `ip_forward=1`. `MASQUERADE` on `eth0`. Boot volume 50GB (OCI minimum). |
+| Bastion Managed SSH | No SSH key in Terraform. User pastes key in Console at session creation. Cloud Agent handles auth. No Service Gateway needed — agent uses OCI internal metadata channel. |
+| Bastion plugin | `agent_config.plugins_config` with `Bastion = ENABLED` on all Sim FW instances. Plugin takes 3–5 min after apply to start. |
 | DEVT spoke | Network-only. No Sim FW. Compute Sprint 4+. |
 | Hub FW RT empty | Placeholder. Sprint 3 adds DRG transit routing. |
 | DRG v2 full-mesh | Spoke↔spoke works now but bypasses Hub FW. S3-BACKLOG-01 fixes. |
@@ -547,3 +561,12 @@ Moved to `locals.tf` in Sprint 2.
 | C36 | Added Sprint 1 IAM ↔ Sprint 2 resource matrix to Prerequisites | `README.md` |
 | C37 | Documented Bastion CLI access gap (ORM works, CLI 403 for UG_ELZ_NW) | `README.md` |
 | C38 | Noted Sprint 1 patch timing (start of Sprint 3, not Sprint 2) | `README.md` |
+
+### 6 Mar 2026 (Phase 2 apply fixes)
+
+| # | Change | File(s) |
+|---|---|---|
+| C39 | Added `agent_config` with Bastion plugin ENABLED on all 4 Sim FW instances | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
+| C40 | Added `boot_volume_size_in_gbs = 50` — OL8 image default 47GB below OCI 50GB minimum | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
+| C41 | Updated TC-15 with Bastion Managed SSH session creation instructions | `README.md` |
+| C42 | Confirmed: no SSH key in Terraform needed for Managed SSH, no Service Gateway needed for Bastion | `README.md` |

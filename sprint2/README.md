@@ -22,12 +22,13 @@ STAR ELZ V1 — Network Topology
 C1_R_ELZ_NW  (T4 — Hub)
 ├── vcn_r_elz_nw                    10.0.0.0/16
 │   ├── sub_r_elz_nw_fw             10.0.0.0/24   [private]
-│   │   ├── fw_r_elz_nw_hub_sim     Sim FW  (ip_fwd + MASQUERADE)
-│   │   └── rt_r_elz_nw_fw          [empty — Sprint 3 transit routing]
+│   │   ├── fw_r_elz_nw_hub_sim     Sim FW  (ip_fwd + MASQUERADE on ens3)
+│   │   └── rt_r_elz_nw_fw          SGW → OSN  (Sprint 3 adds DRG transit)
 │   └── sub_r_elz_nw_mgmt           10.0.1.0/24   [private]
 │       ├── bas_r_elz_nw_hub        Bastion (STANDARD)
-│       └── rt_r_elz_nw_mgmt        0/0 → DRG (Phase 2)
+│       └── rt_r_elz_nw_mgmt        0/0 → DRG (Phase 2) + SGW → OSN
 │
+├── sgw_r_elz_nw_hub                 Service Gateway → All Oracle Services Network
 ├── drg_r_hub                        5 VCN attachments (E-W full-mesh)
 │   ├── drga_r_elz_nw_hub           Hub VCN
 │   ├── drga_os_elz_nw              OS spoke
@@ -39,22 +40,28 @@ C1_R_ELZ_NW  (T4 — Hub)
 
 C1_OS_ELZ_NW  (T1)
 └── vcn_os_elz_nw                    10.1.0.0/24
-    └── sub_os_elz_nw_app           fw_os_elz_nw_sim    RT: 0/0 → DRG
+    ├── sub_os_elz_nw_app           fw_os_elz_nw_sim    RT: 0/0 → DRG + SGW → OSN
+    └── sgw_os_elz_nw               Service Gateway → All OSN
 
 C1_SS_ELZ_NW  (T3)
 └── vcn_ss_elz_nw                    10.2.0.0/24
-    └── sub_ss_elz_nw_app           fw_ss_elz_nw_sim    RT: 0/0 → DRG
+    ├── sub_ss_elz_nw_app           fw_ss_elz_nw_sim    RT: 0/0 → DRG + SGW → OSN
+    └── sgw_ss_elz_nw               Service Gateway → All OSN
 
 C1_TS_ELZ_NW  (T2)
 └── vcn_ts_elz_nw                    10.3.0.0/24
-    └── sub_ts_elz_nw_app           fw_ts_elz_nw_sim    RT: 0/0 → DRG
+    ├── sub_ts_elz_nw_app           fw_ts_elz_nw_sim    RT: 0/0 → DRG + SGW → OSN
+    └── sgw_ts_elz_nw               Service Gateway → All OSN
 
 C1_DEVT_ELZ_NW  (T3)
 └── vcn_devt_elz_nw                  10.4.0.0/24
-    └── sub_devt_elz_nw_app         (no Sim FW)         RT: 0/0 → DRG
+    ├── sub_devt_elz_nw_app         (no Sim FW)         RT: 0/0 → DRG + SGW → OSN
+    └── sgw_devt_elz_nw             Service Gateway → All OSN
 
 All subnets: prohibit_public_ip = true
 All Sim FW VNICs: skip_source_dest_check = true
+All Sim FW instances: agent_config → Bastion plugin ENABLED
+All RTs: SGW route rule for Cloud Agent + yum access via Oracle Services Network
 Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced inspection)
 ```
 
@@ -82,15 +89,15 @@ Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced
 | `variables_general.tf` | — | Tenancy, region, service_label, CIS level, tags |
 | `variables_iam.tf` | — | 10 compartment OCIDs from Sprint 1 |
 | `variables_net.tf` | — | CIDRs, hub_drg_id (phase gate), Sim FW shape, Bastion CIDR |
-| `data_sources.tf` | — | Regions, tenancy, ADs, OL8 images |
+| `data_sources.tf` | — | Regions, tenancy, ADs, OL8 images, OCI Services (SGW) |
 | `providers.tf` | — | OCI + OCI home, Terraform ≥ 1.3.0 |
 | `nw_main.tf` | — | Tag merge locals, architecture notes |
 | `iam_sprint1_ref.tf` | — | Sprint 1 IAM reference (read-only, no resources) |
-| `nw_team1.tf` | T1 | OS VCN, subnet, DRG attachment, RT, Sim FW |
-| `nw_team2.tf` | T2 | TS VCN, subnet, DRG attachment, RT, Sim FW |
-| `nw_team3.tf` | T3 | SS + DEVT VCNs, subnets, DRG attachments, RTs, Sim FW (SS only) |
-| `nw_team4.tf` | T4 | Hub VCN, FW+MGMT subnets, both DRGs, RTs, Sim FW, Bastion |
-| `outputs.tf` | — | All VCN/subnet/DRG OCIDs, Sim FW IDs, Bastion ID |
+| `nw_team1.tf` | T1 | OS VCN, subnet, SGW, DRG attachment, RT, Sim FW |
+| `nw_team2.tf` | T2 | TS VCN, subnet, SGW, DRG attachment, RT, Sim FW |
+| `nw_team3.tf` | T3 | SS + DEVT VCNs, subnets, SGWs, DRG attachments, RTs, Sim FW (SS only) |
+| `nw_team4.tf` | T4 | Hub VCN, FW+MGMT subnets, SGW, both DRGs, RTs, Sim FW, Bastion |
+| `outputs.tf` | — | All VCN/subnet/DRG/SGW OCIDs, Sim FW IDs, Bastion ID |
 | `schema.yaml` | — | ORM UI — 8 sections |
 | `terraform.tfvars.template` | — | Template for Sprint 1 OCIDs |
 
@@ -110,7 +117,7 @@ All Sprint 2 resources create successfully under existing Sprint 1 policies when
 
 | Sprint 2 Resource | OCI Verb | Compartment | Sprint 1 Policy | Status |
 |---|---|---|---|---|
-| VCNs, subnets, RTs, security lists | manage virtual-network-family | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
+| VCNs, subnets, RTs, SGWs | manage virtual-network-family | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
 | DRGs (2) | manage drgs | C1_R_ELZ_NW | UG_ELZ_NW | ✅ |
 | DRG attachments (5) | manage drgs | C1_R_ELZ_NW | UG_ELZ_NW | ✅ |
 | Sim FW instances (4) | manage instances | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
@@ -191,17 +198,21 @@ All dates: 2–4 Mar 2026. Phase 1 resources (VCN/subnet/DRG) apply first; Phase
 
 ## Test Cases
 
-### Phase → TC Mapping
+| Phase | Gate | TCs |
+|---|---|---|
+| Phase 1 | T4 confirms `hub_drg_id` | TC-07, TC-08 |
+| Phase 2 | All teams applied | TC-09 through TC-12b |
+| Phase 2 | After TC-11 Bastion ACTIVE | TC-13 through TC-19 |
+| Final | All pass | TC-17 (zero drift) |
 
 ### What Sprint 2 Proves
 
-Sprint 2 validates hub-and-spoke connectivity using OCI DRG v2 full-mesh. Every spoke can reach every other spoke and the hub through the DRG fabric. This is control plane routing (NPA) AND data plane routing (actual ping/traceroute via Bastion SSH).
+Sprint 2 validates hub-and-spoke connectivity using OCI DRG v2 full-mesh. Every spoke reaches every other spoke and the hub through the DRG fabric — both control plane (NPA) and data plane (ping/traceroute via Bastion SSH).
 
-**What works now:** Spoke ↔ spoke, spoke ↔ hub — all REACHABLE via DRG full-mesh.
+**Works now:** Spoke ↔ spoke, spoke ↔ hub — all REACHABLE via DRG full-mesh.
+**Sprint 3 adds:** Forced inspection through Hub FW. Currently spoke-to-spoke bypasses Hub FW.
 
-**What doesn't work yet (Sprint 3):** Forced inspection through Hub Firewall. Spoke-to-spoke traffic bypasses Hub FW — goes directly through DRG fabric. Sprint 3 adds custom DRG route tables to force all traffic via Hub FW.
-
-### Shell Variables (set once — paste OCIDs from `terraform output -json`)
+### Shell Variables (set once from `terraform output -json`)
 
 ```bash
 HUB_DRG_ID="<paste>"          # terraform output hub_drg_id
@@ -225,54 +236,112 @@ SIM_FW_SS_ID="<paste>"        # terraform output sim_fw_ss_id
 TENANCY_ID=$(oci iam tenancy get --query 'data.id' --raw-output)
 ```
 
-### Phase 1 Tests (after first apply — `hub_drg_id` empty)
+### Phase 1 Tests
 
-**TC-07 — 5 VCNs exist.** Console → Networking → VCNs. Verify: `vcn_r_elz_nw`, `vcn_os_elz_nw`, `vcn_ts_elz_nw`, `vcn_ss_elz_nw`, `vcn_devt_elz_nw`.
+**TC-07 — 5 VCNs exist.** Console → Networking → VCNs.
 
-**TC-08 — 6 subnets, all private.** Console → each VCN → Subnets. All show `prohibit_public_ip = true`.
+```bash
+oci network vcn list --compartment-id $TENANCY_ID --all \
+  --query "data[?starts_with(\"display-name\",'vcn_')].\"display-name\"" --output table
+```
 
-### Phase 2 Tests (after re-apply with `hub_drg_id`)
+**TC-08 — 6 subnets, all private.** Console → each VCN → Subnets.
 
-**TC-09 — DRG has 5 attachments.** Console → DRGs → `drg_r_hub` → Attachments. All 5 ATTACHED.
+```bash
+oci network subnet list --vcn-id $HUB_VCN_ID \
+  --query 'data[].{name:"display-name",private:"prohibit-public-ip-on-vnic"}' --output table
+```
 
-**TC-10 — 4 Sim FW RUNNING.** Console → Compute → Instances. All 4 RUNNING. VNIC Details → `skip_source_dest_check = true`.
+### Phase 2 Tests
 
-**TC-11 — Bastion ACTIVE.** Console → Bastion → `bas_r_elz_nw_hub` → ACTIVE.
+**TC-09 — DRG: 5 attachments.** Console → DRGs → `drg_r_hub`.
 
-**TC-12 — Route tables correct.**
-- Spoke RTs (4): DRG rule `0/0 → drg_r_hub` + SGW rule `All OSN → SGW`
-- Hub FW RT: SGW rule only (DRG transit routes added Sprint 3)
+```bash
+oci network drg-attachment list --drg-id $HUB_DRG_ID --all \
+  --query 'data[].{name:"display-name",state:"lifecycle-state"}' --output table
+```
+
+**TC-10 — 4 Sim FW RUNNING.** Console → Compute → Instances. Check `skip_source_dest_check = true` on each VNIC.
+
+```bash
+oci compute instance list --compartment-id <nw_compartment_id> --all \
+  --query "data[?contains(\"display-name\",'sim')].{name:\"display-name\",state:\"lifecycle-state\"}" --output table
+```
+
+**TC-11 — Bastion ACTIVE.**
+
+```bash
+oci bastion bastion get --bastion-id $HUB_BASTION_ID \
+  --query 'data.{name:"name",state:"lifecycle-state"}' --output table
+```
+
+**TC-12 — Route tables.** Console → each VCN → Route Tables.
+- Spoke RTs: DRG rule `0/0 → drg_r_hub` + SGW rule `All OSN → SGW`
+- Hub FW RT: SGW rule only (Sprint 3 adds DRG transit)
 - Hub MGMT RT: DRG rule + SGW rule
 
-**TC-12b — E-W DRG exists.** Console → DRGs → `drg_r_ew_hub` → AVAILABLE, 0 attachments.
+**TC-12b — E-W DRG: 0 attachments.**
 
-**TC-13 — NPA: Spoke → Hub.** Console → Network Path Analyzer → Source: `OS_APP_SUBNET` → Dest: `HUB_FW_SUBNET` → ICMP. Expected: REACHABLE via DRG.
+```bash
+oci network drg-attachment list --drg-id $EW_HUB_DRG_ID --all --query 'data | length(@)'
+```
 
-**TC-14 — NPA: Spoke → Spoke.** Source: `OS_APP_SUBNET` → Dest: `TS_APP_SUBNET`. Expected: REACHABLE via DRG full-mesh (bypasses Hub FW — expected, Sprint 3 fixes).
+**TC-13 — NPA: Spoke → Hub.** Console → Network Path Analyzer or:
+
+```bash
+oci network path-analyzer-test create --protocol 1 \
+  --source-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"$OS_APP_SUBNET\"}" \
+  --destination-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"$HUB_FW_SUBNET\"}" \
+  --compartment-id $TENANCY_ID
+```
+
+Expected: REACHABLE. Repeat for TS/SS/DEVT → Hub.
+
+**TC-14 — NPA: Spoke → Spoke.** OS → TS. Expected: REACHABLE via DRG full-mesh (bypasses Hub FW — Sprint 3 fixes).
 
 **TC-15 — Bastion SSH into Hub Sim FW.**
 
-Console → Bastion → Create Session → Managed SSH → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste your `~/.ssh/id_rsa.pub` → Create. Copy SSH command and run it.
+Console → Bastion → Create Session → Managed SSH → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste `~/.ssh/id_rsa.pub` → Create. Copy SSH command, run it. Wait 3-5 min after apply for Bastion plugin.
 
 Once connected:
 
 ```bash
 sysctl net.ipv4.ip_forward                         # = 1
-sudo iptables -t nat -L POSTROUTING -v -n          # MASQUERADE on ens3
-ping -c 2 <OS_FW_IP>                               # replace with actual IP from Console
+sudo iptables -t nat -L POSTROUTING -v -n           # MASQUERADE on ens3
+ping -c 2 <OS_FW_IP>                                # replace with actual IPs
 ping -c 2 <TS_FW_IP>
 ping -c 2 <SS_FW_IP>
 ```
 
-All pings return `0% packet loss` = DRG full-mesh connectivity proven end-to-end.
+All pings `0% packet loss` = DRG full-mesh proven end-to-end.
 
-**TC-16 — DEVT has no compute.** Console → Compute → compartment `C1_DEVT_ELZ_NW` → 0 instances.
+**Troubleshooting:**
+- Session times out → SGW route missing in RT
+- Plugin INVALID → SGW not created or route rule missing
+- Connection refused → Bastion plugin not ENABLED in agent_config
+- Auth failed → re-paste public key at session creation
+
+**TC-16 — DEVT: no compute.** 0 instances in `C1_DEVT_ELZ_NW`.
 
 **TC-17 — Zero drift.** ORM → Plan → `0 to add, 0 to change, 0 to destroy`.
 
-**TC-18 — NPA: all spoke pairs.** Run NPA for each pair via Console (OS↔TS, OS↔SS, OS↔DEVT, TS↔SS, TS↔DEVT, SS↔DEVT) + Hub MGMT → each spoke. All REACHABLE.
+**TC-18 — NPA: all spoke pairs.** Console or CLI for each pair, all REACHABLE.
 
-**TC-19 — Data plane from Hub Sim FW.** From TC-15 session, ping all spokes + traceroute one. Record: "DRG v2 full-mesh confirmed. Hub↔spoke PASS. Spoke↔spoke bypasses Hub FW — S3-BACKLOG-01."
+```bash
+oci network path-analyzer-test create --protocol 1 \
+  --source-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"$OS_APP_SUBNET\"}" \
+  --destination-endpoint "{\"type\":\"SUBNET\",\"subnetId\":\"$TS_APP_SUBNET\"}" \
+  --compartment-id $TENANCY_ID
+```
+
+**TC-19 — Data plane from Hub Sim FW.** From TC-15 session:
+
+```bash
+ping -c 2 <OS_FW_IP> && ping -c 2 <TS_FW_IP> && ping -c 2 <SS_FW_IP>
+traceroute -n <OS_FW_IP>                            # 2-3 hops via DRG
+```
+
+Record: "DRG v2 full-mesh confirmed. Hub↔spoke PASS. Spoke↔spoke bypasses Hub FW — S3-BACKLOG-01."
 
 ---
 

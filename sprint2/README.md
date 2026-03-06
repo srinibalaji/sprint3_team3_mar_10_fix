@@ -374,7 +374,7 @@ sprint2/nw_team<N>.tf            — copy nw_team1.tf, replace os/OS
 | Service Gateway | One SGW per VCN (Hub + 4 spokes). Route rule `All Oracle Services Network → SGW` in every subnet RT. Required for Cloud Agent, Bastion plugin, and cloud-init yum/dnf. |
 | Security Lists | One per subnet (6 total). Allow all egress `0/0` + all ingress from `10.0.0.0/8`. Required for NPA validation (ICMP) and ping tests. Sprint 3 replaces with NSGs. |
 | DEVT spoke | Network-only. No Sim FW. Compute Sprint 4+. |
-| Hub FW RT empty | Placeholder. Sprint 3 adds DRG transit routing. |
+| Hub FW RT now has the SGW rule | Placeholder. Sprint 3 adds DRG transit routing. |
 | DRG v2 full-mesh | Spoke↔spoke works now but bypasses Hub FW. S3-BACKLOG-01 fixes. |
 | Flat files | No modules in Sprint 2. Single dir = single dependency graph. |
 | DNS labels | Centralised in `locals.tf`. No hardcoded strings in team files. |

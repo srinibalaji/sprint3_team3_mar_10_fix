@@ -79,3 +79,6 @@ locals {
 
   # Certificate Authority Names (placeholder for V2 HTTPS)
   cert_authority_name = "ca_r_elz_sec"
+
+  # Vault Secret Names
+  ssh_key_secret_name = "ssh-public-key"

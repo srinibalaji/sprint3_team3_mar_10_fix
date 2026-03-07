@@ -12,84 +12,73 @@ Also added: Vault/KMS, Cloud Guard, Security Zones, NSGs, VCN flow logs, Service
 
 ## Network Topology
 
+
 ```
 STAR ELZ V1 — Sprint 3 Topology (builds on Sprint 2)
 
+SPRINT 2 INFRASTRUCTURE (referenced via variables, not modified):
+  1 Bastion service · 5 Service Gateways · 5 VCNs · 6 subnets
+  2 DRGs · 5 DRG attachments · 4 Sim FWs (ssh_authorized_keys in metadata)
+  6 Route Tables · 6 Security Lists
+
+SPRINT 3 ADDS (58 resources):
+
 C1_R_ELZ_NW  (Hub — T4 routing, T1/T2 NSGs + flow logs)
 ├── vcn_r_elz_nw                      10.0.0.0/16
-│   ├── sub_r_elz_nw_fw               10.0.0.0/24   [private]
-│   │   ├── fw_r_elz_nw_hub_sim       Sim FW (Sprint 2) — forced inspection point
-│   │   ├── nsg_r_elz_nw_fw           NSG (T1) — all internal + egress
+│   ├── sub_r_elz_nw_fw               10.0.0.0/24
+│   │   ├── fw_r_elz_nw_hub_sim       Sprint 2 Sim FW — forced inspection point
+│   │   ├── nsg_r_elz_nw_fw           NSG (T1)
 │   │   ├── fl_r_elz_nw_fw            Flow log (T1)
 │   │   └── rt_r_elz_nw_fw            Sprint 2 SGW + Sprint 3 spoke CIDRs → DRG
 │   │
-│   ├── sub_r_elz_nw_mgmt             10.0.1.0/24   [private]
-│   │   ├── bas_r_elz_nw_hub          Bastion (Sprint 2)
-│   │   ├── nsg_r_elz_nw_mgmt         NSG (T2) — all internal + egress
-│   │   ├── fl_r_elz_nw_mgmt          Flow log (T2)
-│   │   └── rt_r_elz_nw_mgmt          Sprint 2: 0/0 → DRG + SGW
-│   │
-│   ├── sgw_r_elz_nw_hub              Service Gateway (Sprint 2)
+│   ├── sub_r_elz_nw_mgmt             10.0.1.0/24
+│   │   ├── bas_r_elz_nw_hub          Bastion (Sprint 2) — 1 service, 2 TF sessions
+│   │   │   ├── bsn_os_elz_nw_ssh     Session → OS Sim FW (T1)
+│   │   │   └── bsn_ts_elz_nw_ssh     Session → TS Sim FW (T2)
+│   │   ├── nsg_r_elz_nw_mgmt         NSG (T2)
+│   │   └── fl_r_elz_nw_mgmt          Flow log (T2)
 │   │
 │   ├── rt_r_elz_nw_hub_ingress       VCN Ingress RT (T4) → Hub FW private IP
-│   │                                  (attached to Hub DRG attachment)
 │   │
-│   ├── drg_r_hub                      Hub DRG (Sprint 2) — 5 attachments
-│   │   ├── drgrt_r_hub_spoke_mesh     Custom DRG RT (T4) — import distribution
-│   │   │   └── drgrd_r_hub_vcn_import  Import dist — learns all VCN CIDRs
-│   │   ├── drgrt_spoke_to_hub         Custom DRG RT (T4) — static 0/0 → Hub
-│   │   │
-│   │   ├── drga_r_elz_nw_hub ────→ drgrt_r_hub_spoke_mesh + VCN ingress RT
-│   │   ├── drga_os_elz_nw ──────→ drgrt_spoke_to_hub
-│   │   ├── drga_ts_elz_nw ──────→ drgrt_spoke_to_hub
-│   │   ├── drga_ss_elz_nw ──────→ drgrt_spoke_to_hub
-│   │   └── drga_devt_elz_nw ────→ drgrt_spoke_to_hub
-│   │
-│   └── drg_r_ew_hub                   E-W DRG (Sprint 2, V2 placeholder)
+│   └── drg_r_hub — FORCED INSPECTION ROUTING (T4):
+│       ├── drgrt_r_hub_spoke_mesh     Hub RT (import distribution)
+│       ├── drgrt_spoke_to_hub         Spoke RT (static 0/0 → Hub)
+│       ├── drga_r_elz_nw_hub ───→ hub_spoke_mesh + VCN ingress RT
+│       ├── drga_os_elz_nw ─────→ spoke_to_hub
+│       ├── drga_ts_elz_nw ─────→ spoke_to_hub
+│       ├── drga_ss_elz_nw ─────→ spoke_to_hub
+│       └── drga_devt_elz_nw ───→ spoke_to_hub
 │
-├── C1_OS_ELZ_NW  (T1)
-│   └── vcn_os_elz_nw                  10.1.0.0/24
-│       ├── sub_os_elz_nw_app         fw_os_elz_nw_sim · nsg_os_elz_nw_app · fl_os_elz_nw_app
-│       └── sgw_os_elz_nw             Sprint 2
-│
-├── C1_SS_ELZ_NW  (T3/T2)
-│   └── vcn_ss_elz_nw                  10.2.0.0/24
-│       ├── sub_ss_elz_nw_app         fw_ss_elz_nw_sim · nsg_ss_elz_nw_app · fl_ss_elz_nw_app
-│       └── sgw_ss_elz_nw             Sprint 2
-│
-├── C1_TS_ELZ_NW  (T2)
-│   └── vcn_ts_elz_nw                  10.3.0.0/24
-│       ├── sub_ts_elz_nw_app         fw_ts_elz_nw_sim · nsg_ts_elz_nw_app · fl_ts_elz_nw_app
-│       └── sgw_ts_elz_nw             Sprint 2
-│
-└── C1_DEVT_ELZ_NW  (T2)
-    └── vcn_devt_elz_nw                10.4.0.0/24
-        ├── sub_devt_elz_nw_app       (no Sim FW) · nsg_devt_elz_nw_app · fl_devt_elz_nw_app
-        └── sgw_devt_elz_nw           Sprint 2
+├── C1_OS_ELZ_NW  (T1)  — nsg_os_elz_nw_app + fl_os_elz_nw_app
+├── C1_SS_ELZ_NW  (T2)  — nsg_ss_elz_nw_app + fl_ss_elz_nw_app
+├── C1_TS_ELZ_NW  (T2)  — nsg_ts_elz_nw_app + fl_ts_elz_nw_app
+└── C1_DEVT_ELZ_NW (T2) — nsg_devt_elz_nw_app + fl_devt_elz_nw_app
 
-C1_R_ELZ_SEC  (T3 security services)
-├── vlt_r_elz_sec                      OCI Vault (Virtual Private)
-│   └── key_r_elz_sec_master          AES-256 Master Encryption Key
-├── ca_r_elz_sec                       Certificate Authority (T2, V2 readiness)
-├── cgdr_r_elz_config                  Cloud Guard config detector recipe
-├── cgdr_r_elz_activity                Cloud Guard activity detector recipe
-├── cgrr_r_elz_responder               Cloud Guard responder recipe
-├── cgt_r_elz_root                     Cloud Guard target (root compartment)
-├── szr_r_elz_sec / sz_r_elz_sec       Security Zone recipe + zone (SEC)
-├── szr_r_elz_nw / sz_r_elz_nw         Security Zone recipe + zone (NW)
-├── lg_r_elz_nw_flow                   Log group (T3) — contains 6 flow logs
-├── bkt_r_elz_sec_logs                 Object Storage bucket (log retention)
-├── sch_r_elz_sec_flow_logs            Service Connector Hub (T1) — logs → bucket
-├── vssr_r_elz_sec                     VSS scan recipe (T1)
-├── vsst_r_elz_nw                      VSS scan target (T1) — scans NW instances
-├── nt_r_elz_sec_alerts                Notification topic
-├── ev_r_elz_sec_nw_changes            Events rule (DRG/routing changes)
-└── al_r_elz_sec_drg_change            Monitoring alarm (Hub FW drops)
+C1_R_ELZ_SEC  (T3 security, T1 VSS+SCH, T2 Cert)
+├── vlt_r_elz_sec                      Vault (T3)
+│   ├── key_r_elz_sec_master          Master Key (T3)
+│   └── ssh-public-key                 Vault Secret — SSH key (T3)
+├── ca_r_elz_sec                       Certificate Authority (T2)
+├── Cloud Guard (T3): config + activity recipes, responder, target
+├── Security Zones (T3): sz_r_elz_sec + sz_r_elz_nw
+├── lg_r_elz_nw_flow                   Log group (T3) → 6 flow logs (T1/T2)
+├── bkt_r_elz_sec_logs                 Log bucket (T3)
+├── sch_r_elz_sec_flow_logs            SCH: logs → bucket (T1)
+├── vssr_r_elz_sec + vsst_r_elz_nw     VSS recipe + target (T1)
+├── nt_r_elz_sec_alerts                Notification topic (T3)
+├── ev_r_elz_sec_nw_changes            Events rule (T3)
+└── al_r_elz_sec_drg_change            Monitoring alarm (T3)
 
-FORCED INSPECTION — the Sprint 3 difference:
-  Sprint 2: OS → DRG full-mesh → TS (bypasses Hub FW)
-  Sprint 3: OS → DRG(spoke_to_hub) → Hub VCN(ingress RT) → Hub FW → rt_r_elz_nw_fw → DRG → TS
+FORCED INSPECTION (Sprint 3 vs Sprint 2):
+  Sprint 2: OS → DRG(full-mesh) → TS              [Hub FW bypassed]
+  Sprint 3: OS → DRG(spoke_to_hub) → Hub FW → DRG → TS  [Hub FW inspects]
+
+SSH KEY FLOW:
+  Sprint 2: var.ssh_public_key → instance metadata (ssh_authorized_keys)
+  Sprint 3: same key → Bastion session (key_details) + Vault secret
+  Both paths: Bastion Managed SSH via Cloud Agent. Key on instance = backup.
 ```
+
 
 ---
 
@@ -142,21 +131,25 @@ terraform output -json > sprint2_outputs.json
 |---|---|---|---|
 | T1 | `sec_team1.tf` | Bastion (OS), Hub FW + OS NSGs, flow logs (hub_fw + OS), VSS recipe + target, SCH | 12 |
 | T2 | `sec_team2.tf` | Bastion (TS), Hub MGMT + TS + SS + DEVT NSGs, flow logs (4), Certificate Authority | 18 |
-| T3 | `sec_team3.tf` + `sec_team3_security.tf` | Log group, bucket, notifications, events, alarm, Vault/KMS, Cloud Guard, Security Zones | 15 |
+| T3 | `sec_team3.tf` + `sec_team3_security.tf` | Log group, bucket, notifications, events, alarm, Vault/KMS, Vault SSH secret, Cloud Guard, Security Zones | 16 |
 | T4 | `sec_team4.tf` | DRG route tables, import distribution, forced inspection, VCN ingress RT, Hub FW RT, DRG attachment management | 12 |
-| **Total** | | | **57** |
+| **Total** | | | **58** |
 
 ---
 
 ## SSH Public Key
 
-Sprint 3 Bastion sessions (`sec_team1.tf`, `sec_team2.tf`) are created via Terraform and require `var.ssh_public_key`. This key is used in the `key_details` block of `oci_bastion_session`. The Bastion session presents this key to the target instance's Cloud Agent for authentication.
+The same SSH key is used in three places across Sprint 2 and Sprint 3:
 
-Sprint 2 Managed SSH sessions (created via Console) don't need this — you paste your key at session creation time. But Sprint 3 Terraform-created sessions need the key in the code.
+| Where | What | Why |
+|---|---|---|
+| Sprint 2: instance metadata `ssh_authorized_keys` | Key baked into all 4 Sim FW instances | Defence-in-depth — backup SSH path if Cloud Agent fails |
+| Sprint 3: Bastion session `key_details` | Key used when Terraform creates Managed SSH sessions | Bastion authenticates using this key via Cloud Agent |
+| Sprint 3: Vault secret `ssh-public-key` | Key stored encrypted in `vlt_r_elz_sec` | Audit trail + production pattern (V2: reference via data source) |
 
-**How to provide:** Paste the contents of `~/.ssh/id_rsa.pub` into the ORM Variable `ssh_public_key`. If you don't have a key, generate one: `ssh-keygen -t rsa -b 4096`.
+**How to provide:** Paste contents of `~/.ssh/id_rsa.pub` into ORM Variable `ssh_public_key` (both Sprint 2 and Sprint 3 stacks). If you don't have a key: `ssh-keygen -t rsa -b 4096`.
 
-**Vault integration (V2):** In production, SSH keys should be stored in the Vault (`vlt_r_elz_sec`) and referenced via `oci_kms_secret`. For V1 POC, pasting the key directly in ORM is sufficient.
+**Validation (TC-42):** Verify the key exists in all three locations — instance metadata, Bastion session, and Vault.
 
 ---
 
@@ -313,6 +306,28 @@ oci certs-mgmt certificate-authority list --compartment-id <sec_compartment_id> 
 
 **TC-41 — Zero drift.** ORM → Plan → `0 to add, 0 to change, 0 to destroy`.
 
+**TC-42 — SSH key in Vault + instance metadata.**
+
+Console → Vault → `vlt_r_elz_sec` → Secrets → `ssh-public-key` → ACTIVE.
+
+```bash
+# Vault secret exists
+oci vault secret list --compartment-id <sec_compartment_id> \
+  --query "data[?\"secret-name\"=='ssh-public-key'].{name:\"secret-name\",state:\"lifecycle-state\"}" --output table
+
+# Instance has the key in metadata (set by Sprint 2)
+oci compute instance get --instance-id $SIM_FW_HUB_ID \
+  --query 'data.metadata."ssh_authorized_keys"' --raw-output | head -c 50
+# Expected: ssh-rsa AAAA...
+```
+
+From a Bastion session (TC-26), confirm key is on the instance:
+
+```bash
+cat ~/.ssh/authorized_keys | head -c 50
+# Expected: same ssh-rsa AAAA... as your public key
+```
+
 ---
 
 ## Design Decisions
@@ -321,14 +336,15 @@ oci certs-mgmt certificate-authority list --compartment-id <sec_compartment_id> 
 |---|---|
 | Forced inspection | Custom DRG RTs replace auto-generated full-mesh. `spoke_to_hub` sends 0/0 → Hub attachment. Hub ingress RT → Hub FW private IP. Hub FW RT → spoke CIDRs back to DRG. |
 | `drg_attachment_management` | Modifies DRG-side properties on existing Sprint 2 attachments without importing them into Sprint 3 state. Two ORM stacks, zero state conflicts. |
-| Hub FW RT import | Sprint 2 created `rt_r_elz_nw_fw` (had only SGW rule). Sprint 3 imports it via `import{}` block and adds spoke CIDR routes. SGW rule preserved. |
-| SGW from Sprint 2 | Sprint 3 references Sprint 2's Hub SGW via `var.hub_sgw_id`. No duplication. Spoke SGWs not touched by Sprint 3. |
-| NSGs | 6 NSGs (one per subnet). Current rules: allow all internal 10/8 + egress. V2 tightens per-service (SSH only from Bastion CIDR, ICMP between spokes, deny all else). |
-| VSS | Weekly STANDARD scan. Recipe in SEC compartment. Target scans NW compartment instances. First scan runs on next schedule cycle. |
-| SCH | Flow logs → Object Storage bucket. Provides log retention beyond OCI Logging's 30-day window. |
-| Certificate Authority | Root CA in SEC compartment, signed by Vault master key. V2 issues certs for Load Balancers and API Gateways. No certs issued in V1 (no HTTPS endpoints). |
-| Security Zones | Enforce compliance: no public buckets, no public subnets, encryption required. Applied to SEC + NW compartments. |
-| SSH key | `var.ssh_public_key` for Terraform Bastion sessions. No keys in Vault for V1 POC. Console sessions use paste-at-creation. |
+| Hub FW RT import | Sprint 2 created `rt_r_elz_nw_fw` (SGW rule). Sprint 3 imports via `import{}` and adds spoke CIDR routes. SGW rule preserved. |
+| SGW from Sprint 2 | Sprint 3 references Hub SGW via `var.hub_sgw_id`. No duplication. 5 SGWs total (all Sprint 2). |
+| Bastion | 1 Bastion service (Sprint 2). 2 Terraform sessions (Sprint 3 T1/T2). Console sessions also work. |
+| NSGs | 6 NSGs (one per subnet). Allow all internal 10/8 + egress. V2 tightens to per-service rules. |
+| SSH key (3 locations) | Instance metadata `ssh_authorized_keys` (Sprint 2) + Bastion session `key_details` (Sprint 3) + Vault secret (Sprint 3). Same key in all three. Cloud Agent brokers Managed SSH. Key on instance = backup if Cloud Agent fails. |
+| VSS | Weekly STANDARD scan. Recipe in SEC. Target scans NW instances. |
+| SCH | Flow logs → Object Storage bucket. Retention beyond Logging's 30-day window. |
+| Certificate Authority | Root CA in SEC, signed by Vault master key. V2 issues certs for LBs/API GWs. |
+| Security Zones | No public buckets, no public subnets, encryption required. SEC + NW compartments. |
 
 ---
 
@@ -336,23 +352,24 @@ oci certs-mgmt certificate-authority list --compartment-id <sec_compartment_id> 
 
 - [ ] Sprint 1 IAM patch applied (9 statements)
 - [ ] TC-20: 2 custom DRG route tables
-- [ ] TC-21: spoke attachments → spoke_to_hub RT, hub → hub_spoke_mesh RT
-- [ ] TC-22: **Forced inspection proven** — traceroute shows Hub FW hop + NPA confirms
+- [ ] TC-21: Spoke attachments → spoke_to_hub RT, hub → hub_spoke_mesh RT
+- [ ] TC-22: **Forced inspection proven** — traceroute + NPA
 - [ ] TC-23: VCN ingress RT → Hub FW private IP
 - [ ] TC-24: Hub FW RT has spoke CIDRs + SGW
-- [ ] TC-25: 6 NSGs
-- [ ] TC-26/27: Bastion SSH sessions work
+- [ ] TC-25: 6 NSGs created
+- [ ] TC-26/27: Bastion SSH sessions connect
 - [ ] TC-28: Flow logs ACTIVE
-- [ ] TC-29: Log bucket has objects
-- [ ] TC-30: SCH ACTIVE + data transferred
-- [ ] TC-31: Notification topic (email subscription added)
-- [ ] TC-32: Events rule ACTIVE
+- [ ] TC-29: Log bucket has objects (SCH delivering)
+- [ ] TC-30: SCH ACTIVE
+- [ ] TC-31: Notification topic + subscription
+- [ ] TC-32: Events rule fires
 - [ ] TC-33: Monitoring alarm OK
 - [ ] TC-34: Vault + Master Key ENABLED
-- [ ] TC-35: Cloud Guard target ACTIVE
-- [ ] TC-36/37: Security Zones block non-compliant resources (409 test)
-- [ ] TC-38/39: VSS recipe + target created
+- [ ] TC-35: Cloud Guard target ACTIVE with findings
+- [ ] TC-36/37: Security Zones block non-compliant (409 confirmed)
+- [ ] TC-38/39: VSS recipe + target, scan pending/complete
 - [ ] TC-40: Certificate Authority ACTIVE
 - [ ] TC-41: Zero drift
+- [ ] TC-42: SSH key in Vault + instance metadata confirmed
 - [ ] `sprint3_outputs.json` exported
 - [ ] Git tag `sprint3-complete` pushed

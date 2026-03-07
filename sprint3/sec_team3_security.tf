@@ -244,3 +244,25 @@ resource "oci_cloud_guard_security_zone" "nw" {
 
   defined_tags = local.common_tags
 }
+
+# ═══════════════════════════════════════════════════════════════
+# SSH KEY VAULT SECRET — stores the SSH public key in Vault
+# ═══════════════════════════════════════════════════════════════
+# Defence-in-depth: SSH key stored in Vault alongside instance metadata.
+# Production pattern: reference via data source instead of plain variable.
+# V1 POC: both var.ssh_public_key and Vault secret contain the same key.
+
+resource "oci_vault_secret" "ssh_public_key" {
+  compartment_id = var.sec_compartment_id
+  vault_id       = oci_kms_vault.sec.id
+  key_id         = oci_kms_key.master.id
+  secret_name    = "ssh-public-key"
+  description    = "SSH public key for Sim FW instances — matches instance metadata ssh_authorized_keys"
+
+  secret_content {
+    content_type = "BASE64"
+    content      = base64encode(var.ssh_public_key)
+  }
+
+  defined_tags = local.common_tags
+}

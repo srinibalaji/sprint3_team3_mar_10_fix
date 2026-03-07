@@ -111,3 +111,9 @@ output "cert_authority_id" {
   description = "OCID of root Certificate Authority."
   value       = oci_certificates_management_certificate_authority.sec.id
 }
+
+# Vault SSH Key Secret
+output "ssh_key_vault_secret_id" {
+  description = "OCID of SSH public key stored in Vault."
+  value       = oci_vault_secret.ssh_public_key.id
+}

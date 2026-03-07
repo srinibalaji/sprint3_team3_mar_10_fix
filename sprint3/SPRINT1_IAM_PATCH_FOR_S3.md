@@ -3,13 +3,14 @@
 # File: SPRINT1_IAM_PATCH_FOR_S3.md
 #
 # Apply BEFORE Sprint 3 ORM apply by re-running Sprint 1 ORM.
+# 10 statements total: 5 in UG_ELZ_NW-Policy, 4 in UG_ELZ_SEC-Policy, 1 service policy.
 # Additive only — zero destroys.
 # ─────────────────────────────────────────────────────────────
 
 ## When to Apply
 
 Sprint 3 day — FIRST action before any Sprint 3 ORM apply.
-Re-run Sprint 1 ORM Plan → Apply. 9 new statements, zero destroys.
+Re-run Sprint 1 ORM Plan → Apply. 10 new statements, zero destroys.
 
 ## Required Policy Additions
 

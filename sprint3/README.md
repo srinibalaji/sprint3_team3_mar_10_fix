@@ -130,29 +130,6 @@ Paste the `ocid1.privateip...` into Sprint 3 ORM Variable `hub_fw_private_ip_id`
 **Cloud-init (Sim FW):** Sprint 2 created Sim FWs with `ip_forward=1` + firewalld masquerade + `skip_source_dest_check=true`. Sprint 3's forced inspection routing relies on this — no cloud-init changes needed.
 
 ---
-## Sprint 3 Issue List
-
-| Task ID | Description | Team | File |
-|---|---|---|---|
-| S3-T4-01 | Custom DRG Route Table — Hub (import distribution) | T4 | `sec_team4.tf` |
-| S3-T4-02 | Custom DRG Route Table — Spoke (static 0/0 → Hub) | T4 | `sec_team4.tf` |
-| S3-T4-03 | DRG Import Route Distribution + statement | T4 | `sec_team4.tf` |
-| S3-T4-04 | VCN Ingress Route Table on Hub DRG attachment | T4 | `sec_team4.tf` |
-| S3-T4-05 | Hub FW RT update — add spoke CIDRs → DRG (import from Sprint 2) | T4 | `sec_team4.tf` |
-| S3-T4-06 | Service Gateway — Hub VCN (centralised Oracle service access) | T4 | `sec_team4.tf` |
-| S3-T4-07 | DRG attachment management — reassign all 5 to custom RTs | T4 | `sec_team4.tf` |
-| S3-T1-01 | Bastion session — OS Sim FW (PORT_FORWARDING) | T1 | `sec_team1.tf` |
-| S3-T1-02 | NSG — Hub FW subnet | T1 | `sec_team1.tf` |
-| S3-T1-03 | NSG — OS spoke subnet | T1 | `sec_team1.tf` |
-| S3-T1-04 | Flow logs — Hub FW + OS subnets | T1 | `sec_team1.tf` |
-| S3-T1-05 | VSS host scan recipe + target | T1 | `sec_team1.tf` |
-| S3-T1-06 | Service Connector Hub — flow logs → bucket | T1 | `sec_team1.tf` |
-| S3-T2-01 | Bastion session — TS Sim FW (PORT_FORWARDING) | T2 | `sec_team2.tf` |
-| S3-T2-02 | NSGs — Hub MGMT + TS + SS + DEVT subnets | T2 | `sec_team2.tf` |
-| S3-T2-03 | Flow logs — Hub MGMT + TS + SS + DEVT subnets | T2 | `sec_team2.tf` |
-| S3-T2-04 | Certificate Authority (V2 readiness) | T2 | `sec_team2.tf` |
-| S3-T3-01 | Log group for flow logs | T3 | `sec_team3.tf` |
-| S3-T3-02 | Object Storage bucket — log retention | T3 | `sec_team3.tf` |
 
 ## Region
 
@@ -171,7 +148,7 @@ No code changes required. Just update the ORM variable.
 
 1. **Sprint 2 rerun (AM)** — Apply Sprint 2 ORM. Verify TC-07 to TC-19. Export `sprint2_outputs.json`.
 2. **Get Hub FW private IP OCID** — Run the CLI command above. Note the `ocid1.privateip...` value.
-3. **Run Sprint 1 IAM patch** — see `SPRINT1_IAM_PATCH_FOR_S3.md`. Code 9 statements into `sprint1/iam_policies_team1.tf`, re-run Sprint 1 ORM Apply. Zero destroys.
+3. **Run Sprint 1 IAM patch** — see `SPRINT1_IAM_PATCH_FOR_S3.md`. Code 10 statements into `sprint1/iam_policies_team1.tf`, re-run Sprint 1 ORM Apply. Zero destroys.
 4. **Verify Cloud Guard is ENABLED** — Console → Security → Cloud Guard.
 5. **Paste Sprint 2 OCIDs + private IP OCID** into Sprint 3 ORM Variables.
 6. **Paste SSH public key** into Sprint 3 ORM Variable `ssh_public_key`.
@@ -241,7 +218,7 @@ No code changes required. Just update the ORM variable.
 
 | # | Task | Owner |
 |---|---|---|
-| S3-PRE-01 | Run Sprint 1 IAM patch (9 new policy statements) | Architect |
+| S3-PRE-01 | Run Sprint 1 IAM patch (10 new policy statements) | Architect |
 | S3-PRE-02 | Verify Cloud Guard is ENABLED | Architect |
 | S3-PRE-03 | Paste 22 Sprint 2 OCIDs into ORM Variables | Architect |
 | S3-PRE-04 | Paste SSH public key into ORM Variable | All teams |
@@ -463,7 +440,7 @@ cat ~/.ssh/authorized_keys | head -c 50
 
 ## Handoff Checklist
 
-- [ ] Sprint 1 IAM patch applied (9 statements)
+- [ ] Sprint 1 IAM patch applied (10 statements)
 - [ ] TC-20: 2 custom DRG route tables
 - [ ] TC-21: Spoke attachments → spoke_to_hub RT, hub → hub_spoke_mesh RT
 - [ ] TC-22: **Forced inspection proven** — traceroute + NPA

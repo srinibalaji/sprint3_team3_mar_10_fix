@@ -20,7 +20,7 @@ Terraform IaC for the STAR ELZ V1 — a sovereign OCI deployment covering IAM, n
 **9 March plan:**
 
 1. Sprint 2 rerun (AM) — firewalld cloud-init, PORT_FORWARDING Bastion, SSH keys on instances. TC-07 to TC-19.
-2. Sprint 1 IAM patch — 9 new policy statements for Sprint 3. Zero destroys.
+2. Sprint 1 IAM patch — 10 new policy statements for Sprint 3. Zero destroys.
 3. Sprint 3 apply (PM) — forced inspection, security services, observability. TC-20 to TC-42.
 
 ---
@@ -53,7 +53,7 @@ Supplemental docs (optional):
 | `docs/ARCHITECT_RUNBOOK.md` | Deployment script with CLI commands |
 | `docs/HANDOFF.md` | Sprint boundary requirements |
 | `docs/SPRINT1_RETRO_QA.md` | Naming convention rationale, architecture QA |
-| `docs/SPRINT1_IAM_PATCH_FOR_S3.md` | 9 policy statements to add before Sprint 3 apply |
+| `docs/SPRINT1_IAM_PATCH_FOR_S3.md` | 10 policy statements to add before Sprint 3 apply |
 | `sprint_state_ledger.json` | TC status tracking, resource inventory, architecture gaps |
 
 **Key principle:** All resource names live in `locals.tf` — never hardcode a `display_name` string in your team file.
@@ -103,7 +103,7 @@ Two-phase apply. Phase 1 gate: TC-07, TC-08. Phase 2 gate: TC-09 through TC-19.
 | S3-T3 | Log group, bucket, notifications, events, alarm, Vault/KMS, SSH Vault secret, Cloud Guard, Security Zones | T3 | `sec_team3.tf` + `sec_team3_security.tf` |
 | S3-T4 | Forced inspection routing, SGW (Hub only), DRG route tables, VCN ingress RT, DRG attachment management | T4 | `sec_team4.tf` |
 
-Single-phase apply. Pre-apply: Sprint 1 IAM patch (9 statements). Gate: TC-20 through TC-42.
+Single-phase apply. Pre-apply: Sprint 1 IAM patch (10 statements). Gate: TC-20 through TC-42.
 
 **Key design:** Hub-only SGW (spokes route via DRG → Hub FW → SGW — all traffic inspectable). Custom DRG route tables replace full-mesh with forced inspection. PORT_FORWARDING Bastion sessions (same key as Sprint 2). VSS behind `enable_vss` flag.
 
@@ -121,7 +121,7 @@ star/
 │   ├── ARCHITECT_RUNBOOK.md
 │   ├── HANDOFF.md
 │   ├── SPRINT1_RETRO_QA.md
-│   └── SPRINT1_IAM_PATCH_FOR_S3.md   ← 9 IAM statements for Sprint 3
+│   └── SPRINT1_IAM_PATCH_FOR_S3.md   ← 10 IAM statements for Sprint 3
 │
 ├── sprint1/                           ← IAM — compartments, groups, policies, tags
 │   ├── locals.tf

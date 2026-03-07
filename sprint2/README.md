@@ -23,12 +23,11 @@ C1_R_ELZ_NW  (T4 — Hub)
 ├── vcn_r_elz_nw                    10.0.0.0/16
 │   ├── sub_r_elz_nw_fw             10.0.0.0/24   [private]
 │   │   ├── fw_r_elz_nw_hub_sim     Sim FW  (ip_fwd + MASQUERADE on ens3)
-│   │   └── rt_r_elz_nw_fw          SGW → OSN  (Sprint 3 adds DRG transit)
+│   │   └── rt_r_elz_nw_fw          [empty — Sprint 3 adds DRG transit + SGW]
 │   └── sub_r_elz_nw_mgmt           10.0.1.0/24   [private]
 │       ├── bas_r_elz_nw_hub        Bastion (STANDARD)
-│       └── rt_r_elz_nw_mgmt        0/0 → DRG (Phase 2) + SGW → OSN
+│       └── rt_r_elz_nw_mgmt        0/0 → DRG (Phase 2)
 │
-├── sgw_r_elz_nw_hub                 Service Gateway → All Oracle Services Network
 ├── drg_r_hub                        5 VCN attachments (E-W full-mesh)
 │   ├── drga_r_elz_nw_hub           Hub VCN
 │   ├── drga_os_elz_nw              OS spoke
@@ -40,28 +39,23 @@ C1_R_ELZ_NW  (T4 — Hub)
 
 C1_OS_ELZ_NW  (T1)
 └── vcn_os_elz_nw                    10.1.0.0/24
-    ├── sub_os_elz_nw_app           fw_os_elz_nw_sim    RT: 0/0 → DRG + SGW → OSN
-    └── sgw_os_elz_nw               Service Gateway → All OSN
+    ├── sub_os_elz_nw_app           fw_os_elz_nw_sim    RT: 0/0 → DRG 
 
 C1_SS_ELZ_NW  (T3)
 └── vcn_ss_elz_nw                    10.2.0.0/24
-    ├── sub_ss_elz_nw_app           fw_ss_elz_nw_sim    RT: 0/0 → DRG + SGW → OSN
-    └── sgw_ss_elz_nw               Service Gateway → All OSN
+    ├── sub_ss_elz_nw_app           fw_ss_elz_nw_sim    RT: 0/0 → DRG 
 
 C1_TS_ELZ_NW  (T2)
 └── vcn_ts_elz_nw                    10.3.0.0/24
-    ├── sub_ts_elz_nw_app           fw_ts_elz_nw_sim    RT: 0/0 → DRG + SGW → OSN
-    └── sgw_ts_elz_nw               Service Gateway → All OSN
+    ├── sub_ts_elz_nw_app           fw_ts_elz_nw_sim    RT: 0/0 → DRG 
 
 C1_DEVT_ELZ_NW  (T3)
 └── vcn_devt_elz_nw                  10.4.0.0/24
-    ├── sub_devt_elz_nw_app         (no Sim FW)         RT: 0/0 → DRG + SGW → OSN
-    └── sgw_devt_elz_nw             Service Gateway → All OSN
+    ├── sub_devt_elz_nw_app         (no Sim FW)         RT: 0/0 → DRG 
 
 All subnets: prohibit_public_ip = true
 All Sim FW VNICs: skip_source_dest_check = true
 All Sim FW instances: agent_config → Bastion plugin ENABLED
-All RTs: SGW route rule for Cloud Agent + yum access via Oracle Services Network
 Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced inspection)
 ```
 
@@ -93,10 +87,10 @@ Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced
 | `providers.tf` | — | OCI + OCI home, Terraform ≥ 1.3.0 |
 | `nw_main.tf` | — | Tag merge locals, architecture notes |
 | `iam_sprint1_ref.tf` | — | Sprint 1 IAM reference (read-only, no resources) |
-| `nw_team1.tf` | T1 | OS VCN, subnet, SGW, DRG attachment, RT, Sim FW |
-| `nw_team2.tf` | T2 | TS VCN, subnet, SGW, DRG attachment, RT, Sim FW |
-| `nw_team3.tf` | T3 | SS + DEVT VCNs, subnets, SGWs, DRG attachments, RTs, Sim FW (SS only) |
-| `nw_team4.tf` | T4 | Hub VCN, FW+MGMT subnets, SGW, both DRGs, RTs, Sim FW, Bastion |
+| `nw_team1.tf` | T1 | OS VCN, subnet, DRG attachment, RT, Sim FW |
+| `nw_team2.tf` | T2 | TS VCN, subnet, DRG attachment, RT, Sim FW |
+| `nw_team3.tf` | T3 | SS + DEVT VCNs, subnetss, DRG attachments, RTs, Sim FW (SS only) |
+| `nw_team4.tf` | T4 | Hub VCN, FW+MGMT subnets, both DRGs, RTs, Sim FW, Bastion |
 | `outputs.tf` | — | All VCN/subnet/DRG/SGW OCIDs, Sim FW IDs, Bastion ID |
 | `schema.yaml` | — | ORM UI — 8 sections |
 | `terraform.tfvars.template` | — | Template for Sprint 1 OCIDs |
@@ -117,7 +111,7 @@ All Sprint 2 resources create successfully under existing Sprint 1 policies when
 
 | Sprint 2 Resource | OCI Verb | Compartment | Sprint 1 Policy | Status |
 |---|---|---|---|---|
-| VCNs, subnets, RTs, SGWs | manage virtual-network-family | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
+| VCNs, subnets, RTss | manage virtual-network-family | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
 | DRGs (2) | manage drgs | C1_R_ELZ_NW | UG_ELZ_NW | ✅ |
 | DRG attachments (5) | manage drgs | C1_R_ELZ_NW | UG_ELZ_NW | ✅ |
 | Sim FW instances (4) | manage instances | C1_R_ELZ_NW + spoke cmps | UG_ELZ_NW + UG_*_ELZ_NW | ✅ |
@@ -276,9 +270,9 @@ oci bastion bastion get --bastion-id $HUB_BASTION_ID \
 ```
 
 **TC-12 — Route tables.** Console → each VCN → Route Tables.
-- Spoke RTs: DRG rule `0/0 → drg_r_hub` + SGW rule `All OSN → SGW`
-- Hub FW RT: SGW rule only (Sprint 3 adds DRG transit)
-- Hub MGMT RT: DRG rule + SGW rule
+- Spoke RTs: DRG rule `0/0 → drg_r_hub`
+- Hub FW RT: Empty — Sprint 3 adds DRG transit + SGW route
+- Hub MGMT RT: DRG rule `0/0 → drg_r_hub`
 
 **TC-12b — E-W DRG: 0 attachments.**
 
@@ -301,7 +295,7 @@ Expected: REACHABLE. Repeat for TS/SS/DEVT → Hub.
 
 **TC-15 — Bastion SSH into Hub Sim FW.**
 
-Console → Bastion → Create Session → Managed SSH → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste `~/.ssh/id_rsa.pub` → Create. Copy SSH command, run it. Wait 3-5 min after apply for Bastion plugin.
+Console → Bastion → Create Session → PORT_FORWARDING → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste `~/.ssh/id_rsa.pub` → Create. Copy SSH command, run it. Wait 3-5 min after apply for Bastion plugin.
 
 Once connected:
 
@@ -316,9 +310,9 @@ ping -c 2 <SS_FW_IP>
 All pings `0% packet loss` = DRG full-mesh proven end-to-end.
 
 **Troubleshooting:**
-- Session times out → SGW route missing in RT
-- Plugin INVALID → SGW not created or route rule missing
-- Connection refused → Bastion plugin not ENABLED in agent_config
+- Session times out → check Bastion is ACTIVE
+- Plugin not needed — PORT_FORWARDING bypasses Cloud Agent
+- Connection refused → check ssh_authorized_keys in instance metadata
 - Auth failed → re-paste public key at session creation
 
 **TC-16 — DEVT: no compute.** 0 instances in `C1_DEVT_ELZ_NW`.
@@ -369,9 +363,7 @@ sprint2/nw_team<N>.tf            — copy nw_team1.tf, replace os/OS
 | No IGW in V1 | Isolated design. NPA + Bastion only. IGW is Sprint 3+. |
 | Phase 2 gate | `local.phase2_enabled = var.hub_drg_id != ""` via `count`. |
 | Sim FW | OL8 E4.Flex. `iptables-services`. Persistent `ip_forward=1`. `MASQUERADE` on auto-detected interface (ens3 on E4.Flex). Boot volume 50GB. |
-| Bastion Managed SSH | No SSH key in Terraform. User pastes key in Console at session creation. Cloud Agent handles auth. **Service Gateway required** — Cloud Agent needs route to Oracle Services Network for Bastion plugin initialisation and yum access. |
 | Bastion plugin | `agent_config.plugins_config` with `Bastion = ENABLED` on all Sim FW instances. Plugin takes 3–5 min after apply to start. Requires SGW route rule in subnet RT. |
-| Service Gateway | One SGW per VCN (Hub + 4 spokes). Route rule `All Oracle Services Network → SGW` in every subnet RT. Required for Cloud Agent, Bastion plugin, and cloud-init yum/dnf. |
 | Security Lists | One per subnet (6 total). Allow all egress `0/0` + all ingress from `10.0.0.0/8`. Required for NPA validation (ICMP) and ping tests. Sprint 3 replaces with NSGs. |
 | DEVT spoke | Network-only. No Sim FW. Compute Sprint 4+. |
 | Hub FW RT empty | Placeholder. Sprint 3 adds DRG transit routing. |
@@ -464,10 +456,7 @@ Moved to `locals.tf` in Sprint 2.
 |---|---|---|
 | C39 | Added `agent_config` with Bastion plugin ENABLED on all 4 Sim FW instances | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
 | C40 | Added `boot_volume_size_in_gbs = 50` — OL8 image default 47GB below OCI 50GB minimum | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
-| C41 | Updated TC-15 with Bastion Managed SSH session creation instructions | `README.md` |
-| C42 | **CORRECTED:** Service Gateway IS required for Bastion Managed SSH — Cloud Agent needs OSN route for plugin init + yum | `README.md` |
-| C43 | Added Service Gateway to Hub VCN + route rules to Hub FW and Hub MGMT RTs | `nw_team4.tf`, `data_sources.tf`, `locals.tf` |
-| C44 | Added Service Gateway to OS/TS/SS/DEVT spoke VCNs + route rules to spoke RTs | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf` |
+| C41 | Updated TC-15 with Bastion PORT_FORWARDING session creation instructions | `README.md` |
 | C45 | Added `oci_core_services` data source and `hub_sgw_id` output | `data_sources.tf`, `outputs.tf` |
 | C46 | **CRITICAL:** Fixed cloud-init `eth0` → auto-detect primary interface (ens3 on OL8 E4.Flex) | `locals.tf` |
 | C47 | Added missing subnet OCIDs to TC shell variables block (NPA tests need them) | `README.md` |

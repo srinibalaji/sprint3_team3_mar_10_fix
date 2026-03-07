@@ -85,3 +85,8 @@ hub_drg_id = ""   # Phase 1: leave empty. Phase 2: ocid1.drg.oc1..aaa (from T4 o
 # BASTION — restrict for production
 # =============================================================================
 # bastion_client_cidr = "0.0.0.0/0"
+
+# =============================================================================
+# SSH KEY
+# =============================================================================
+ssh_public_key = ""   # Paste contents of ~/.ssh/id_rsa.pub

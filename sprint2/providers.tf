@@ -1,8 +1,5 @@
-# Copyright (c) 2023, 2025, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl/
-# STAR ELZ V1 — sprint2
+# STAR ELZ V1 — Sprint 2 Providers
 
-# OCI provider — workload region (networking resources)
 provider "oci" {
   region               = var.region
   tenancy_ocid         = var.tenancy_ocid
@@ -13,7 +10,6 @@ provider "oci" {
   ignore_defined_tags  = ["Oracle-Tags.CreatedBy", "Oracle-Tags.CreatedOn"]
 }
 
-# OCI provider (home) — IAM resources (groups, tag defaults) must be home region
 provider "oci" {
   alias                = "home"
   region               = local.regions_map[local.home_region_key]

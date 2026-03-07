@@ -1,4 +1,24 @@
-# Copyright (c) 2023, 2025, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl/
-# STAR ELZ V1 — sprint2
+# STAR ELZ V1 — Sprint 2 Data Sources
 
+data "oci_identity_regions" "these" {}
+
+data "oci_identity_tenancy" "this" {
+  tenancy_id = var.tenancy_ocid
+}
+
+data "oci_objectstorage_namespace" "ns" {
+  compartment_id = var.tenancy_ocid
+}
+
+data "oci_identity_availability_domains" "these" {
+  compartment_id = var.tenancy_ocid
+}
+
+data "oci_core_images" "platform_oel8" {
+  compartment_id           = var.tenancy_ocid
+  operating_system         = "Oracle Linux"
+  operating_system_version = "8"
+  shape                    = "VM.Standard.E4.Flex"
+  sort_by                  = "TIMECREATED"
+  sort_order               = "DESC"
+}

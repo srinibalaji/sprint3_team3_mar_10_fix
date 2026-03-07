@@ -893,7 +893,7 @@ variables_iam.tf            → module inputs               (no moved{} needed �
 
 ```
 SPRINT 2 FILE              → MODULE                      → STACK
-nw_team4.tf (hub VCN+DRG)   modules/networking/hub        stack_network (root)
+nw_team4.tf (hub VCN+DRG)    modules/networking/hub        stack_network (root)
 nw_team1.tf (OS spoke)       modules/networking/spoke      stack_network (root)
 nw_team2.tf (TS spoke)       modules/networking/spoke      stack_network (root)
 nw_team3.tf (SS spoke)       modules/networking/spoke      stack_network (root)

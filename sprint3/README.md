@@ -9,6 +9,9 @@ Sprint 3 adds the security enforcement layer on top of Sprint 2's hub-and-spoke 
 Also added: Vault/KMS, Cloud Guard, Security Zones, NSGs, VCN flow logs, Service Connector Hub (log publishing), VSS vulnerability scanning, Certificate Authority, events/alarms, and Bastion SSH sessions for validation.
 
 ---
+## Network Architecture
+
+<img width="841" height="476" alt="Screenshot 2026-03-07 at 10 21 17 PM" src="https://github.com/user-attachments/assets/8201612e-7ed9-4e76-b971-84ba9db0731e" />
 
 ## Network Topology
 

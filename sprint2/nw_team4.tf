@@ -60,8 +60,7 @@ resource "oci_core_vcn" "hub" {
   defined_tags  = local.net_defined_tags
 }
 
-# Hub FW Route Table — SGW route for Cloud Agent / Bastion plugin.
-# Sprint 3: will add DRG transit routes here. SGW rule is a different
+# Hub FW Route Table — empty in Sprint 2. Sprint 3 adds DRG transit + SGW.
 # destination_type (SERVICE_CIDR_BLOCK) and won't conflict.
 resource "oci_core_route_table" "hub_fw" {
   compartment_id = var.nw_compartment_id
@@ -131,11 +130,8 @@ resource "oci_core_drg" "ew_hub" {
   defined_tags  = local.net_defined_tags
 }
 
-# Service Gateway — required for Bastion Managed SSH and cloud-init yum access.
-# Cloud Agent on Sim FW instances needs a route to OCI services (Oracle Services Network)
-# for the Bastion plugin to initialise. Without this, plugin state → INVALID.
 
-# Hub MGMT Route Table — SGW always present, DRG rule added Phase 2
+# Hub MGMT Route Table — DRG rule added Phase 2
 resource "oci_core_route_table" "hub_mgmt" {
   compartment_id = var.nw_compartment_id
   vcn_id         = oci_core_vcn.hub.id

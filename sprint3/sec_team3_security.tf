@@ -93,7 +93,7 @@ resource "oci_cloud_guard_detector_recipe" "config" {
   compartment_id            = var.sec_compartment_id
   display_name              = local.cg_config_recipe_name
   description               = "STAR ELZ configuration detector recipe — cloned from Oracle-managed"
-  source_detector_recipe_id = data.oci_cloud_guard_detector_recipes.oracle_config.detector_recipe_collection[0].items[0].id
+  source_detector_recipe_id = try(data.oci_cloud_guard_detector_recipes.oracle_config.detector_recipe_collection[0].items[0].id, "")
 
   defined_tags = local.common_tags
 }
@@ -102,7 +102,7 @@ resource "oci_cloud_guard_detector_recipe" "activity" {
   compartment_id            = var.sec_compartment_id
   display_name              = local.cg_activity_recipe_name
   description               = "STAR ELZ activity detector recipe — cloned from Oracle-managed"
-  source_detector_recipe_id = data.oci_cloud_guard_detector_recipes.oracle_activity.detector_recipe_collection[0].items[0].id
+  source_detector_recipe_id = try(data.oci_cloud_guard_detector_recipes.oracle_activity.detector_recipe_collection[0].items[0].id, "")
 
   defined_tags = local.common_tags
 }
@@ -118,7 +118,7 @@ resource "oci_cloud_guard_responder_recipe" "responder" {
   compartment_id             = var.sec_compartment_id
   display_name               = local.cg_responder_recipe_name
   description                = "STAR ELZ responder recipe — cloned from Oracle-managed"
-  source_responder_recipe_id = data.oci_cloud_guard_responder_recipes.oracle_responder.responder_recipe_collection[0].items[0].id
+  source_responder_recipe_id = try(data.oci_cloud_guard_responder_recipes.oracle_responder.responder_recipe_collection[0].items[0].id, "")
 
   defined_tags = local.common_tags
 }

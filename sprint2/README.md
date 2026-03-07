@@ -23,7 +23,7 @@ C1_R_ELZ_NW  (T4 — Hub)
 ├── vcn_r_elz_nw                    10.0.0.0/16
 │   ├── sub_r_elz_nw_fw             10.0.0.0/24   [private]
 │   │   ├── fw_r_elz_nw_hub_sim     Sim FW  (ip_fwd + MASQUERADE on ens3)
-│   │   └── rt_r_elz_nw_fw          [empty — Sprint 3 adds DRG transit + SGW]
+│   │   └── rt_r_elz_nw_fw          [empty — Sprint 3 adds DRG transit routes]
 │   └── sub_r_elz_nw_mgmt           10.0.1.0/24   [private]
 │       ├── bas_r_elz_nw_hub        Bastion (STANDARD)
 │       └── rt_r_elz_nw_mgmt        0/0 → DRG (Phase 2)
@@ -55,7 +55,6 @@ C1_DEVT_ELZ_NW  (T3)
 
 All subnets: prohibit_public_ip = true
 All Sim FW VNICs: skip_source_dest_check = true
-All Sim FW instances: agent_config → Bastion plugin ENABLED
 Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced inspection)
 ```
 
@@ -83,7 +82,7 @@ Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced
 | `variables_general.tf` | — | Tenancy, region, service_label, CIS level, tags |
 | `variables_iam.tf` | — | 10 compartment OCIDs from Sprint 1 |
 | `variables_net.tf` | — | CIDRs, hub_drg_id (phase gate), Sim FW shape, Bastion CIDR |
-| `data_sources.tf` | — | Regions, tenancy, ADs, OL8 images, OCI Services (SGW) |
+| `data_sources.tf` | — | Regions, tenancy, ADs, OL8 images |
 | `providers.tf` | — | OCI + OCI home, Terraform ≥ 1.3.0 |
 | `nw_main.tf` | — | Tag merge locals, architecture notes |
 | `iam_sprint1_ref.tf` | — | Sprint 1 IAM reference (read-only, no resources) |
@@ -91,7 +90,7 @@ Spoke↔spoke: works via DRG full-mesh (bypasses Hub FW — Sprint 3 adds forced
 | `nw_team2.tf` | T2 | TS VCN, subnet, DRG attachment, RT, Sim FW |
 | `nw_team3.tf` | T3 | SS + DEVT VCNs, subnetss, DRG attachments, RTs, Sim FW (SS only) |
 | `nw_team4.tf` | T4 | Hub VCN, FW+MGMT subnets, both DRGs, RTs, Sim FW, Bastion |
-| `outputs.tf` | — | All VCN/subnet/DRG/SGW OCIDs, Sim FW IDs, Bastion ID |
+| `outputs.tf` | — | All VCN/subnet/DRG OCIDs, Sim FW IDs, Bastion ID, Hub FW private IP |
 | `schema.yaml` | — | ORM UI — 8 sections |
 | `terraform.tfvars.template` | — | Template for Sprint 1 OCIDs |
 
@@ -271,7 +270,7 @@ oci bastion bastion get --bastion-id $HUB_BASTION_ID \
 
 **TC-12 — Route tables.** Console → each VCN → Route Tables.
 - Spoke RTs: DRG rule `0/0 → drg_r_hub`
-- Hub FW RT: Empty — Sprint 3 adds DRG transit + SGW route
+- Hub FW RT: Empty — Sprint 3 adds DRG transit routes + SGW
 - Hub MGMT RT: DRG rule `0/0 → drg_r_hub`
 
 **TC-12b — E-W DRG: 0 attachments.**
@@ -295,13 +294,13 @@ Expected: REACHABLE. Repeat for TS/SS/DEVT → Hub.
 
 **TC-15 — Bastion SSH into Hub Sim FW.**
 
-Console → Bastion → Create Session → PORT_FORWARDING → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste `~/.ssh/id_rsa.pub` → Create. Copy SSH command, run it. Wait 3-5 min after apply for Bastion plugin.
+Console → Bastion → Create Session → PORT_FORWARDING → Target: `fw_r_elz_nw_hub_sim` → Username: `opc` → paste `~/.ssh/id_rsa.pub` → Create. Copy SSH command, run it. SSH key must be in instance metadata (ssh_authorized_keys).
 
 Once connected:
 
 ```bash
 sysctl net.ipv4.ip_forward                         # = 1
-sudo iptables -t nat -L POSTROUTING -v -n           # MASQUERADE on ens3
+sudo firewall-cmd --query-masquerade                # yes
 ping -c 2 <OS_FW_IP>                                # replace with actual IPs
 ping -c 2 <TS_FW_IP>
 ping -c 2 <SS_FW_IP>
@@ -311,7 +310,6 @@ All pings `0% packet loss` = DRG full-mesh proven end-to-end.
 
 **Troubleshooting:**
 - Session times out → check Bastion is ACTIVE
-- Plugin not needed — PORT_FORWARDING bypasses Cloud Agent
 - Connection refused → check ssh_authorized_keys in instance metadata
 - Auth failed → re-paste public key at session creation
 
@@ -362,8 +360,7 @@ sprint2/nw_team<N>.tf            — copy nw_team1.tf, replace os/OS
 |---|---|
 | No IGW in V1 | Isolated design. NPA + Bastion only. IGW is Sprint 3+. |
 | Phase 2 gate | `local.phase2_enabled = var.hub_drg_id != ""` via `count`. |
-| Sim FW | OL8 E4.Flex. `iptables-services`. Persistent `ip_forward=1`. `MASQUERADE` on auto-detected interface (ens3 on E4.Flex). Boot volume 50GB. |
-| Bastion plugin | `agent_config.plugins_config` with `Bastion = ENABLED` on all Sim FW instances. Plugin takes 3–5 min after apply to start. Requires SGW route rule in subnet RT. |
+| Sim FW | OL8 E4.Flex. `firewalld` masquerade (native, zero package installs). Persistent `ip_forward=1`. Boot volume 50GB. |
 | Security Lists | One per subnet (6 total). Allow all egress `0/0` + all ingress from `10.0.0.0/8`. Required for NPA validation (ICMP) and ping tests. Sprint 3 replaces with NSGs. |
 | DEVT spoke | Network-only. No Sim FW. Compute Sprint 4+. |
 | Hub FW RT empty | Placeholder. Sprint 3 adds DRG transit routing. |
@@ -394,7 +391,7 @@ Moved to `locals.tf` in Sprint 2.
 - [ ] TC-12b: `drg_r_ew_hub` AVAILABLE, 0 attachments
 - [ ] TC-13: NPA spoke → hub
 - [ ] TC-14: NPA spoke → spoke (DRG full-mesh documented)
-- [ ] TC-15: Sim FW Linux: cloud-init, ip_forward, iptables, ping/traceroute/tcpdump
+- [ ] TC-15: Sim FW Linux: cloud-init, ip_forward, firewalld masquerade, ping
 - [ ] TC-16: DEVT no compute
 - [ ] TC-17: Zero drift
 - [ ] TC-18: NPA E-W all 16 paths REACHABLE
@@ -422,7 +419,7 @@ Moved to `locals.tf` in Sprint 2.
 | C2–C5 | Removed IGW, all subnets private, no public IPs | `nw_team4.tf` |
 | C6 | Removed `hub_igw_name` | `locals.tf` |
 | C7–C8 | DNS labels centralised | `locals.tf`, `nw_team*.tf` |
-| C9–C10 | cloud-init: `iptables-services`, persistent `ip_forward` | `locals.tf` |
+| C9–C10 | cloud-init: `firewalld` masquerade, persistent `ip_forward` | `locals.tf` |
 | C11–C20 | README: NPA scope, TC-15, Sprint 3 backlog, diagram | `README.md`, `nw_main.tf` |
 
 ### 28 Feb 2026 (post audit)
@@ -454,10 +451,10 @@ Moved to `locals.tf` in Sprint 2.
 
 | # | Change | File(s) |
 |---|---|---|
-| C39 | Added `agent_config` with Bastion plugin ENABLED on all 4 Sim FW instances | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
+| C39 | SUPERSEDED: agent_config removed (PORT_FORWARDING) on all 4 Sim FW instances | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
 | C40 | Added `boot_volume_size_in_gbs = 50` — OL8 image default 47GB below OCI 50GB minimum | `nw_team1.tf`, `nw_team2.tf`, `nw_team3.tf`, `nw_team4.tf` |
 | C41 | Updated TC-15 with Bastion PORT_FORWARDING session creation instructions | `README.md` |
-| C45 | Added `oci_core_services` data source and `hub_sgw_id` output | `data_sources.tf`, `outputs.tf` |
-| C46 | **CRITICAL:** Fixed cloud-init `eth0` → auto-detect primary interface (ens3 on OL8 E4.Flex) | `locals.tf` |
+| C45 | SUPERSEDED: SGW moved to Sprint 3 | `data_sources.tf`, `outputs.tf` |
+| C46 | **SUPERSEDED: cloud-init replaced with firewalld primary interface (ens3 on OL8 E4.Flex) | `locals.tf` |
 | C47 | Added missing subnet OCIDs to TC shell variables block (NPA tests need them) | `README.md` |
 | C48 | Simplified TC-15 validation steps, fixed ens3 references | `README.md` |

@@ -6,6 +6,10 @@
 # ─────────────────────────────────────────────────────────────
 
 locals {
+
+  # Region mapping — needed by providers.tf for home_region
+  regions_map     = { for r in data.oci_identity_regions.these.regions : r.key => r.name }
+  home_region_key = data.oci_identity_tenancy.this.home_region_key
   # ── Tag namespace (from Sprint 1 — C0 = tenancy root) ──
   tag_namespace_name = "C0-star-elz-v1"
 

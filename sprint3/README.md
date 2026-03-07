@@ -102,17 +102,29 @@ terraform output -json > sprint2_outputs.json
 | `hub_fw/mgmt_subnet_id` + spokes | `*_subnet_id` | Flow logs + ingress RT |
 | `bastion_id` | `bastion_id` | Bastion sessions |
 | `os/ts_fw_instance_id` | `*_fw_instance_id` | Bastion session targets |
-| `hub_fw_private_ip_id` | `hub_fw_private_ip_id` | VCN ingress RT next-hop |
 | `hub_fw_rt_id` | `hub_fw_rt_id` | Import Hub FW RT into Sprint 3 |
-| `hub_sgw_id` | `hub_sgw_id` | SGW route rule in Hub FW RT |
+| ⚠️ `hub_fw_private_ip_id` | `hub_fw_private_ip_id` | **See note below** |
 
-**No hardcoding.** Every Sprint 2 reference is a Terraform variable. Paste OCIDs in ORM once.
+**Private IP OCID — extra step required:**
 
-**DRG handover:** Sprint 2 creates the DRG with auto-generated (default) DRG route tables. Sprint 3 creates custom DRG route tables and reassigns them to attachments using `oci_core_drg_attachment_management`. This doesn't conflict with Sprint 2 state — `drg_attachment_management` only modifies DRG-side properties, not the attachment lifecycle.
+Sprint 2 outputs `hub_fw_private_ip_address` (e.g. `10.0.0.69`). Sprint 3 needs the private IP **OCID** (`ocid1.privateip...`). After Sprint 2 Phase 2 apply, run:
 
-**SGW handover:** Sprint 2 owns all 5 Service Gateways. Sprint 3 references the Hub SGW via `var.hub_sgw_id` for the Hub FW RT route rule. No duplication.
+```bash
+oci network private-ip list \
+  --subnet-id $(terraform output -raw hub_fw_subnet_id) \
+  --ip-address $(terraform output -raw hub_fw_private_ip_address) \
+  --query 'data[0].id' --raw-output
+```
 
-**Cloud-init (Sim FW):** Sprint 2 created Sim FWs with `ip_forward=1` + MASQUERADE on ens3 + `skip_source_dest_check=true`. Sprint 3's forced inspection routing relies on this — DRG sends packets to the Hub VCN, ingress RT points to the Hub FW private IP, the FW forwards packets back to the DRG via rt_r_elz_nw_fw. No cloud-init changes needed.
+Paste the `ocid1.privateip...` into Sprint 3 ORM Variable `hub_fw_private_ip_id`. Wrong value = all spoke-to-spoke traffic black-holes silently.
+
+**No hardcoding.** Every Sprint 2 reference is a Terraform variable. Paste OCIDs in ORM once (plus the private IP OCID from the CLI step above).
+
+**DRG handover:** Sprint 2 creates the DRG with auto-generated (default) DRG route tables. Sprint 3 creates custom DRG route tables and reassigns them to attachments using `oci_core_drg_attachment_management`. No state conflict — `drg_attachment_management` modifies DRG-side properties only.
+
+**SGW handover:** Sprint 2 has NO Service Gateways. Sprint 3 creates the Hub-only SGW in `sec_team4.tf`. Spokes access Oracle services via DRG → Hub FW → SGW (centralised, inspectable).
+
+**Cloud-init (Sim FW):** Sprint 2 created Sim FWs with `ip_forward=1` + firewalld masquerade + `skip_source_dest_check=true`. Sprint 3's forced inspection routing relies on this — no cloud-init changes needed.
 
 ---
 ## Sprint 3 Issue List
@@ -139,12 +151,28 @@ terraform output -json > sprint2_outputs.json
 | S3-T3-01 | Log group for flow logs | T3 | `sec_team3.tf` |
 | S3-T3-02 | Object Storage bucket — log retention | T3 | `sec_team3.tf` |
 
-## Pre-Apply Steps (do these FIRST)
+## Region
 
-1. **Run Sprint 1 IAM patch** — see `SPRINT1_IAM_PATCH_FOR_S3.md`. Re-run Sprint 1 ORM Apply (9 new policy statements, zero destroys).
-2. **Verify Cloud Guard is ENABLED** — Console → Security → Cloud Guard. If not enabled, enable it manually. Sprint 3 creates Cloud Guard recipes/targets which fail if the service isn't on.
-3. **Paste Sprint 2 OCIDs** into Sprint 3 ORM Variables (22 values from `sprint2_outputs.json`).
-4. **Paste SSH public key** into ORM Variable `ssh_public_key` — this is used by Bastion sessions created via Terraform.
+The region is set via `var.region` in ORM Variables. Both sprints use the same pattern.
+
+**To change region** (e.g. `ap-singapore-2` → `ap-singapore-1`):
+- Change `var.region` in Sprint 2 ORM Variables and Sprint 3 ORM Variables
+- Home region is auto-detected from the tenancy via `data.oci_identity_tenancy` — no manual change needed
+- `providers.tf` in both sprints uses `local.regions_map[local.home_region_key]` for the home provider
+
+No code changes required. Just update the ORM variable.
+
+---
+
+## Pre-Apply Steps (do these FIRST on 9 Mar)
+
+1. **Sprint 2 rerun (AM)** — Apply Sprint 2 ORM. Verify TC-07 to TC-19. Export `sprint2_outputs.json`.
+2. **Get Hub FW private IP OCID** — Run the CLI command above. Note the `ocid1.privateip...` value.
+3. **Run Sprint 1 IAM patch** — see `SPRINT1_IAM_PATCH_FOR_S3.md`. Code 9 statements into `sprint1/iam_policies_team1.tf`, re-run Sprint 1 ORM Apply. Zero destroys.
+4. **Verify Cloud Guard is ENABLED** — Console → Security → Cloud Guard.
+5. **Paste Sprint 2 OCIDs + private IP OCID** into Sprint 3 ORM Variables.
+6. **Paste SSH public key** into Sprint 3 ORM Variable `ssh_public_key`.
+7. **Sprint 3 apply (PM)** — Apply Sprint 3 ORM. Verify TC-20 to TC-42.
 
 ---
 
@@ -155,8 +183,67 @@ terraform output -json > sprint2_outputs.json
 | T1 | `sec_team1.tf` | Bastion (OS), Hub FW + OS NSGs, flow logs (hub_fw + OS), VSS recipe + target, SCH | 12 |
 | T2 | `sec_team2.tf` | Bastion (TS), Hub MGMT + TS + SS + DEVT NSGs, flow logs (4), Certificate Authority | 18 |
 | T3 | `sec_team3.tf` + `sec_team3_security.tf` | Log group, bucket, notifications, events, alarm, Vault/KMS, Vault SSH secret, Cloud Guard, Security Zones | 16 |
-| T4 | `sec_team4.tf` | DRG route tables, import distribution, forced inspection, VCN ingress RT, Hub FW RT, DRG attachment management | 12 |
-| **Total** | | | **58** |
+| T4 | `sec_team4.tf` | DRG route tables, import distribution, forced inspection, VCN ingress RT, Hub FW RT, SGW, DRG attachment management | 13 |
+| **Total** | | | **59** |
+
+---
+
+## Sprint 3 Issue List
+
+### Forced Inspection Routing (T4)
+
+| # | Task | Team | File |
+|---|---|---|---|
+| S3-T4-01 | Custom DRG Route Table — Hub (import distribution) | T4 | `sec_team4.tf` |
+| S3-T4-02 | Custom DRG Route Table — Spoke (static 0/0 → Hub) | T4 | `sec_team4.tf` |
+| S3-T4-03 | DRG Import Route Distribution + statement | T4 | `sec_team4.tf` |
+| S3-T4-04 | VCN Ingress Route Table on Hub DRG attachment | T4 | `sec_team4.tf` |
+| S3-T4-05 | Hub FW RT update — add spoke CIDRs → DRG (import from Sprint 2) | T4 | `sec_team4.tf` |
+| S3-T4-06 | Service Gateway — Hub VCN (centralised Oracle service access) | T4 | `sec_team4.tf` |
+| S3-T4-07 | DRG attachment management — reassign all 5 to custom RTs | T4 | `sec_team4.tf` |
+
+### Bastion Sessions + NSGs + Observability (T1)
+
+| # | Task | Team | File |
+|---|---|---|---|
+| S3-T1-01 | Bastion session — OS Sim FW (PORT_FORWARDING) | T1 | `sec_team1.tf` |
+| S3-T1-02 | NSG — Hub FW subnet | T1 | `sec_team1.tf` |
+| S3-T1-03 | NSG — OS spoke subnet | T1 | `sec_team1.tf` |
+| S3-T1-04 | Flow logs — Hub FW + OS subnets | T1 | `sec_team1.tf` |
+| S3-T1-05 | VSS host scan recipe + target | T1 | `sec_team1.tf` |
+| S3-T1-06 | Service Connector Hub — flow logs → bucket | T1 | `sec_team1.tf` |
+
+### Bastion Sessions + NSGs + Observability + Cert (T2)
+
+| # | Task | Team | File |
+|---|---|---|---|
+| S3-T2-01 | Bastion session — TS Sim FW (PORT_FORWARDING) | T2 | `sec_team2.tf` |
+| S3-T2-02 | NSGs — Hub MGMT + TS + SS + DEVT subnets | T2 | `sec_team2.tf` |
+| S3-T2-03 | Flow logs — Hub MGMT + TS + SS + DEVT subnets | T2 | `sec_team2.tf` |
+| S3-T2-04 | Certificate Authority (V2 readiness) | T2 | `sec_team2.tf` |
+
+### Security Services (T3)
+
+| # | Task | Team | File |
+|---|---|---|---|
+| S3-T3-01 | Log group for flow logs | T3 | `sec_team3.tf` |
+| S3-T3-02 | Object Storage bucket — log retention | T3 | `sec_team3.tf` |
+| S3-T3-03 | Notification topic + events rule + alarm | T3 | `sec_team3.tf` |
+| S3-T3-04 | Vault (Virtual Private) + AES-256 Master Key | T3 | `sec_team3_security.tf` |
+| S3-T3-05 | SSH public key — Vault secret | T3 | `sec_team3_security.tf` |
+| S3-T3-06 | Cloud Guard — detector recipes + responder + target | T3 | `sec_team3_security.tf` |
+| S3-T3-07 | Security Zones — SEC + NW compartments | T3 | `sec_team3_security.tf` |
+
+### Pre-Apply (before ORM Apply)
+
+| # | Task | Owner |
+|---|---|---|
+| S3-PRE-01 | Run Sprint 1 IAM patch (9 new policy statements) | Architect |
+| S3-PRE-02 | Verify Cloud Guard is ENABLED | Architect |
+| S3-PRE-03 | Paste 22 Sprint 2 OCIDs into ORM Variables | Architect |
+| S3-PRE-04 | Paste SSH public key into ORM Variable | All teams |
+
+Apply order: T1/T2/T3 first (no inter-team deps), T4 last (forced inspection routing depends on T3 log group for flow logs).
 
 ---
 
@@ -166,8 +253,8 @@ The same SSH key is used in three places across Sprint 2 and Sprint 3:
 
 | Where | What | Why |
 |---|---|---|
-| Sprint 2: instance metadata `ssh_authorized_keys` | Key baked into all 4 Sim FW instances | Defence-in-depth — backup SSH path if Cloud Agent fails |
-| Sprint 3: Bastion session `key_details` | Key used when Terraform creates Managed SSH sessions | Bastion authenticates using this key via Cloud Agent |
+| Sprint 2: instance metadata `ssh_authorized_keys` | Key baked into all 4 Sim FW instances | PORT_FORWARDING connects directly to sshd — key must be on instance |
+| Sprint 3: Bastion session `key_details` | Key used when Terraform creates PORT_FORWARDING sessions | Bastion presents key to instance sshd via TCP proxy |
 | Sprint 3: Vault secret `ssh-public-key` | Key stored encrypted in `vlt_r_elz_sec` | Audit trail + production pattern (V2: reference via data source) |
 
 **How to provide:** Paste contents of `~/.ssh/id_rsa.pub` into ORM Variable `ssh_public_key` (both Sprint 2 and Sprint 3 stacks). If you don't have a key: `ssh-keygen -t rsa -b 4096`.

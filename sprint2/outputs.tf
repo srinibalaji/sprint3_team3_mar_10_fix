@@ -66,7 +66,15 @@ output "devt_drg_attachment_id" {
   value = length(oci_core_drg_attachment.devt) > 0 ? oci_core_drg_attachment.devt[0].id : "phase2-not-applied"
 }
 
-output "hub_fw_private_ip_id" {
-  description = "Hub Sim FW VNIC private IP. Sprint 3 VCN ingress RT next-hop."
-  value       = length(oci_core_instance.sim_fw_hub) > 0 ? oci_core_instance.sim_fw_hub[0].private_ip : "phase2-not-applied"
+output "hub_fw_private_ip_address" {
+  description = <<-DESC
+    Hub Sim FW private IP ADDRESS (e.g. 10.0.0.x).
+    Sprint 3 needs the private IP OCID, not this address. After Phase 2 apply, run:
+      oci network private-ip list --subnet-id <hub_fw_subnet_id> \
+        --ip-address $(terraform output -raw hub_fw_private_ip_address) \
+        --query 'data[0].id' --raw-output
+    Paste the ocid1.privateip... into Sprint 3 ORM as hub_fw_private_ip_id.
+    Wrong value = all spoke-to-spoke traffic black-holes silently.
+  DESC
+  value = length(oci_core_instance.sim_fw_hub) > 0 ? oci_core_instance.sim_fw_hub[0].private_ip : "phase2-not-applied"
 }

@@ -3,6 +3,13 @@
 # Shared lookups used by multiple team files.
 # ─────────────────────────────────────────────────────────────
 
+# Regions and tenancy — needed by providers.tf for home_region lookup
+data "oci_identity_regions" "these" {}
+
+data "oci_identity_tenancy" "this" {
+  tenancy_id = var.tenancy_ocid
+}
+
 # Object Storage namespace — required for bucket creation
 data "oci_objectstorage_namespace" "ns" {
   compartment_id = var.tenancy_ocid

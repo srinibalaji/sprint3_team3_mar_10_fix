@@ -39,7 +39,7 @@ resource "oci_core_vcn" "ts" {
 }
 
 # [S2-T2] Route Table for TS compartment
-# SGW rule always present (Cloud Agent + yum). DRG rule added Phase 2.
+# DRG rule added Phase 2.
 resource "oci_core_route_table" "ts_app" {
   compartment_id = var.ts_compartment_id
   vcn_id         = oci_core_vcn.ts.id

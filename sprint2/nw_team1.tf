@@ -46,7 +46,7 @@ resource "oci_core_vcn" "os" {
 }
 
 # [S2-T1] Route Table for OS compartment
-# SGW rule always present (Cloud Agent + yum). DRG rule added Phase 2.
+# DRG rule added Phase 2.
 resource "oci_core_route_table" "os_app" {
   compartment_id = var.os_compartment_id
   vcn_id         = oci_core_vcn.os.id
@@ -69,7 +69,6 @@ resource "oci_core_route_table" "os_app" {
   depends_on = [oci_core_drg_attachment.os]
 }
 
-# Service Gateway for OS VCN — Cloud Agent on Sim FW needs OCI service access
 
 # Subnet references route table directly — OCI native pattern (no separate attachment resource)
 resource "oci_core_subnet" "os_app" {

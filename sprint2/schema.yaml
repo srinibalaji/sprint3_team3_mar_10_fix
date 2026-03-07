@@ -65,6 +65,7 @@ variableGroups:
   - title: "8. Bastion"
     variables:
       - bastion_client_cidr
+      - ssh_public_key
 
 variables:
 
@@ -280,3 +281,9 @@ variables:
     title: "Bastion Allowed Client CIDR"
     description: "CIDR allowed to open Bastion sessions. Default: 0.0.0.0/0. Restrict for production."
     default: "0.0.0.0/0"
+
+  ssh_public_key:
+    type: string
+    title: "SSH Public Key"
+    description: "Public key for Sim FW SSH access. Paste contents of ~/.ssh/id_rsa.pub. Used by Bastion sessions and stored in instance metadata."
+    required: true

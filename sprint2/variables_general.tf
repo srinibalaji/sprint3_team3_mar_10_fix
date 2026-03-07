@@ -100,3 +100,17 @@ variable "lz_cost_center" {
     error_message = "lz_cost_center must be 1-32 characters."
   }
 }
+
+# =============================================================================
+# SSH KEY — Sim FW instance access
+# =============================================================================
+# Added to instance metadata as ssh_authorized_keys. Provides:
+# - Defence-in-depth: direct SSH path if Bastion/Cloud Agent fails
+# - Sprint 3: Terraform Bastion sessions use the same key
+# - Future: Port forwarding sessions need matching instance key
+# Paste contents of ~/.ssh/id_rsa.pub
+# =============================================================================
+variable "ssh_public_key" {
+  description = "SSH public key for Sim FW instances. Paste contents of ~/.ssh/id_rsa.pub"
+  type        = string
+}

@@ -115,6 +115,27 @@ terraform output -json > sprint2_outputs.json
 **Cloud-init (Sim FW):** Sprint 2 created Sim FWs with `ip_forward=1` + MASQUERADE on ens3 + `skip_source_dest_check=true`. Sprint 3's forced inspection routing relies on this — DRG sends packets to the Hub VCN, ingress RT points to the Hub FW private IP, the FW forwards packets back to the DRG via rt_r_elz_nw_fw. No cloud-init changes needed.
 
 ---
+## Sprint 3 Issue List
+
+146:| S3-T4-01 | Custom DRG Route Table — Hub (import distribution) | T4 | `sec_team4.tf` |
+147:| S3-T4-02 | Custom DRG Route Table — Spoke (static 0/0 → Hub) | T4 | `sec_team4.tf` |
+148:| S3-T4-03 | DRG Import Route Distribution + statement | T4 | `sec_team4.tf` |
+149:| S3-T4-04 | VCN Ingress Route Table on Hub DRG attachment | T4 | `sec_team4.tf` |
+150:| S3-T4-05 | Hub FW RT update — add spoke CIDRs → DRG (import from Sprint 2) | T4 | `sec_team4.tf` |
+151:| S3-T4-06 | Service Gateway — Hub VCN (centralised Oracle service access) | T4 | `sec_team4.tf` |
+152:| S3-T4-07 | DRG attachment management — reassign all 5 to custom RTs | T4 | `sec_team4.tf` |
+158:| S3-T1-01 | Bastion session — OS Sim FW (PORT_FORWARDING) | T1 | `sec_team1.tf` |
+159:| S3-T1-02 | NSG — Hub FW subnet | T1 | `sec_team1.tf` |
+160:| S3-T1-03 | NSG — OS spoke subnet | T1 | `sec_team1.tf` |
+161:| S3-T1-04 | Flow logs — Hub FW + OS subnets | T1 | `sec_team1.tf` |
+162:| S3-T1-05 | VSS host scan recipe + target | T1 | `sec_team1.tf` |
+163:| S3-T1-06 | Service Connector Hub — flow logs → bucket | T1 | `sec_team1.tf` |
+169:| S3-T2-01 | Bastion session — TS Sim FW (PORT_FORWARDING) | T2 | `sec_team2.tf` |
+170:| S3-T2-02 | NSGs — Hub MGMT + TS + SS + DEVT subnets | T2 | `sec_team2.tf` |
+171:| S3-T2-03 | Flow logs — Hub MGMT + TS + SS + DEVT subnets | T2 | `sec_team2.tf` |
+172:| S3-T2-04 | Certificate Authority (V2 readiness) | T2 | `sec_team2.tf` |
+178:| S3-T3-01 | Log group for flow logs | T3 | `sec_team3.tf` |
+179:| S3-T3-02 | Object Storage bucket — log retention | T3 | `sec_team3.tf` |
 
 ## Pre-Apply Steps (do these FIRST)
 

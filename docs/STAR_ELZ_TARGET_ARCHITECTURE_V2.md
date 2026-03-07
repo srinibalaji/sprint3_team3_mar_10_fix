@@ -4,7 +4,6 @@
 
 ---
 
-<!--
   HOW TO READ THIS DOCUMENT
 
   This document has three movements:
@@ -33,13 +32,11 @@
     WHY  — why it is structured this way
     HOW  — how it connects to what comes before and after it
     RISK — what breaks if this is done wrong
--->
 
 ---
 
 ## 1. Current State — The Exact File Tree
 
-<!--
   This is what exists in OCI Resource Manager right now.
   Three stacks. Twenty-nine Terraform files. Seventy-plus resources.
   Everything built by hand, by four teams, in parallel.
@@ -47,7 +44,6 @@
   READ THIS SECTION AS A RECORD, NOT A TARGET.
   The question this section answers is:
   "What did we actually build, and where did we put it?"
--->
 
 ```
 star-elz-v1/
@@ -246,7 +242,6 @@ star-elz-v1/
 
 ## 3. The Three Module Slices — Concept
 
-<!--
   EVERY RESOURCE IN SPRINTS 1, 2, 3 maps to exactly one of three slices.
   This is not a new architecture. It is the same architecture in better containers.
 
@@ -274,7 +269,6 @@ star-elz-v1/
 
     The module enforces the standard. The caller provides the variation.
     The platform enforces consistency across every tenant.
--->
 
 ```
 THREE SLICES — the platform foundation
@@ -333,7 +327,6 @@ THREE SLICES — the platform foundation
 
 ## 4. From Modules to Stacks — How They Compose
 
-<!--
   A MODULE is a single reusable unit.
   A STACK is a deployable composition of modules.
   A BLUEPRINT is a named, validated, versioned stack composition — a standard.
@@ -362,7 +355,6 @@ THREE SLICES — the platform foundation
     Root Security stack  → reads: VCN/DRG IDs, writes: vault ID, key ID, zone IDs
     Child IAM stack      → reads: root governance rule IDs (for compliance enforcement)
     Child Network stack  → reads: root hub_drg_id (for RPC attachment)
--->
 
 ```
 THE COMPLETE STACK COMPOSITION
@@ -437,7 +429,6 @@ stacks/
 
 ## 5. The Blueprint Catalogue — What a Tenant Chooses
 
-<!--
   THIS IS WHERE THE PLATFORM BECOMES SELF-SERVICE.
 
   A BLUEPRINT is a named, versioned, validated pattern that corresponds
@@ -459,7 +450,6 @@ stacks/
   The catalogue is hierarchical. A Level 3 blueprint CALLS Level 2 blueprints,
   which CALL Level 1 modules. At each level, the tenant sees fewer inputs
   because the blueprint enforces the standards.
--->
 
 ### Blueprint Catalogue
 
@@ -596,7 +586,6 @@ blueprints/
 
 ## 6. Tenant Onboarding — The ClickOps Path
 
-<!--
   THIS IS WHAT "SELF-SERVICE" MEANS IN PRACTICE FOR THE STAR TEAM.
 
   "ClickOps" here does not mean ad-hoc console operations.
@@ -643,7 +632,6 @@ blueprints/
     ✓ All flow logs: Object Storage bucket, versioning on, no public access
     ✓ All VCN route tables: 0.0.0.0/0 via DRG (no direct internet path)
     ✓ All DRG attachments: spoke_to_hub RT assigned (force inspection)
--->
 
 ```
 TENANT ARRIVAL → DEPLOYMENT FLOW
@@ -701,7 +689,6 @@ TENANT ARRIVAL → DEPLOYMENT FLOW
 
 ## 7. Parent–Child Tenancy Model — Governance and Trust
 
-<!--
   THE CRITICAL DISTINCTION:
 
   A COMPARTMENT is a logical namespace inside one OCI tenancy.
@@ -727,7 +714,6 @@ TENANT ARRIVAL → DEPLOYMENT FLOW
     This matters in an isolated region: the physical BOM is fixed.
     One unconstrained child could exhaust the region's entire
     OCPU pool. Zero+set makes this architecturally impossible.
--->
 
 ```
 ROOT TENANCY  (Governed by: STAR Team Platform)
@@ -778,7 +764,6 @@ ROOT TENANCY  (Governed by: STAR Team Platform)
 
 ## 8. Security and Performance — OCI Isolated Region Specifics
 
-<!--
   AN ISOLATED REGION IS NOT PUBLIC OCI.
   THE ASSUMPTIONS THAT HOLD IN ap-sydney DO NOT HOLD HERE.
 
@@ -867,13 +852,11 @@ ROOT TENANCY  (Governed by: STAR Team Platform)
     at moderate traffic volumes (1,000 flows/second per subnet).
     With 6 subnets: budget 6 GB/day, ~180 GB/month.
     Set quota on bkt_r_elz_sec_logs at provisioning time.
--->
 
 ---
 
 ## 9. Current to Future — The Exact Migration Map
 
-<!--
   THIS IS THE ANSWER TO: "HOW DOES WHAT WE BUILT BECOME WHAT WE NEED?"
 
   The mapping is one-to-one. No resources are thrown away.
@@ -890,7 +873,6 @@ ROOT TENANCY  (Governed by: STAR Team Platform)
   In a sovereign region with live workloads, a VCN destroy = full outage.
   Every resource extraction requires a corresponding moved{} block.
   Validate: terraform plan must show ZERO destroys before apply.
--->
 
 ### Sprint 1 → IAM Slice
 

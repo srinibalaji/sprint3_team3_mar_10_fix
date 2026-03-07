@@ -237,22 +237,22 @@ For OCI Console access in the isolated region:
 ISOLATED REGION BOUNDARY
 ┌────────────────────────────────────────────────────────────────┐
 │                                                                │
-│  Admin workstation (inside boundary)                          │
+│  Admin workstation (inside boundary)                           │
 │       │                                                        │
 │       │ SSH + private key                                      │
 │       ▼                                                        │
-│  OCI Bastion (bas_r_elz_nw_hub)                               │
-│  Hub MGMT subnet 10.0.1.0/24 — private                       │
+│  OCI Bastion (bas_r_elz_nw_hub)                                │
+│  Hub MGMT subnet 10.0.1.0/24 — private                         │
 │  PORT_FORWARDING — TCP tunnel to port 22                       │
 │       │                                                        │
-│       ├──→ Hub Sim FW (fw_r_elz_nw_hub_sim) 10.0.0.x        │
-│       ├──→ OS Sim FW  (fw_os_elz_nw_sim)    10.1.0.x        │
-│       ├──→ TS Sim FW  (fw_ts_elz_nw_sim)    10.3.0.x        │
-│       └──→ SS Sim FW  (fw_ss_elz_nw_sim)    10.2.0.x        │
+│       ├──→ Hub Sim FW (fw_r_elz_nw_hub_sim) 10.0.0.x           │
+│       ├──→ OS Sim FW  (fw_os_elz_nw_sim)    10.1.0.x           │
+│       ├──→ TS Sim FW  (fw_ts_elz_nw_sim)    10.3.0.x           │
+│       └──→ SS Sim FW  (fw_ss_elz_nw_sim)    10.2.0.x           │
 │                                                                │
 │  For automation (no SSH):                                      │
-│  Instance → OCI APIs via Instance Principal (no keys)         │
-│  Instance → OCI Vault → retrieve secrets at runtime           │
+│  Instance → OCI APIs via Instance Principal (no keys)          │
+│  Instance → OCI Vault → retrieve secrets at runtime            │
 │                                                                │
 └────────────────────────────────────────────────────────────────┘
 ```

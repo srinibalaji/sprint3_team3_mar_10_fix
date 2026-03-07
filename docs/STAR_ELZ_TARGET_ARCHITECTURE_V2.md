@@ -554,7 +554,7 @@ blueprints/
     │     agency_name     "Analytics Division"
     │     agency_code     "ANA"            (becomes resource naming prefix)
     │     vcn_cidr        "10.6.0.0/24"    (must not overlap existing)
-    │     team_email      "ana@star.gov.sg" (for ONS alert subscription)
+    │     team_email      "ana@star.com" (for ONS alert subscription)
     │     classification  RESTRICTED | CONFIDENTIAL | SECRET
     │     enable_lb       yes / no
     │   RESULT: 15 resources deployed, 0 Terraform knowledge required
@@ -1035,7 +1035,7 @@ star-elz-v2/
 ## 10. Build Sequence — First Run to Steady State
 
 ```
-PHASE 0 — PREREQUISITES (before any Terraform)              Effort: 0.5d
+PHASE 0 — PREREQUISITES (before any Terraform)              
   • Create Object Storage bucket: star-elz-tfstate-ap-singapore-2
   • Enable bucket versioning (protects state history)
   • Create Dynamic Group: dg_cicd_runners (matches ORM runner instances)
@@ -1043,12 +1043,12 @@ PHASE 0 — PREREQUISITES (before any Terraform)              Effort: 0.5d
   • Commit .terraform.lock.hcl — provider version lock
     (mandatory for air-gapped init — no internet to resolve versions)
 
-PHASE 1 — SECURITY LISTS (immediate — fixes TC-13/14/18)    Effort: 0.5d
+PHASE 1 — SECURITY LISTS (immediate — fixes TC-13/14/18)    
   • Build modules/security/security_list from Sprint 2 security_list absence
   • Add to stack_network with moved{} block pointing to existing subnets
   • Validate: NPA spoke→hub shows REACHABLE, not DROPPED
 
-PHASE 2 — STATE MIGRATION (highest risk — do in non-prod first) Effort: 3d
+PHASE 2 — STATE MIGRATION (highest risk — do in non-prod first) 
   • Write migrations/sprint2_to_network.tf (moved{} for all Sprint 2 resources)
   • Write migrations/sprint1_to_iam.tf
   • Write migrations/sprint3_to_security.tf
@@ -1056,31 +1056,31 @@ PHASE 2 — STATE MIGRATION (highest risk — do in non-prod first) Effort: 3d
     (only "moved" lines are acceptable in plan output)
   • Apply. Verify state addresses updated. Remove migrations/ files.
 
-PHASE 3 — MODULE EXTRACTION (no functional change)          Effort: 6d
+PHASE 3 — MODULE EXTRACTION (no functional change)        
   • Extract Sprint 1 → modules/iam/*       + rebuild stack_iam
   • Extract Sprint 2 → modules/networking/* + rebuild stack_network
   • Extract Sprint 3 → modules/security/*   + rebuild stack_security
   • Wire cross-stack terraform_remote_state data sources
   • Validate: all TC-07 through TC-27 still pass after extraction
 
-PHASE 4 — BLUEPRINT LAYER                                   Effort: 4d
+PHASE 4 — BLUEPRINT LAYER                                 
   • Build schema.yaml for bp-new-agency-root
   • Build schema.yaml for bp-new-child-tenancy
   • Register blueprints in ORM Stack Catalogue
   • Test: deploy bp-new-agency-root with agency_code="TEST", then destroy
 
-PHASE 5 — CHILD TENANCY (Sprint 4 scope)                   Effort: 5d
+PHASE 5 — CHILD TENANCY (Sprint 4 scope)                   
   • modules/networking/child_vcn (RPC → root Hub)
   • stack_child_iam + stack_child_network
   • stack_organisation (governance rules)
   • bp-new-child-tenancy end-to-end
 
-PHASE 6 — EXTERNAL BOUNDARY (Sprint 4 scope)               Effort: 3d
+PHASE 6 — EXTERNAL BOUNDARY (Sprint 4 scope)           
   • modules/networking/spoke_ext
   • bp-ext-boundary
   • Connects to physical cross-connect DRG (not Hub DRG)
 
-PHASE 7 — POLICY AS CODE                                    Effort: 3d
+PHASE 7 — POLICY AS CODE                                   
   • governance/sentinel/deny_public_ip.sentinel
   • governance/sentinel/require_tags.sentinel
   • governance/sentinel/enforce_encryption.sentinel
@@ -1088,7 +1088,6 @@ PHASE 7 — POLICY AS CODE                                    Effort: 3d
   • governance/cis/cis_benchmark_v2_mapping.md
 
                                                 ─────────────
-TOTAL                                            ~25 working days
 ```
 
 ---

@@ -524,25 +524,25 @@ This gives a unified SIEM view of both OCI-native and third-party workload secur
 │                    OCI CNAPP for STAR ELZ V1                    │
 ├──────────────────┬──────────────────────────────────────────────┤
 │ CSPM             │ Cloud Guard Config Detector                  │
-│                  │ CIS OCI Foundations Benchmark alignment       │
-│                  │ Security Zones (preventive enforcement)       │
+│                  │ CIS OCI Foundations Benchmark alignment      │
+│                  │ Security Zones (preventive enforcement)      │
 ├──────────────────┼──────────────────────────────────────────────┤
 │ CWPP             │ VSS host scanning (CVE / NVD / OVAL)         │
 │                  │ VSS CIS Benchmark scan per host              │
 │                  │ VSS container image scanning (OCIR)          │
-│                  │ Cloud Guard Instance Security                 │
+│                  │ Cloud Guard Instance Security                │
 ├──────────────────┼──────────────────────────────────────────────┤
 │ CDR              │ Cloud Guard Threat Detector (MITRE ATT&CK)   │
-│                  │ Activity Detector (IAM, API, network changes) │
+│                  │ Activity Detector (IAM, API, network changes)│
 │                  │ VCN Flow Logs (network forensics)            │
 ├──────────────────┼──────────────────────────────────────────────┤
-│ SOAR             │ Responder Recipes (auto + manual remediation) │
+│ SOAR             │ Responder Recipes (auto + manual remediation)│
 │                  │ OCI Events → Functions → external ticketing  │
 ├──────────────────┼──────────────────────────────────────────────┤
 │ Observability    │ OCI Logging + SCH + Object Storage retention │
 │                  │ ONS alerts + Monitoring alarms               │
 ├──────────────────┼──────────────────────────────────────────────┤
-│ SIEM             │ OCI Streaming → Splunk / QRadar             │
+│ SIEM             │ OCI Streaming → Splunk / QRadar              │
 │                  │ Audit + VCN Flow + Cloud Guard events        │
 ├──────────────────┼──────────────────────────────────────────────┤
 │ Isolation        │ Air-gapped OCI Isolated Region               │

@@ -215,8 +215,6 @@ star-elz-v1/
 
 ## 2. What the Flat Files Prove — and Where They Break
 
-<!--
-  THE FLAT FILES ARE NOT A FAILURE.
   They proved the architecture is correct. They validated the network fabric,
   the DRG routing, the Bastion access path, the Vault integration, the Cloud
   Guard posture. That is what Sprints 1–3 were for.
@@ -243,7 +241,6 @@ star-elz-v1/
     and get a consistent, validated deployment without touching HCL.
 
   The platform built in Sections 3–6 solves all three.
--->
 
 ---
 

@@ -20,10 +20,9 @@ resource "oci_bastion_session" "os_ssh" {
   }
 
   target_resource_details {
-    session_type                               = "MANAGED_SSH"
-    target_resource_id                         = var.os_fw_instance_id
-    target_resource_operating_system_user_name = "opc"
-    target_resource_port                       = 22
+    session_type       = "PORT_FORWARDING"
+    target_resource_id = var.os_fw_instance_id
+    target_resource_port = 22
   }
 
   display_name           = local.bastion_session_os_name
@@ -133,6 +132,7 @@ resource "oci_logging_log" "os_app_flow" {
 # ═══════════════════════════════════════════════════════════════
 
 resource "oci_vulnerability_scanning_host_scan_recipe" "standard" {
+  count          = var.enable_vss ? 1 : 0
   compartment_id = var.sec_compartment_id
   display_name   = local.vss_recipe_name
 
@@ -157,8 +157,9 @@ resource "oci_vulnerability_scanning_host_scan_recipe" "standard" {
 }
 
 resource "oci_vulnerability_scanning_host_scan_target" "nw_instances" {
+  count                 = var.enable_vss ? 1 : 0
   compartment_id        = var.sec_compartment_id
-  host_scan_recipe_id   = oci_vulnerability_scanning_host_scan_recipe.standard.id
+  host_scan_recipe_id   = oci_vulnerability_scanning_host_scan_recipe.standard[0].id
   display_name          = local.vss_target_name
   target_compartment_id = var.nw_compartment_id
 
@@ -185,7 +186,7 @@ resource "oci_sch_service_connector" "flow_to_bucket" {
   target {
     kind                       = "objectStorage"
     bucket                     = oci_objectstorage_bucket.logs.name
-    namespace                  = data.oci_objectstorage_namespace.this.namespace
+    namespace                  = data.oci_objectstorage_namespace.ns.namespace
     object_name_prefix         = "flow-logs/"
   }
 

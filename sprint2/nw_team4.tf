@@ -68,13 +68,6 @@ resource "oci_core_route_table" "hub_fw" {
   vcn_id         = oci_core_vcn.hub.id
   display_name   = local.hub_fw_rt_name
 
-  route_rules {
-    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
-    destination_type  = "SERVICE_CIDR_BLOCK"
-    network_entity_id = oci_core_service_gateway.hub.id
-  }
-
   freeform_tags = local.net_freeform_tags
   defined_tags  = local.net_defined_tags
 }
@@ -141,33 +134,12 @@ resource "oci_core_drg" "ew_hub" {
 # Service Gateway — required for Bastion Managed SSH and cloud-init yum access.
 # Cloud Agent on Sim FW instances needs a route to OCI services (Oracle Services Network)
 # for the Bastion plugin to initialise. Without this, plugin state → INVALID.
-# Also required for dnf/yum (iptables-services install during cloud-init).
-resource "oci_core_service_gateway" "hub" {
-  compartment_id = var.nw_compartment_id
-  vcn_id         = oci_core_vcn.hub.id
-  display_name   = local.hub_sgw_name
-
-  services {
-    service_id = data.oci_core_services.all_oci_services.services[0].id
-  }
-
-  freeform_tags = local.net_freeform_tags
-  defined_tags  = local.net_defined_tags
-}
 
 # Hub MGMT Route Table — SGW always present, DRG rule added Phase 2
 resource "oci_core_route_table" "hub_mgmt" {
   compartment_id = var.nw_compartment_id
   vcn_id         = oci_core_vcn.hub.id
   display_name   = local.hub_mgmt_rt_name
-
-  # Service Gateway — always present (Cloud Agent + yum)
-  route_rules {
-    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
-    destination_type  = "SERVICE_CIDR_BLOCK"
-    network_entity_id = oci_core_service_gateway.hub.id
-  }
 
   # DRG route — Phase 2 only (spoke access for Bastion sessions)
   dynamic "route_rules" {
@@ -267,17 +239,6 @@ resource "oci_core_instance" "sim_fw_hub" {
     assign_public_ip       = false # V1 isolated design — no public IP, no IGW
     skip_source_dest_check = true  # REQUIRED: enables IP forwarding
     freeform_tags          = local.cmp_freeform_tags
-  }
-
-  agent_config {
-    are_all_plugins_disabled = false
-    is_management_disabled   = false
-    is_monitoring_disabled   = false
-
-    plugins_config {
-      name          = "Bastion"
-      desired_state = "ENABLED"
-    }
   }
 
   metadata = {

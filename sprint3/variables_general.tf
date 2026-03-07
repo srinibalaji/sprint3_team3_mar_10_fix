@@ -14,11 +14,6 @@ variable "region" {
   default     = "ap-singapore-2"
 }
 
-variable "home_region" {
-  description = "Home region for IAM operations"
-  type        = string
-  default     = "ap-singapore-2"
-}
 
 variable "service_label" {
   description = "Service label — used in tags and descriptions only, never in resource names"
@@ -29,4 +24,22 @@ variable "service_label" {
 variable "ssh_public_key" {
   description = "SSH public key for Bastion sessions and compute access"
   type        = string
+}
+
+variable "enable_vss" {
+  description = "Enable Vulnerability Scanning Service. Set false if VSS not available in isolated region."
+  type        = bool
+  default     = false
+}
+
+variable "lz_environment" {
+  description = "Environment for tagging: poc, dev, uat, prod."
+  type        = string
+  default     = "poc"
+}
+
+variable "lz_cost_center" {
+  description = "Cost center for tagging."
+  type        = string
+  default     = "STAR-ELZ-V1"
 }

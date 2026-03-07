@@ -45,13 +45,6 @@ resource "oci_core_route_table" "ts_app" {
   vcn_id         = oci_core_vcn.ts.id
   display_name   = local.ts_app_rt_name
 
-  route_rules {
-    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
-    destination_type  = "SERVICE_CIDR_BLOCK"
-    network_entity_id = oci_core_service_gateway.ts.id
-  }
-
   dynamic "route_rules" {
     for_each = local.phase2_enabled ? [1] : []
     content {
@@ -68,18 +61,6 @@ resource "oci_core_route_table" "ts_app" {
   depends_on = [oci_core_drg_attachment.ts]
 }
 
-resource "oci_core_service_gateway" "ts" {
-  compartment_id = var.ts_compartment_id
-  vcn_id         = oci_core_vcn.ts.id
-  display_name   = "sgw_ts_elz_nw"
-
-  services {
-    service_id = data.oci_core_services.all_oci_services.services[0].id
-  }
-
-  freeform_tags = local.net_freeform_tags
-  defined_tags  = local.net_defined_tags
-}
 
 resource "oci_core_subnet" "ts_app" {
   compartment_id             = var.ts_compartment_id
@@ -156,17 +137,6 @@ resource "oci_core_instance" "sim_fw_ts" {
     assign_public_ip       = false
     skip_source_dest_check = true
     freeform_tags          = local.cmp_freeform_tags
-  }
-
-  agent_config {
-    are_all_plugins_disabled = false
-    is_management_disabled   = false
-    is_monitoring_disabled   = false
-
-    plugins_config {
-      name          = "Bastion"
-      desired_state = "ENABLED"
-    }
   }
 
   metadata = {

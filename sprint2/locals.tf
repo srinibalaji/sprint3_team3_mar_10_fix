@@ -33,7 +33,7 @@ locals {
   anywhere                    = "0.0.0.0/0"
   oci_services_cidr           = "all-${local.region_key}-services-in-oracle-services-network"
   oci_objectstorage_cidr      = "oci-${local.region_key}-objectstorage"
-  valid_service_gateway_cidrs = [local.oci_services_cidr, local.oci_objectstorage_cidr]
+  valid_service_gateway_cidrs = [local.oci_services_cidr, local.oci_objectstorage_cidr] # Sprint 3 use
 
   # ---------------------------------------------------------------------------
   # LANDING ZONE DESCRIPTION + TAGGING — consistent with sprint1
@@ -101,7 +101,6 @@ locals {
   hub_bastion_name = "bas_r_elz_nw_hub"
 
   # Service Gateway Name
-  hub_sgw_name = "sgw_r_elz_nw_hub"
 
   # Security List Names — Sprint 2 validation (allow internal 10.0.0.0/8)
   # Sprint 3 replaces with NSGs and tightened rules
@@ -194,37 +193,23 @@ locals {
   sim_fw_image_id = data.oci_core_images.platform_oel8.images[0].id
 
   # Sim FW cloud-init — Oracle Linux 8 (E4.Flex primary NIC: ens3)
-  # OL8 uses consistent network device naming — primary NIC is ens3, not eth0.
-  # Enables persistent IP forwarding and NAT masquerade via iptables-services.
-  # NOTE: firewalld is intentionally NOT used — it conflicts with iptables-services
-  # on OL8 when both are active. iptables-services is the correct OL/RHEL approach.
-  # OCI requirement: skip_source_dest_check = true must ALSO be set on the VNIC
-  # (done in each team file) — cloud-init alone is insufficient for OCI forwarding.
+  # Uses firewalld (ships with OL8) — zero package installs, zero outbound deps.
+  # No SGW needed for cloud-init. Boots clean from local disk every time.
   sim_fw_userdata = base64encode(<<-EOT
     #!/bin/bash
-    # STAR ELZ V1 — Sim Firewall bootstrap (Oracle Linux 8 / E4.Flex)
-    # Enables persistent IP forwarding and NAT masquerade for spoke routing simulation.
+    set -e
 
-    # Step 1: Persist IP forwarding via sysctl.d (survives reboot)
+    # Step 1: Persist IP forwarding (survives reboot)
     echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/99-ipforward.conf
     sysctl --system
 
-    # Step 2: Install iptables-services (Oracle Linux / RHEL persistence layer)
-    dnf -y install iptables-services
+    # Step 2: Enable masquerade via firewalld (native to OL8, no install needed)
+    firewall-cmd --permanent --add-masquerade
+    firewall-cmd --permanent --add-service=ssh
+    firewall-cmd --permanent --add-protocol=icmp
+    firewall-cmd --reload
 
-    # Step 3: Detect primary interface (ens3 on OL8 E4.Flex, eth0 on older shapes)
-    PRIMARY_IF=$(ip -o -4 route show default 2>/dev/null | awk '{print $5}' | head -1)
-    [ -z "$PRIMARY_IF" ] && PRIMARY_IF=$(ip -o link show up | grep -v lo | awk -F': ' '{print $2}' | head -1)
-    [ -z "$PRIMARY_IF" ] && PRIMARY_IF="ens3"
-
-    # Step 4: Add NAT masquerade rule on primary interface
-    iptables -t nat -A POSTROUTING -o $PRIMARY_IF -j MASQUERADE
-
-    # Step 5: Persist iptables rules and enable service across reboots
-    service iptables save
-    systemctl enable --now iptables
-
-    echo "Sim FW bootstrap complete — interface=$PRIMARY_IF $(date)" >> /var/log/star-elz-simfw-init.log
+    echo "Sim FW bootstrap complete $(date)" >> /var/log/star-elz-simfw-init.log
   EOT
   )
 }

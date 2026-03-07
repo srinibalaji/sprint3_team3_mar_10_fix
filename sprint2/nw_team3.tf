@@ -53,13 +53,6 @@ resource "oci_core_route_table" "ss_app" {
   vcn_id         = oci_core_vcn.ss.id
   display_name   = local.ss_app_rt_name
 
-  route_rules {
-    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
-    destination_type  = "SERVICE_CIDR_BLOCK"
-    network_entity_id = oci_core_service_gateway.ss.id
-  }
-
   dynamic "route_rules" {
     for_each = local.phase2_enabled ? [1] : []
     content {
@@ -76,18 +69,6 @@ resource "oci_core_route_table" "ss_app" {
   depends_on = [oci_core_drg_attachment.ss]
 }
 
-resource "oci_core_service_gateway" "ss" {
-  compartment_id = var.ss_compartment_id
-  vcn_id         = oci_core_vcn.ss.id
-  display_name   = "sgw_ss_elz_nw"
-
-  services {
-    service_id = data.oci_core_services.all_oci_services.services[0].id
-  }
-
-  freeform_tags = local.net_freeform_tags
-  defined_tags  = local.net_defined_tags
-}
 
 resource "oci_core_subnet" "ss_app" {
   compartment_id             = var.ss_compartment_id
@@ -145,13 +126,6 @@ resource "oci_core_route_table" "devt_app" {
   vcn_id         = oci_core_vcn.devt.id
   display_name   = local.devt_app_rt_name
 
-  route_rules {
-    description       = "Service Gateway — Cloud Agent + yum (Sprint 4 compute readiness)"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
-    destination_type  = "SERVICE_CIDR_BLOCK"
-    network_entity_id = oci_core_service_gateway.devt.id
-  }
-
   dynamic "route_rules" {
     for_each = local.phase2_enabled ? [1] : []
     content {
@@ -168,18 +142,6 @@ resource "oci_core_route_table" "devt_app" {
   depends_on = [oci_core_drg_attachment.devt]
 }
 
-resource "oci_core_service_gateway" "devt" {
-  compartment_id = var.devt_compartment_id
-  vcn_id         = oci_core_vcn.devt.id
-  display_name   = "sgw_devt_elz_nw"
-
-  services {
-    service_id = data.oci_core_services.all_oci_services.services[0].id
-  }
-
-  freeform_tags = merge(local.net_freeform_tags, { "lz-tier" = "development" })
-  defined_tags  = local.net_defined_tags
-}
 
 resource "oci_core_subnet" "devt_app" {
   compartment_id             = var.devt_compartment_id
@@ -256,17 +218,6 @@ resource "oci_core_instance" "sim_fw_ss" {
     assign_public_ip       = false
     skip_source_dest_check = true
     freeform_tags          = local.cmp_freeform_tags
-  }
-
-  agent_config {
-    are_all_plugins_disabled = false
-    is_management_disabled   = false
-    is_monitoring_disabled   = false
-
-    plugins_config {
-      name          = "Bastion"
-      desired_state = "ENABLED"
-    }
   }
 
   metadata = {

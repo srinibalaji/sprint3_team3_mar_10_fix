@@ -120,10 +120,6 @@ output "hub_bastion_id" {
   value       = length(oci_bastion_bastion.hub) > 0 ? oci_bastion_bastion.hub[0].id : "not-provisioned-complete-phase2-first"
 }
 
-output "hub_sgw_id" {
-  description = "OCID of Hub Service Gateway. Required for Bastion Managed SSH and Cloud Agent."
-  value       = oci_core_service_gateway.hub.id
-}
 
 # ---------------------------------------------------------------------------
 # SUMMARY MAP — full network topology for sprint2_outputs.json handoff
@@ -150,4 +146,47 @@ output "sprint2_network_summary" {
       devt_app = oci_core_subnet.devt_app.id
     }
   }
+}
+
+# ---------------------------------------------------------------------------
+# DRG ATTACHMENT IDs — Sprint 3 needs these for drg_attachment_management
+# ---------------------------------------------------------------------------
+
+output "hub_drg_attachment_id" {
+  description = "OCID of Hub VCN DRG attachment. Sprint 3: assign hub_spoke_mesh RT."
+  value       = length(oci_core_drg_attachment.hub_vcn) > 0 ? oci_core_drg_attachment.hub_vcn[0].id : "not-provisioned-complete-phase2-first"
+}
+
+output "os_drg_attachment_id" {
+  description = "OCID of OS spoke DRG attachment."
+  value       = length(oci_core_drg_attachment.os) > 0 ? oci_core_drg_attachment.os[0].id : "not-provisioned-complete-phase2-first"
+}
+
+output "ts_drg_attachment_id" {
+  description = "OCID of TS spoke DRG attachment."
+  value       = length(oci_core_drg_attachment.ts) > 0 ? oci_core_drg_attachment.ts[0].id : "not-provisioned-complete-phase2-first"
+}
+
+output "ss_drg_attachment_id" {
+  description = "OCID of SS spoke DRG attachment."
+  value       = length(oci_core_drg_attachment.ss) > 0 ? oci_core_drg_attachment.ss[0].id : "not-provisioned-complete-phase2-first"
+}
+
+output "devt_drg_attachment_id" {
+  description = "OCID of DEVT spoke DRG attachment."
+  value       = length(oci_core_drg_attachment.devt) > 0 ? oci_core_drg_attachment.devt[0].id : "not-provisioned-complete-phase2-first"
+}
+
+# ---------------------------------------------------------------------------
+# HUB FW RT + PRIVATE IP — Sprint 3 forced inspection
+# ---------------------------------------------------------------------------
+
+output "hub_fw_rt_id" {
+  description = "OCID of Hub FW Route Table. Sprint 3 imports and adds spoke CIDRs."
+  value       = oci_core_route_table.hub_fw.id
+}
+
+output "hub_fw_private_ip_id" {
+  description = "OCID of Hub Sim FW VNIC private IP. Sprint 3 VCN ingress RT next-hop."
+  value       = length(oci_core_instance.sim_fw_hub) > 0 ? oci_core_instance.sim_fw_hub[0].private_ip : "not-provisioned-complete-phase2-first"
 }

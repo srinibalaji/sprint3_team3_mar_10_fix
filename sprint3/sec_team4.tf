@@ -12,7 +12,7 @@
 #   5. VCN Ingress Route Table on Hub DRG attachment
 #   6. Hub FW Subnet RT update (spoke CIDRs → DRG return path)
 #   7. (Removed — Sprint 2 owns Service Gateway)
-#   7. SGW route rule on Hub FW RT (uses Sprint 2 SGW via var.hub_sgw_id)
+#   7. SGW route rule on Hub FW RT (uses Sprint 2 SGW via oci_core_service_gateway.hub.id)
 #
 # What this file modifies (in Sprint 2 state — see note below):
 #   - 4 spoke DRG attachments: drg_route_table_id → spoke_to_hub
@@ -128,6 +128,26 @@ resource "oci_core_route_table" "hub_ingress" {
 # under Sprint 3 management. After import, terraform plan will show
 # the added routes as changes — this is expected.
 
+
+# ═══════════════════════════════════════════════════════════════
+# SERVICE GATEWAY — Hub VCN only (centralised Oracle service access)
+# ═══════════════════════════════════════════════════════════════
+# Spokes do NOT get their own SGW — all Oracle service traffic routes
+# via DRG → Hub FW → SGW. Defence architecture: all traffic inspectable.
+# Required for: Vault, Object Storage, OCI Logging, OCI APIs.
+
+resource "oci_core_service_gateway" "hub" {
+  compartment_id = var.nw_compartment_id
+  vcn_id         = var.hub_vcn_id
+  display_name   = "sgw_r_elz_nw_hub"
+
+  services {
+    service_id = data.oci_core_services.all_oci_services.services[0].id
+  }
+
+  defined_tags = local.common_tags
+}
+
 import {
   to = oci_core_route_table.hub_fw
   id = var.hub_fw_rt_id
@@ -169,7 +189,7 @@ resource "oci_core_route_table" "hub_fw" {
 
   # Service Gateway — Oracle services via private backbone
   route_rules {
-    network_entity_id = var.hub_sgw_id
+    network_entity_id = oci_core_service_gateway.hub.id
     destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
     destination_type  = "SERVICE_CIDR_BLOCK"
     description       = "Oracle services → Service Gateway (private backbone)"

@@ -11,8 +11,8 @@ locals {
 
   # ── Common tags (applied to all Sprint 3 resources) ──
   common_tags = {
-    "${local.tag_namespace_name}.Environment" = "dev"
-    "${local.tag_namespace_name}.Owner"       = "DSTA"
+    "${local.tag_namespace_name}.Environment" = var.lz_environment
+    "${local.tag_namespace_name}.Owner"       = var.service_label
     "${local.tag_namespace_name}.Sprint"      = "3"
   }
 
@@ -60,25 +60,15 @@ locals {
   sz_recipe_nw_name  = "szr_r_elz_nw"    # Custom recipe for NW compartment
   sz_sec_name        = "sz_r_elz_sec"     # Security zone on C1_R_ELZ_SEC
   sz_nw_name         = "sz_r_elz_nw"      # Security zone on C1_R_ELZ_NW
-}
-
-  # NSG Names — Sprint 3 (replaces security lists for production)
   hub_fw_nsg_name   = "nsg_r_elz_nw_fw"
   hub_mgmt_nsg_name = "nsg_r_elz_nw_mgmt"
   os_app_nsg_name   = "nsg_os_elz_nw_app"
   ts_app_nsg_name   = "nsg_ts_elz_nw_app"
   ss_app_nsg_name   = "nsg_ss_elz_nw_app"
   devt_app_nsg_name = "nsg_devt_elz_nw_app"
-
-  # VSS Names
   vss_recipe_name = "vssr_r_elz_sec"
   vss_target_name = "vsst_r_elz_nw"
-
-  # Service Connector Hub Names
   sch_flow_to_bucket_name = "sch_r_elz_sec_flow_logs"
-
-  # Certificate Authority Names (placeholder for V2 HTTPS)
   cert_authority_name = "ca_r_elz_sec"
-
-  # Vault Secret Names
   ssh_key_secret_name = "ssh-public-key"
+}

@@ -52,14 +52,6 @@ resource "oci_core_route_table" "os_app" {
   vcn_id         = oci_core_vcn.os.id
   display_name   = local.os_app_rt_name
 
-  # Service Gateway — Cloud Agent + yum (always present)
-  route_rules {
-    description       = "Service Gateway — Cloud Agent + Bastion plugin + yum"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
-    destination_type  = "SERVICE_CIDR_BLOCK"
-    network_entity_id = oci_core_service_gateway.os.id
-  }
-
   # DRG route — Phase 2 only
   dynamic "route_rules" {
     for_each = local.phase2_enabled ? [1] : []
@@ -78,18 +70,6 @@ resource "oci_core_route_table" "os_app" {
 }
 
 # Service Gateway for OS VCN — Cloud Agent on Sim FW needs OCI service access
-resource "oci_core_service_gateway" "os" {
-  compartment_id = var.os_compartment_id
-  vcn_id         = oci_core_vcn.os.id
-  display_name   = "sgw_os_elz_nw"
-
-  services {
-    service_id = data.oci_core_services.all_oci_services.services[0].id
-  }
-
-  freeform_tags = local.net_freeform_tags
-  defined_tags  = local.net_defined_tags
-}
 
 # Subnet references route table directly — OCI native pattern (no separate attachment resource)
 resource "oci_core_subnet" "os_app" {
@@ -170,17 +150,6 @@ resource "oci_core_instance" "sim_fw_os" {
     assign_public_ip       = false
     skip_source_dest_check = true
     freeform_tags          = local.cmp_freeform_tags
-  }
-
-  agent_config {
-    are_all_plugins_disabled = false
-    is_management_disabled   = false
-    is_monitoring_disabled   = false
-
-    plugins_config {
-      name          = "Bastion"
-      desired_state = "ENABLED"
-    }
   }
 
   metadata = {

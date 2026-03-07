@@ -197,7 +197,7 @@ variable "sim_fw_memory_gb" {
 variable "bastion_client_cidr" {
   description = "CIDR block allowed to connect to the Hub Bastion. Default: allow all (restrict for production)."
   type        = string
-  default     = "0.0.0.0/0"
+  default     = "10.0.0.0/8"
   validation {
     condition     = can(cidrnetmask(var.bastion_client_cidr))
     error_message = "bastion_client_cidr must be a valid CIDR block."

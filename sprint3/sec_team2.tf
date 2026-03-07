@@ -20,10 +20,9 @@ resource "oci_bastion_session" "ts_ssh" {
   }
 
   target_resource_details {
-    session_type                               = "MANAGED_SSH"
-    target_resource_id                         = var.ts_fw_instance_id
-    target_resource_operating_system_user_name = "opc"
-    target_resource_port                       = 22
+    session_type       = "PORT_FORWARDING"
+    target_resource_id = var.ts_fw_instance_id
+    target_resource_port = 22
   }
 
   display_name           = local.bastion_session_ts_name

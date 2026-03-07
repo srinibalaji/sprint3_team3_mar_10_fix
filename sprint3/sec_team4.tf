@@ -2,7 +2,7 @@
 # STAR ELZ V1 — Sprint 3 — sec_team4.tf (T4)
 #
 # T4 owns: DRG route tables, forced inspection routing,
-#          Hub FW return path, VCN ingress RT.
+#          Service Gateway, Hub FW return path.
 #
 # What this file creates:
 #   1. Custom DRG Route Table — Hub (import distribution)
@@ -10,11 +10,9 @@
 #   3. Custom DRG Route Table — Spoke (static 0/0 → Hub)
 #   4. Static route rule on Spoke DRG RT
 #   5. VCN Ingress Route Table on Hub DRG attachment
-#   6. Hub FW Subnet RT update (spoke CIDRs → DRG + SGW from Sprint 2)
-#   7. 5 DRG attachment reassignments (hub + 4 spokes)
-#
-# NOTE: Service Gateway was moved to Sprint 2 (nw_team4.tf).
-#       Sprint 3 references it via var.hub_sgw_id.
+#   6. Hub FW Subnet RT update (spoke CIDRs → DRG return path)
+#   7. (Removed — Sprint 2 owns Service Gateway)
+#   7. SGW route rule on Hub FW RT (uses Sprint 2 SGW via var.hub_sgw_id)
 #
 # What this file modifies (in Sprint 2 state — see note below):
 #   - 4 spoke DRG attachments: drg_route_table_id → spoke_to_hub
@@ -169,19 +167,19 @@ resource "oci_core_route_table" "hub_fw" {
     description       = "DEVT spoke → DRG (post-inspection)"
   }
 
-  # Service Gateway — inherited from Sprint 2 (var.hub_sgw_id)
+  # Service Gateway — Oracle services via private backbone
   route_rules {
     network_entity_id = var.hub_sgw_id
     destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
     destination_type  = "SERVICE_CIDR_BLOCK"
-    description       = "Oracle services → Service Gateway (Sprint 2)"
+    description       = "Oracle services → Service Gateway (private backbone)"
   }
 
   defined_tags = local.common_tags
 }
 
 # ═══════════════════════════════════════════════════════════════
-# 7. DRG ATTACHMENT REASSIGNMENT
+# 8. DRG ATTACHMENT REASSIGNMENT
 # ═══════════════════════════════════════════════════════════════
 # The 5 DRG attachments exist in Sprint 2 state. Sprint 3 needs to:
 #   - Assign spoke_to_hub DRG RT to OS/TS/SS/DEVT attachments

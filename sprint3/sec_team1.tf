@@ -1,16 +1,16 @@
 # ─────────────────────────────────────────────────────────────
 # STAR ELZ V1 — Sprint 3 — sec_team1.tf (T1)
 #
-# T1 owns: Bastion session for OS spoke validation
+# T1 owns: Bastion session (OS), Hub FW + OS NSGs,
+#          Flow logs (hub_fw + OS), VSS recipe + target,
+#          Service Connector Hub (flow logs → bucket)
 #
-# The Bastion service (bas_r_elz_nw_hub) was created in Sprint 2
-# by T4 in nw_team4.tf. T1 creates a session to SSH into the
-# OS Sim FW instance for TC-22 (forced inspection traceroute).
-#
-# NOTE: Bastion sessions are ephemeral — TTL defaults to 30 min.
-# After expiry, Terraform will show drift. This is expected.
-# Recreate the session for subsequent validation runs.
+# Rebalanced from T3 to spread workload evenly.
 # ─────────────────────────────────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════════
+# 1. BASTION SESSION — OS Sim FW
+# ═══════════════════════════════════════════════════════════════
 
 resource "oci_bastion_session" "os_ssh" {
   bastion_id = var.bastion_id
@@ -27,10 +27,167 @@ resource "oci_bastion_session" "os_ssh" {
   }
 
   display_name           = local.bastion_session_os_name
-  session_ttl_in_seconds = 1800 # 30 minutes
+  session_ttl_in_seconds = 1800
 
-  # Session expires naturally — don't fight drift on TTL
   lifecycle {
     ignore_changes = [session_ttl_in_seconds]
   }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 2. NSGs — Hub FW + OS spoke
+# ═══════════════════════════════════════════════════════════════
+
+resource "oci_core_network_security_group" "hub_fw" {
+  compartment_id = var.nw_compartment_id
+  vcn_id         = var.hub_vcn_id
+  display_name   = local.hub_fw_nsg_name
+  defined_tags   = local.common_tags
+}
+
+resource "oci_core_network_security_group_security_rule" "hub_fw_ingress" {
+  network_security_group_id = oci_core_network_security_group.hub_fw.id
+  direction                 = "INGRESS"
+  protocol                  = "all"
+  source                    = "10.0.0.0/8"
+  source_type               = "CIDR_BLOCK"
+  description               = "Allow all internal — Sprint 3 baseline (tighten in V2)"
+}
+
+resource "oci_core_network_security_group_security_rule" "hub_fw_egress" {
+  network_security_group_id = oci_core_network_security_group.hub_fw.id
+  direction                 = "EGRESS"
+  protocol                  = "all"
+  destination               = "0.0.0.0/0"
+  destination_type          = "CIDR_BLOCK"
+  description               = "Allow all egress"
+}
+
+resource "oci_core_network_security_group" "os_app" {
+  compartment_id = var.os_compartment_id
+  vcn_id         = var.os_vcn_id
+  display_name   = local.os_app_nsg_name
+  defined_tags   = local.common_tags
+}
+
+resource "oci_core_network_security_group_security_rule" "os_ingress" {
+  network_security_group_id = oci_core_network_security_group.os_app.id
+  direction                 = "INGRESS"
+  protocol                  = "all"
+  source                    = "10.0.0.0/8"
+  source_type               = "CIDR_BLOCK"
+  description               = "Allow all internal"
+}
+
+resource "oci_core_network_security_group_security_rule" "os_egress" {
+  network_security_group_id = oci_core_network_security_group.os_app.id
+  direction                 = "EGRESS"
+  protocol                  = "all"
+  destination               = "0.0.0.0/0"
+  destination_type          = "CIDR_BLOCK"
+  description               = "Allow all egress"
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 3. FLOW LOGS — Hub FW + OS subnet
+# ═══════════════════════════════════════════════════════════════
+
+resource "oci_logging_log" "hub_fw_flow" {
+  display_name = local.hub_fw_flow_log_name
+  log_group_id = oci_logging_log_group.nw_flow.id
+  log_type     = "SERVICE"
+
+  configuration {
+    source {
+      category    = "all"
+      resource    = var.hub_fw_subnet_id
+      service     = "flowlogs"
+      source_type = "OCISERVICE"
+    }
+    compartment_id = var.nw_compartment_id
+  }
+
+  is_enabled = true
+}
+
+resource "oci_logging_log" "os_app_flow" {
+  display_name = local.os_app_flow_log_name
+  log_group_id = oci_logging_log_group.nw_flow.id
+  log_type     = "SERVICE"
+
+  configuration {
+    source {
+      category    = "all"
+      resource    = var.os_app_subnet_id
+      service     = "flowlogs"
+      source_type = "OCISERVICE"
+    }
+    compartment_id = var.os_compartment_id
+  }
+
+  is_enabled = true
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 4. VSS — Vulnerability Scanning Service
+# ═══════════════════════════════════════════════════════════════
+
+resource "oci_vulnerability_scanning_host_scan_recipe" "standard" {
+  compartment_id = var.sec_compartment_id
+  display_name   = local.vss_recipe_name
+
+  port_settings {
+    scan_level = "STANDARD"
+  }
+
+  agent_settings {
+    scan_level = "STANDARD"
+
+    agent_configuration {
+      vendor = "OCI"
+    }
+  }
+
+  schedule {
+    type        = "WEEKLY"
+    day_of_week = "SUNDAY"
+  }
+
+  defined_tags = local.common_tags
+}
+
+resource "oci_vulnerability_scanning_host_scan_target" "nw_instances" {
+  compartment_id        = var.sec_compartment_id
+  host_scan_recipe_id   = oci_vulnerability_scanning_host_scan_recipe.standard.id
+  display_name          = local.vss_target_name
+  target_compartment_id = var.nw_compartment_id
+
+  defined_tags = local.common_tags
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 5. SERVICE CONNECTOR HUB — Flow logs → Object Storage bucket
+# ═══════════════════════════════════════════════════════════════
+
+resource "oci_sch_service_connector" "flow_to_bucket" {
+  compartment_id = var.sec_compartment_id
+  display_name   = local.sch_flow_to_bucket_name
+
+  source {
+    kind = "logging"
+
+    log_sources {
+      compartment_id = var.sec_compartment_id
+      log_group_id   = oci_logging_log_group.nw_flow.id
+    }
+  }
+
+  target {
+    kind                       = "objectStorage"
+    bucket                     = oci_objectstorage_bucket.logs.name
+    namespace                  = data.oci_objectstorage_namespace.this.namespace
+    object_name_prefix         = "flow-logs/"
+  }
+
+  defined_tags = local.common_tags
 }

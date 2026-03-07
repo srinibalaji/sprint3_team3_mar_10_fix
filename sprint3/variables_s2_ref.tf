@@ -121,8 +121,11 @@ variable "hub_fw_rt_id" {
   type        = string
 }
 
-# ── Service Gateway (created in Sprint 2) ──
 variable "hub_sgw_id" {
-  description = "OCID of sgw_r_elz_nw_hub — Sprint 2 Service Gateway, referenced in Hub FW RT SGW route rule"
+  description = "OCID of Hub Service Gateway (created in Sprint 2). From: terraform output hub_sgw_id"
   type        = string
+  validation {
+    condition     = can(regex("^ocid1\\.servicegateway\\.", var.hub_sgw_id))
+    error_message = "hub_sgw_id must be a valid OCI Service Gateway OCID."
+  }
 }

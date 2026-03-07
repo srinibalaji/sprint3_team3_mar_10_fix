@@ -22,8 +22,7 @@ locals {
   hub_import_dist_name      = "drgrd_r_hub_vcn_import"  # Import distribution — auto-learn VCN CIDRs
   hub_ingress_rt_name       = "rt_r_elz_nw_hub_ingress" # VCN ingress RT on Hub DRG attachment
 
-  # NOTE: Service Gateway name (sgw_r_elz_nw_hub) is in Sprint 2 locals.tf.
-  # Sprint 3 references the SGW via var.hub_sgw_id, not by name.
+  # ── Service Gateway (T4) ──
 
   # ── Logging (T3) ──
   nw_log_group_name      = "lg_r_elz_nw_flow"
@@ -61,14 +60,22 @@ locals {
   sz_recipe_nw_name  = "szr_r_elz_nw"    # Custom recipe for NW compartment
   sz_sec_name        = "sz_r_elz_sec"     # Security zone on C1_R_ELZ_SEC
   sz_nw_name         = "sz_r_elz_nw"      # Security zone on C1_R_ELZ_NW
-
-  # ── VSS — Vulnerability Scanning (T3) ──
-  vss_recipe_name = "vssr_r_elz_sec_host"     # Host scan recipe
-  vss_target_name = "vsst_r_elz_nw"           # Scan target — C1_R_ELZ_NW instances
-
-  # ── Service Connector Hub (T3) ──
-  sch_connector_name = "sch_r_elz_sec_log_to_bucket" # Flow logs → Object Storage
-
-  # ── Certificates Manager (T3) ──
-  cert_ca_name = "ca_r_elz_sec_internal"   # Internal CA for V2+ TLS endpoints
 }
+
+  # NSG Names — Sprint 3 (replaces security lists for production)
+  hub_fw_nsg_name   = "nsg_r_elz_nw_fw"
+  hub_mgmt_nsg_name = "nsg_r_elz_nw_mgmt"
+  os_app_nsg_name   = "nsg_os_elz_nw_app"
+  ts_app_nsg_name   = "nsg_ts_elz_nw_app"
+  ss_app_nsg_name   = "nsg_ss_elz_nw_app"
+  devt_app_nsg_name = "nsg_devt_elz_nw_app"
+
+  # VSS Names
+  vss_recipe_name = "vssr_r_elz_sec"
+  vss_target_name = "vsst_r_elz_nw"
+
+  # Service Connector Hub Names
+  sch_flow_to_bucket_name = "sch_r_elz_sec_flow_logs"
+
+  # Certificate Authority Names (placeholder for V2 HTTPS)
+  cert_authority_name = "ca_r_elz_sec"

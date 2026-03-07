@@ -15,7 +15,6 @@ output "spoke_to_hub_drgrt_id" {
 }
 
 # ── Service Gateway ──
-# NOTE: SGW moved to Sprint 2. Output hub_sgw_id is in Sprint 2 outputs.tf.
 
 # ── Logging ──
 output "nw_log_group_id" {
@@ -84,20 +83,31 @@ output "sz_nw_id" {
   value       = oci_cloud_guard_security_zone.nw.id
 }
 
-# ── Service Connector Hub ──
-output "sch_connector_id" {
-  description = "OCID of sch_r_elz_sec_log_to_bucket — flow logs → Object Storage"
-  value       = oci_sch_service_connector.log_to_bucket.id
+# NSGs
+output "hub_fw_nsg_id" {
+  description = "OCID of Hub FW NSG."
+  value       = oci_core_network_security_group.hub_fw.id
 }
 
-# ── VSS ──
+output "os_app_nsg_id" {
+  description = "OCID of OS app NSG."
+  value       = oci_core_network_security_group.os_app.id
+}
+
+# VSS
 output "vss_recipe_id" {
-  description = "OCID of vssr_r_elz_sec_host scan recipe"
-  value       = oci_vulnerability_scanning_host_scan_recipe.default.id
+  description = "OCID of VSS host scan recipe."
+  value       = oci_vulnerability_scanning_host_scan_recipe.standard.id
 }
 
-# ── Certificates Manager ──
-output "internal_ca_id" {
-  description = "OCID of ca_r_elz_sec_internal — Internal CA for V2+ TLS"
-  value       = oci_certificates_management_certificate_authority.internal.id
+# SCH
+output "sch_flow_to_bucket_id" {
+  description = "OCID of Service Connector Hub (flow logs → bucket)."
+  value       = oci_sch_service_connector.flow_to_bucket.id
+}
+
+# Certificate Authority
+output "cert_authority_id" {
+  description = "OCID of root Certificate Authority."
+  value       = oci_certificates_management_certificate_authority.sec.id
 }

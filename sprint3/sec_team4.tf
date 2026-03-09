@@ -282,14 +282,12 @@ resource "oci_core_drg_attachment_management" "devt" {
 }
 
 
-"oci_core_drg_route_distribution" "hub_vcn_import"
 import {
   to = oci_core_drg_route_distribution.hub_vcn_import
-  id = "ocid1.drgroutedistribution.oc1.ap-singapore-1.aaaaaaaaeo4eqyydootsae6767fofhvpbiytg53poitcjcoo3z3kxbeptrda"
+  id = var.drg_route_distribution_id
 }
 
-"oci_core_service_gateway" "hub"
 import {
   to = oci_core_service_gateway.hub
-  id = "ocid1.servicegateway.oc1.ap-singapore-1.aaaaaaaa4vsinbey37h2ph6jufjljiticcmycndavuz55gduqabqdfimt3ka"
+  id = var.sgw_id
 }

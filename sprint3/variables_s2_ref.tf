@@ -119,3 +119,13 @@ variable "ts_fw_private_ip" {
   description = "Private IP of fw_ts_elz_nw_sim — cross-VCN PORT_FORWARDING target"
   type        = string
 }
+
+variable "drg_route_distribution_id" {
+  description = "OCID of drg route distribution"
+  type        = string
+}
+
+variable "sgw_id" {
+  description = "OCID of service gateway"
+  type        = string
+}

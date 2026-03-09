@@ -38,7 +38,7 @@
 # SPRINT1-FIX (naming-drift):
 #   provided_* group names now reference local.nw_group_name etc from locals.tf
 #   constants block. Replaced "${var.service_label}-ug-elz-nw" interpolation
-#   which produced lowercase hyphenated names inconsistent with DSTA standard.
+#   which produced lowercase hyphenated names inconsistent with STAR standard.
 # =============================================================================
 
 locals {
@@ -72,7 +72,7 @@ locals {
   # ---------------------------------------------------------------------------
   # PROVIDED GROUP NAMES — canonical constants (from locals.tf) or custom override
   # These are the actual OCI group names used in policy statements.
-  # Override only if DSTA names must change — default to canonical constants.
+  # Override only if STAR names must change — default to canonical constants.
   # ---------------------------------------------------------------------------
   provided_nw_admin_group_name         = local.nw_group_name
   provided_sec_admin_group_name        = local.sec_group_name

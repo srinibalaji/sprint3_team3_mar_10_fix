@@ -81,3 +81,4 @@ locals {
     data.oci_core_service_gateways.existing.service_gateways[0].id,
     oci_core_service_gateway.hub[0].id
   )
+}

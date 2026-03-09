@@ -47,7 +47,7 @@
 resource "oci_kms_vault" "sec" {
   compartment_id = var.sec_compartment_id
   display_name   = local.vault_name
-  vault_type     = "DEFAULT"
+  vault_type     = "VIRTUAL_PRIVATE"
 
   defined_tags = local.common_tags
 }
@@ -67,7 +67,7 @@ resource "oci_kms_key" "master" {
   compartment_id      = var.sec_compartment_id
   display_name        = local.master_key_name
   management_endpoint = oci_kms_vault.sec.management_endpoint
-  protection_mode     = "SOFTWARE"
+  protection_mode     = "HSM"
 
   key_shape {
     algorithm = "AES"

@@ -212,7 +212,6 @@ resource "oci_core_route_table" "hub_fw" {
 # This resource manages the DRG-side properties of an existing attachment.
 
 resource "oci_core_drg_attachment" "hub" {
-  compartment_id         = var.nw_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.hub_spoke_mesh.id
   display_name           = "drga_r_elz_nw_hub"
@@ -226,7 +225,6 @@ resource "oci_core_drg_attachment" "hub" {
 }
 
 resource "oci_core_drg_attachment" "os" {
-  compartment_id         = var.os_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_os_elz_nw"
@@ -239,7 +237,6 @@ resource "oci_core_drg_attachment" "os" {
 }
 
 resource "oci_core_drg_attachment" "ts" {
-  compartment_id         = var.ts_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ts_elz_nw"
@@ -252,7 +249,6 @@ resource "oci_core_drg_attachment" "ts" {
 }
 
 resource "oci_core_drg_attachment" "ss" {
-  compartment_id         = var.ss_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ss_elz_nw"
@@ -265,7 +261,6 @@ resource "oci_core_drg_attachment" "ss" {
 }
 
 resource "oci_core_drg_attachment" "devt" {
-  compartment_id         = var.devt_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_devt_elz_nw"

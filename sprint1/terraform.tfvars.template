@@ -29,7 +29,7 @@ private_key_path     = ""  # /path/to/api_key.pem
 # =============================================================================
 # LANDING ZONE IDENTITY
 # service_label: 1-8 uppercase chars, starts with a letter. Used in tags only.
-# Example: C1 for DSTA STAR ELZ instance 1. Does NOT affect resource names.
+# Example: C1 for STAR ELZ instance 1. Does NOT affect resource names.
 # =============================================================================
 service_label = "C1"
 cis_level     = "1"
@@ -63,7 +63,7 @@ sim_child_compartment_id = ""   # ocid1.compartment.oc1..aaa (C1_SIM_CHILD)
 
 # =============================================================================
 # COMPARTMENT NAME OVERRIDES (optional)
-# Leave all null to use DSTA standard names from locals.tf:
+# Leave all null to use STAR standard names from locals.tf:
 #   C1_R_ELZ_NW, C1_R_ELZ_SEC, C1_R_ELZ_SOC, etc.
 # Override only if a specific compartment needs a non-standard name.
 # =============================================================================

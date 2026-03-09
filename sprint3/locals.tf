@@ -75,4 +75,9 @@ locals {
   sch_flow_to_bucket_name = "sch_r_elz_sec_flow_logs"
   cert_authority_name = "ca_r_elz_sec"
   ssh_key_secret_name = "ssh-public-key"
+
+
+  service_gateway_id = length(data.oci_core_service_gateways.existing.service_gateways) > 0 ?
+    data.oci_core_service_gateways.existing.service_gateways[0].id :
+    oci_core_service_gateway.hub[0].id
 }

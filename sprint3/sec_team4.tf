@@ -190,7 +190,7 @@ resource "oci_core_route_table" "hub_fw" {
 
   # Service Gateway — Oracle services via private backbone
   route_rules {
-    network_entity_id = oci_core_service_gateway.hub.id
+    network_entity_id = local.service_gateway.hub.id
     destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
     destination_type  = "SERVICE_CIDR_BLOCK"
     description       = "Oracle services → Service Gateway (private backbone)"

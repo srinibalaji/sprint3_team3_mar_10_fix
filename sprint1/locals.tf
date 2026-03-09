@@ -82,12 +82,12 @@ locals {
   #
   # WHY CONSTANTS NOT INTERPOLATION:
   #   service_label is kept for ORM display, tags, and descriptions only.
-  #   Resource names follow DSTA naming standards and must not drift with
+  #   Resource names follow STAR naming standards and must not drift with
   #   service_label changes. Constants = 2-hop trace. Interpolation = 4+ hops.
   #
   # SPRINT1-FIX: replaces coalesce(var.custom_*, "${var.service_label}-r-elz-nw-cmp")
   #              chains that produced lowercase hyphenated names inconsistent
-  #              with DSTA STAR ELZ naming standard.
+  #              with STAR ELZ naming standard.
   # ===========================================================================
 
   # --- C0 Tag Namespace (tenancy root — singleton per tenancy) ---

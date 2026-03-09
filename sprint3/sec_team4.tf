@@ -211,8 +211,7 @@ resource "oci_core_route_table" "hub_fw" {
 # attachments without importing them from Sprint 2 state.
 # This resource manages the DRG-side properties of an existing attachment.
 
-resource "oci_core_drg_attachment_management" "hub" {
-  attachment_type        = "VCN"
+resource "oci_core_drg_attachment" "hub" {
   compartment_id         = var.nw_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.hub_spoke_mesh.id
@@ -226,8 +225,7 @@ resource "oci_core_drg_attachment_management" "hub" {
   }
 }
 
-resource "oci_core_drg_attachment_management" "os" {
-  attachment_type        = "VCN"
+resource "oci_core_drg_attachment" "os" {
   compartment_id         = var.os_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
@@ -240,8 +238,7 @@ resource "oci_core_drg_attachment_management" "os" {
   }
 }
 
-resource "oci_core_drg_attachment_management" "ts" {
-  attachment_type        = "VCN"
+resource "oci_core_drg_attachment" "ts" {
   compartment_id         = var.ts_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
@@ -254,8 +251,7 @@ resource "oci_core_drg_attachment_management" "ts" {
   }
 }
 
-resource "oci_core_drg_attachment_management" "ss" {
-  attachment_type        = "VCN"
+resource "oci_core_drg_attachment" "ss" {
   compartment_id         = var.ss_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
@@ -268,8 +264,7 @@ resource "oci_core_drg_attachment_management" "ss" {
   }
 }
 
-resource "oci_core_drg_attachment_management" "devt" {
-  attachment_type        = "VCN"
+resource "oci_core_drg_attachment" "devt" {
   compartment_id         = var.devt_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id

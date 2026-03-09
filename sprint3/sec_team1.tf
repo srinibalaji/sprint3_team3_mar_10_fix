@@ -12,26 +12,26 @@
 # 1. BASTION SESSION — OS Sim FW
 # ═══════════════════════════════════════════════════════════════
 
-resource "oci_bastion_session" "os_ssh" {
-  bastion_id = var.bastion_id
+# resource "oci_bastion_session" "os_ssh" {
+#   bastion_id = var.bastion_id
 
-  key_details {
-    public_key_content = var.ssh_public_key
-  }
+#   key_details {
+#     public_key_content = var.ssh_public_key
+#   }
 
-  target_resource_details {
-    session_type       = "PORT_FORWARDING"
-    target_resource_id = var.os_fw_private_ip
-    target_resource_port = 22
-  }
+#   target_resource_details {
+#     session_type       = "PORT_FORWARDING"
+#     target_resource_id = var.os_fw_instance_id
+#     target_resource_port = 22
+#   }
 
-  display_name           = local.bastion_session_os_name
-  session_ttl_in_seconds = 1800
+#   display_name           = local.bastion_session_os_name
+#   session_ttl_in_seconds = 1800
 
-  lifecycle {
-    ignore_changes = [session_ttl_in_seconds]
-  }
-}
+#   lifecycle {
+#     ignore_changes = [session_ttl_in_seconds]
+#   }
+# }
 
 # ═══════════════════════════════════════════════════════════════
 # 2. NSGs — Hub FW + OS spoke

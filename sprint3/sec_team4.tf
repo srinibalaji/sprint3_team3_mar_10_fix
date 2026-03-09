@@ -216,7 +216,6 @@ resource "oci_core_drg_attachment_management" "hub" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.hub_spoke_mesh.id
   display_name           = "drga_r_elz_nw_hub"
-  drg_attachment_id      = var.hub_drg_attachment_id
   vcn_id                 = var.hub_vcn_id
 
   network_details {
@@ -232,7 +231,6 @@ resource "oci_core_drg_attachment_management" "os" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_os_elz_nw"
-  drg_attachment_id      = var.os_drg_attachment_id
   vcn_id                 = var.os_vcn_id
 
   network_details {
@@ -247,7 +245,6 @@ resource "oci_core_drg_attachment_management" "ts" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ts_elz_nw"
-  drg_attachment_id      = var.ts_drg_attachment_id
   vcn_id                 = var.ts_vcn_id
 
   network_details {
@@ -262,7 +259,6 @@ resource "oci_core_drg_attachment_management" "ss" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ss_elz_nw"
-  drg_attachment_id      = var.ss_drg_attachment_id
   vcn_id                 = var.ss_vcn_id
 
   network_details {
@@ -277,7 +273,6 @@ resource "oci_core_drg_attachment_management" "devt" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_devt_elz_nw"
-  drg_attachment_id      = var.devt_drg_attachment_id
   vcn_id                 = var.devt_vcn_id
 
   network_details {

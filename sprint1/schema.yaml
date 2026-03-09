@@ -1,5 +1,5 @@
 title: "STAR ELZ V1 — Sprint 1 Solutions V2"
-description: "DSTA STAR Enterprise Landing Zone V1 — IAM Foundation (Compartments, Groups, Policies, Tags)"
+description: "STAR Enterprise Landing Zone V1 — IAM Foundation (Compartments, Groups, Policies, Tags)"
 schemaVersion: 1.1.0
 version: "20250226"
 locale: "en"
@@ -26,7 +26,7 @@ variableGroups:
       - c2_os_app_name
 
   - title: "4. Compartment Name Overrides (C1 Level)"
-    description: "Leave all blank to use DSTA standard names: C1_R_ELZ_NW, C1_R_ELZ_SEC, etc."
+    description: "Leave all blank to use STAR standard names: C1_R_ELZ_NW, C1_R_ELZ_SEC, etc."
     variables:
       - custom_nw_compartment_name
       - custom_sec_compartment_name
@@ -142,61 +142,61 @@ variables:
   custom_nw_compartment_name:
     type: string
     title: "NW Compartment Name Override"
-    description: "Override for C1_R_ELZ_NW. Leave blank for DSTA standard name."
+    description: "Override for C1_R_ELZ_NW. Leave blank for STAR standard name."
     required: false
 
   custom_sec_compartment_name:
     type: string
     title: "SEC Compartment Name Override"
-    description: "Override for C1_R_ELZ_SEC. Leave blank for DSTA standard name."
+    description: "Override for C1_R_ELZ_SEC. Leave blank for STAR standard name."
     required: false
 
   custom_soc_compartment_name:
     type: string
     title: "SOC Compartment Name Override"
-    description: "Override for C1_R_ELZ_SOC. Leave blank for DSTA standard name."
+    description: "Override for C1_R_ELZ_SOC. Leave blank for STAR standard name."
     required: false
 
   custom_ops_compartment_name:
     type: string
     title: "OPS Compartment Name Override"
-    description: "Override for C1_R_ELZ_OPS. Leave blank for DSTA standard name."
+    description: "Override for C1_R_ELZ_OPS. Leave blank for STAR standard name."
     required: false
 
   custom_csvcs_compartment_name:
     type: string
     title: "CSVCS Compartment Name Override"
-    description: "Override for C1_R_ELZ_CSVCS. Leave blank for DSTA standard name."
+    description: "Override for C1_R_ELZ_CSVCS. Leave blank for STAR standard name."
     required: false
 
   custom_devt_csvcs_compartment_name:
     type: string
     title: "DEVT_CSVCS Compartment Name Override"
-    description: "Override for C1_R_ELZ_DEVT_CSVCS. Leave blank for DSTA standard name."
+    description: "Override for C1_R_ELZ_DEVT_CSVCS. Leave blank for STAR standard name."
     required: false
 
   custom_os_nw_compartment_name:
     type: string
     title: "OS NW Compartment Name Override"
-    description: "Override for C1_OS_ELZ_NW. Leave blank for DSTA standard name."
+    description: "Override for C1_OS_ELZ_NW. Leave blank for STAR standard name."
     required: false
 
   custom_ss_nw_compartment_name:
     type: string
     title: "SS NW Compartment Name Override"
-    description: "Override for C1_SS_ELZ_NW. Leave blank for DSTA standard name."
+    description: "Override for C1_SS_ELZ_NW. Leave blank for STAR standard name."
     required: false
 
   custom_ts_nw_compartment_name:
     type: string
     title: "TS NW Compartment Name Override"
-    description: "Override for C1_TS_ELZ_NW. Leave blank for DSTA standard name."
+    description: "Override for C1_TS_ELZ_NW. Leave blank for STAR standard name."
     required: false
 
   custom_devt_nw_compartment_name:
     type: string
     title: "DEVT NW Compartment Name Override"
-    description: "Override for C1_DEVT_ELZ_NW. Leave blank for DSTA standard name."
+    description: "Override for C1_DEVT_ELZ_NW. Leave blank for STAR standard name."
     required: false
 
   # ---------------------------------------------------------------------------

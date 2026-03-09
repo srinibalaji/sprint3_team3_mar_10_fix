@@ -210,6 +210,12 @@ resource "oci_core_route_table" "hub_fw" {
 # APPROACH: Use oci_core_drg_attachment_management to update existing
 # attachments without importing them from Sprint 2 state.
 # This resource manages the DRG-side properties of an existing attachment.
+# key limitation in OCI:
+
+# For VCN → DRG attachments, you cannot attach a DRG route table after the attachment is created and you cannot attach it at creation if the attachment already exists.
+# When you create a DRG attachment for a VCN, you can specify drg_route_table_id at creation time.
+# Once the attachment exists, you cannot modify drg_route_table_id via Terraform or OCI Console.
+# Terraform treats drg_route_table_id as immutable for existing attachments — any attempt to change it triggers errors (409-IncorrectState or API rejection).
 
 resource "oci_core_drg_attachment_management" "hub" {
   attachment_type        = "VCN"

@@ -12,7 +12,7 @@ data "oci_identity_tenancy" "this" {
 
 # Object Storage namespace — required for bucket creation
 data "oci_objectstorage_namespace" "ns" {
-  compartment_id = var.tenancy_ocid
+  # compartment_id = var.tenancy_ocid
 }
 
 # Service Gateway — list available Oracle services in the region

@@ -67,7 +67,7 @@ resource "oci_kms_key" "master" {
   compartment_id      = var.sec_compartment_id
   display_name        = local.master_key_name
   management_endpoint = oci_kms_vault.sec.management_endpoint
-  protection_mode     = "HSM"
+  protection_mode     = "SOFTWARE"
 
   key_shape {
     algorithm = "AES"

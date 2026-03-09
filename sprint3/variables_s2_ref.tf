@@ -99,17 +99,6 @@ variable "bastion_id" {
   type        = string
 }
 
-# ── Sim FW Instances (for Bastion sessions) ──
-variable "os_fw_instance_id" {
-  description = "OCID of fw_os_elz_nw_sim compute instance"
-  type        = string
-}
-
-variable "ts_fw_instance_id" {
-  description = "OCID of fw_ts_elz_nw_sim compute instance"
-  type        = string
-}
-
 variable "hub_fw_private_ip_id" {
   description = "OCID of fw_r_elz_nw_hub_sim VNIC private IP — next-hop for VCN ingress RT. Get from: oci network private-ip list --subnet-id $HUB_FW_SUBNET_ID"
   type        = string

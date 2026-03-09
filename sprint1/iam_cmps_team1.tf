@@ -21,7 +21,7 @@
 # NAMES: local.provided_nw_compartment_name → "C1_R_ELZ_NW"
 #         local.provided_sec_compartment_name → "C1_R_ELZ_SEC"
 #   Canonical constants from locals.tf. Override via ORM UI (Section 2)
-#   or variables_iam.tf custom_nw_compartment_name only if DSTA name changes.
+#   or variables_iam.tf custom_nw_compartment_name only if STAR name changes.
 #
 # C2 SUB-COMPARTMENTS (FUTURE — disabled by default):
 #   To add Level 2 compartments under NW or SEC, populate children : {} below.

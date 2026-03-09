@@ -47,7 +47,7 @@
 resource "oci_kms_vault" "sec" {
   compartment_id = var.sec_compartment_id
   display_name   = local.vault_name
-  vault_type     = "VIRTUAL_PRIVATE"
+  vault_type     = "DEFAULT"
 
   defined_tags = local.common_tags
 }

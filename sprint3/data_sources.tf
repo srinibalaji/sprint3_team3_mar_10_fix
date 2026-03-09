@@ -51,7 +51,7 @@ data "oci_cloud_guard_security_policies" "all" {
   compartment_id = var.tenancy_ocid
 }
 
-# data "oci_core_service_gateways" "existing" {
-#   compartment_id = var.compartment_id
-#   vcn_id         = oci_core_vcn.main.id
-# }
+data "oci_core_service_gateways" "existing" {
+  compartment_id = var.nw_compartment_id
+  vcn_id         = oci_core_vcn.hub_vcn_id
+}

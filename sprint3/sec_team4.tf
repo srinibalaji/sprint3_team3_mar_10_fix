@@ -137,6 +137,7 @@ resource "oci_core_route_table" "hub_ingress" {
 # Required for: Vault, Object Storage, OCI Logging, OCI APIs.
 
 resource "oci_core_service_gateway" "hub" {
+  count = length(data.oci_core_service_gateways.existing.service_gateways) == 0 ? 1 : 0
   compartment_id = var.nw_compartment_id
   vcn_id         = var.hub_vcn_id
   display_name   = "sgw_r_elz_nw_hub"

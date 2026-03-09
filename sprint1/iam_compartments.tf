@@ -37,7 +37,7 @@
 # SPRINT1-FIX (naming-drift):
 #   provided_* locals now reference local.nw_compartment_name etc from locals.tf
 #   constants block. Replaced coalesce(var.custom_*, "${var.service_label}-r-elz-nw-cmp")
-#   which produced lowercase hyphenated names inconsistent with DSTA standard.
+#   which produced lowercase hyphenated names inconsistent with STAR standard.
 #
 # SPRINT1-FIX (enclosing-compartment):
 #   Removed hard dependency on iam_enclosing_compartment.tf.

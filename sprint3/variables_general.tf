@@ -26,6 +26,13 @@ variable "private_key_path" {
   default     = ""
 }
 
+variable "private_key_password" {
+  description = "API key passphrase. Leave blank for ORM."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "region" {
   description = "Workload region (ap-singapore-2)"
   type        = string

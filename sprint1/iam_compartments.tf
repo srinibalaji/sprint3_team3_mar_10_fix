@@ -113,5 +113,6 @@ module "lz_compartments" {
   providers                  = { oci = oci.home }
   tenancy_ocid               = local.tenancy_id
   compartments_configuration = local.compartments_configuration
-  depends_on                 = [oci_identity_compartment.enclosing]
+  depends_on                 = [oci_identity_compartment.enclosing,
+                                oci_identity_tag_namespace.lz_tags]
 }

@@ -8,6 +8,24 @@ variable "tenancy_ocid" {
   type        = string
 }
 
+variable "user_ocid" {
+  description = "API-signing user OCID. Leave blank for ORM."
+  type        = string
+  default     = ""
+}
+
+variable "fingerprint" {
+  description = "API key fingerprint. Leave blank for ORM."
+  type        = string
+  default     = ""
+}
+
+variable "private_key_path" {
+  description = "Path to API private key. Leave blank for ORM."
+  type        = string
+  default     = ""
+}
+
 variable "region" {
   description = "Workload region (ap-singapore-2)"
   type        = string

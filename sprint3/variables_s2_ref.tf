@@ -121,3 +121,12 @@ variable "hub_fw_rt_id" {
   type        = string
 }
 
+variable "os_fw_private_ip" {
+  description = "Private IP of fw_os_elz_nw_sim — cross-VCN PORT_FORWARDING target"
+  type        = string
+}
+
+variable "ts_fw_private_ip" {
+  description = "Private IP of fw_ts_elz_nw_sim — cross-VCN PORT_FORWARDING target"
+  type        = string
+}

@@ -21,7 +21,7 @@ resource "oci_bastion_session" "ts_ssh" {
 
   target_resource_details {
     session_type       = "PORT_FORWARDING"
-    target_resource_id = var.ts_fw_instance_id
+    target_resource_id = var.ts_fw_private_ip
     target_resource_port = 22
   }
 

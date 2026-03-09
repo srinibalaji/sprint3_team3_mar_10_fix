@@ -282,12 +282,12 @@ resource "oci_core_drg_attachment_management" "devt" {
 }
 
 
-import {
-  to = oci_core_drg_route_distribution.hub_vcn_import
-  id = var.drg_route_distribution_id
-}
+# import {
+#   to = oci_core_drg_route_distribution.hub_vcn_import
+#   id = var.drg_route_distribution_id
+# }
 
-import {
-  to = oci_core_service_gateway.hub
-  id = var.sgw_id
-}
+# import {
+#   to = oci_core_service_gateway.hub
+#   id = var.sgw_id
+# }

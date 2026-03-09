@@ -148,10 +148,10 @@ resource "oci_core_service_gateway" "hub" {
   defined_tags = local.common_tags
 }
 
-import {
-  to = oci_core_route_table.hub_fw
-  id = var.hub_fw_rt_id
-}
+# import {
+#   to = oci_core_route_table.hub_fw
+#   id = var.hub_fw_rt_id
+# }
 
 resource "oci_core_route_table" "hub_fw" {
   compartment_id = var.nw_compartment_id

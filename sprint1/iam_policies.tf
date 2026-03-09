@@ -28,7 +28,7 @@
 #   Policy names changed from "${var.service_label}-nw-admin-root-policy"
 #   (lowercase, 4-hop interpolation) to local.nw_policy_name = "UG_ELZ_NW-Policy"
 #   (uppercase constant derived from group name in locals.tf). Consistent with
-#   DSTA STAR ELZ naming standard and OCI console display requirements.
+#   STAR ELZ naming standard and OCI console display requirements.
 #
 # SPRINT1-FIX (all-teams-active):
 #   All 4 team policy blocks uncommented. Sprint 1 scaffold had all commented

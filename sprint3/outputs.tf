@@ -97,7 +97,7 @@ output "os_app_nsg_id" {
 # VSS
 output "vss_recipe_id" {
   description = "OCID of VSS host scan recipe."
-  value       = oci_vulnerability_scanning_host_scan_recipe.standard.id
+  value       = oci_vulnerability_scanning_host_scan_recipe.standard[0].id
 }
 
 # SCH

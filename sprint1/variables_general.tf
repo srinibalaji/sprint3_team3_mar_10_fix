@@ -59,7 +59,7 @@ variable "service_label" {
   description = <<-EOT
     Short identifier for this landing zone instance. Used in tags and descriptions only.
     Max 8 chars, uppercase letters and digits, must start with a letter.
-    Example: C1 (DSTA STAR ELZ instance 1), C2 (instance 2).
+    Example: C1 (STAR ELZ instance 1), C2 (instance 2).
     NOTE: Resource names (compartments, groups, policies) use canonical constants
     defined in locals.tf — they do NOT change when service_label changes.
   EOT

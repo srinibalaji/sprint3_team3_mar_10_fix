@@ -211,65 +211,75 @@ resource "oci_core_route_table" "hub_fw" {
 # attachments without importing them from Sprint 2 state.
 # This resource manages the DRG-side properties of an existing attachment.
 
-resource "oci_core_drg_attachment" "hub" {
+resource "oci_core_drg_attachment_management" "hub" {
+  attachment_type        = "VCN"
+  compartment_id         = var.nw_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.hub_spoke_mesh.id
   display_name           = "drga_r_elz_nw_hub"
   vcn_id                 = var.hub_vcn_id
 
-  # network_details {
-  #   id             = var.hub_vcn_id
-  #   type           = "VCN"
-  #   route_table_id = oci_core_route_table.hub_ingress.id
-  # }
+  network_details {
+    id             = var.hub_vcn_id
+    type           = "VCN"
+    route_table_id = oci_core_route_table.hub_ingress.id
+  }
 }
 
-resource "oci_core_drg_attachment" "os" {
+resource "oci_core_drg_attachment_management" "os" {
+  attachment_type        = "VCN"
+  compartment_id         = var.os_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_os_elz_nw"
   vcn_id                 = var.os_vcn_id
 
-  # network_details {
-  #   id   = var.os_vcn_id
-  #   type = "VCN"
-  # }
+  network_details {
+    id   = var.os_vcn_id
+    type = "VCN"
+  }
 }
 
-resource "oci_core_drg_attachment" "ts" {
+resource "oci_core_drg_attachment_management" "ts" {
+  attachment_type        = "VCN"
+  compartment_id         = var.ts_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ts_elz_nw"
   vcn_id                 = var.ts_vcn_id
 
-  # network_details {
-  #   id   = var.ts_vcn_id
-  #   type = "VCN"
-  # }
+  network_details {
+    id   = var.ts_vcn_id
+    type = "VCN"
+  }
 }
 
-resource "oci_core_drg_attachment" "ss" {
+resource "oci_core_drg_attachment_management" "ss" {
+  attachment_type        = "VCN"
+  compartment_id         = var.ss_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ss_elz_nw"
   vcn_id                 = var.ss_vcn_id
 
-  # network_details {
-  #   id   = var.ss_vcn_id
-  #   type = "VCN"
-  # }
+  network_details {
+    id   = var.ss_vcn_id
+    type = "VCN"
+  }
 }
 
-resource "oci_core_drg_attachment" "devt" {
+resource "oci_core_drg_attachment_management" "devt" {
+  attachment_type        = "VCN"
+  compartment_id         = var.devt_compartment_id
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_devt_elz_nw"
   vcn_id                 = var.devt_vcn_id
 
-  # network_details {
-  #   id   = var.devt_vcn_id
-  #   type = "VCN"
-  # }
+  network_details {
+    id   = var.devt_vcn_id
+    type = "VCN"
+  }
 }
 
 

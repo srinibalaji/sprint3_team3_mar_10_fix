@@ -170,6 +170,10 @@ resource "oci_vulnerability_scanning_host_scan_target" "nw_instances" {
 # 5. SERVICE CONNECTOR HUB — Flow logs → Object Storage bucket
 # ═══════════════════════════════════════════════════════════════
 
+#Note that while log group oci_logging_log_group.nw_flow exists, but no logs have been ingested yet, SCH cannot read it → "Invalid query. 
+#No log sources found to be read". Once flow logs are active and have ingested at least one log entry, SCH can read from the log group and archive to the bucket as expected.
+
+
 resource "oci_sch_service_connector" "flow_to_bucket" {
   compartment_id = var.sec_compartment_id
   display_name   = local.sch_flow_to_bucket_name

@@ -220,7 +220,7 @@ resource "oci_core_drg_attachment_management" "hub" {
 
   network_details {
     id             = var.hub_vcn_id
-    type           = "VCN"
+    type           = "VIRTUAL_CIRCUIT"
     route_table_id = oci_core_route_table.hub_ingress.id
   }
 }

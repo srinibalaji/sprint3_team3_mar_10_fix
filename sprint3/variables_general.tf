@@ -34,9 +34,9 @@ variable "private_key_password" {
 }
 
 variable "region" {
-  description = "Workload region (ap-singapore-2)"
+  description = "Workload region (ap-singapore-1)"
   type        = string
-  default     = "ap-singapore-2"
+  default     = "ap-singapore-1"
 }
 
 

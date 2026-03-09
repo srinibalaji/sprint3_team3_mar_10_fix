@@ -192,10 +192,10 @@ resource "oci_cloud_guard_security_recipe" "sec" {
 
   # CIS Level 2 policies for data-at-rest protection
   security_policies = [
-    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaanmfcy3ekrk3fwpgw7lqm6yixjag3nqpbtmaqu6gdbzmiq3mkuwja",  # Deny public Object Storage buckets
-    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaadfiuhqyg6aq45ipe5z5id5evlh4qer3f4woqlqfmn7kkpfvnhkfq",  # Deny boot volumes without Vault key
-    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaairps4kt5zetdnkci2tjsim3g3zxqn5pe3ficbjjs3bfpemhyjn2q",  # Deny block volumes without Vault key
-    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaap3gu7gfzee5kfkbjuawq7kcmurij26d6qg2xvlwlxlmp3recpdma",  # Deny databases without Vault key
+    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaa5ocyo7jqjzgjenvccch46buhpaaofplzxlp3xbxfcdwwk2tyrwqa",  # Deny public Object Storage buckets 
+    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaa7pgtjyod3pze6wuylgmts6ensywmeplabsxqq2bk4ighps4fqq4a",  # Deny boot volumes without Vault key
+    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaaxxs63ulmtcnxqmcvy6eaozh5jdtiaa2bk7wll5bbdsbnmmoczp5a",  # Deny block volumes without Vault key
+    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaaqmq4jqcxqbjj5cjzb7t5ira66dctyypq2m2o4psxmx6atp45lyda",  # Deny databases without Vault key
   ]
 
   defined_tags = local.common_tags
@@ -208,9 +208,9 @@ resource "oci_cloud_guard_security_recipe" "nw" {
 
   # CIS Level 1 policies for network isolation
   security_policies = [
-    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaafzsg2q6ftpzpqqoakl5fhgvqjf4puqxfhfwn4zwhh4vylp7b6oka",  # Deny public subnets
-    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaayrwlr3fvcbfat3rl2vb2ocvvvrxq2yhsfawbv7mwppk5xo7uxozia",  # Deny internet gateways
-    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaasdqhvi7iy4fvthds3zdjf6u2nl2h7g53rvc37icfh2kikp7u2cr6a",  # Deny public IP on VNICs
+    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaak5wxfr2r6kxmtd6bq6hqhyywfkj6pcnl74g3iui6qnlq7rof4ezq",  # Deny public subnets 
+    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaabs6kboflsfan2lihfnodhbeb75r4nxiolhlobvj6vqclx6j5yyha",  # Deny internet gateways 
+    "ocid1.securityzonessecuritypolicy.oc1..aaaaaaaaw6v2nz4unovq3joqk6pguxpaqriws2vzd7gvpldgai47tl72wseq",  # Deny subnet_in_security_zone_move_to_compartment_not_in_security_zone
   ]
 
   defined_tags = local.common_tags

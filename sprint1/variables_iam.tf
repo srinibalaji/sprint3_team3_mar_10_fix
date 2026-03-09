@@ -6,10 +6,10 @@
 # COMPARTMENT NAME OVERRIDES (C1 Level)
 # All default to null — when null, canonical constants from locals.tf are used.
 # Set in ORM UI (Section 2) or terraform.tfvars ONLY if you need non-standard names.
-# Standard DSTA names are defined in locals.tf and require no override.
+# Standard STAR names are defined in locals.tf and require no override.
 # =============================================================================
 variable "custom_nw_compartment_name" {
-  description = "Override for C1_R_ELZ_NW. Leave null to use DSTA standard name."
+  description = "Override for C1_R_ELZ_NW. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -19,7 +19,7 @@ variable "custom_nw_compartment_name" {
 }
 
 variable "custom_sec_compartment_name" {
-  description = "Override for C1_R_ELZ_SEC. Leave null to use DSTA standard name."
+  description = "Override for C1_R_ELZ_SEC. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -29,7 +29,7 @@ variable "custom_sec_compartment_name" {
 }
 
 variable "custom_soc_compartment_name" {
-  description = "Override for C1_R_ELZ_SOC. Leave null to use DSTA standard name."
+  description = "Override for C1_R_ELZ_SOC. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -39,7 +39,7 @@ variable "custom_soc_compartment_name" {
 }
 
 variable "custom_ops_compartment_name" {
-  description = "Override for C1_R_ELZ_OPS. Leave null to use DSTA standard name."
+  description = "Override for C1_R_ELZ_OPS. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -49,7 +49,7 @@ variable "custom_ops_compartment_name" {
 }
 
 variable "custom_csvcs_compartment_name" {
-  description = "Override for C1_R_ELZ_CSVCS. Leave null to use DSTA standard name."
+  description = "Override for C1_R_ELZ_CSVCS. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -59,7 +59,7 @@ variable "custom_csvcs_compartment_name" {
 }
 
 variable "custom_devt_csvcs_compartment_name" {
-  description = "Override for C1_R_ELZ_DEVT_CSVCS. Leave null to use DSTA standard name."
+  description = "Override for C1_R_ELZ_DEVT_CSVCS. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -69,7 +69,7 @@ variable "custom_devt_csvcs_compartment_name" {
 }
 
 variable "custom_os_nw_compartment_name" {
-  description = "Override for C1_OS_ELZ_NW. Leave null to use DSTA standard name."
+  description = "Override for C1_OS_ELZ_NW. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -79,7 +79,7 @@ variable "custom_os_nw_compartment_name" {
 }
 
 variable "custom_ss_nw_compartment_name" {
-  description = "Override for C1_SS_ELZ_NW. Leave null to use DSTA standard name."
+  description = "Override for C1_SS_ELZ_NW. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -89,7 +89,7 @@ variable "custom_ss_nw_compartment_name" {
 }
 
 variable "custom_ts_nw_compartment_name" {
-  description = "Override for C1_TS_ELZ_NW. Leave null to use DSTA standard name."
+  description = "Override for C1_TS_ELZ_NW. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {
@@ -99,7 +99,7 @@ variable "custom_ts_nw_compartment_name" {
 }
 
 variable "custom_devt_nw_compartment_name" {
-  description = "Override for C1_DEVT_ELZ_NW. Leave null to use DSTA standard name."
+  description = "Override for C1_DEVT_ELZ_NW. Leave null to use STAR standard name."
   type        = string
   default     = null
   validation {

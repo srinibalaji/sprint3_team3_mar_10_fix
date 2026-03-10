@@ -61,3 +61,7 @@ hub_fw_rt_id         = "ocid1.routetable.oc1.ap-singapore-2.aaaa..."
 # ss_app_subnet_cidr   = "10.2.0.0/24"
 # ts_app_subnet_cidr   = "10.3.0.0/24"
 # devt_app_subnet_cidr = "10.4.0.0/24"
+
+# Sprint 3 — spoke bastion client CIDRs (restrict in production)
+# os_bastion_client_cidr = "203.0.113.0/24"
+# ts_bastion_client_cidr = "203.0.113.0/24"

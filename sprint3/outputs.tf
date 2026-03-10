@@ -111,6 +111,16 @@ output "cert_authority_id" {
   description = "OCID of root Certificate Authority."
   value       = oci_certificates_management_certificate_authority.sec.id
 }
+# Spoke Bastions
+output "os_spoke_bastion_id" {
+  description = "OCID of OS spoke Bastion service."
+  value       = oci_bastion_bastion.os_spoke.id
+}
+
+output "ts_spoke_bastion_id" {
+  description = "OCID of TS spoke Bastion service."
+  value       = oci_bastion_bastion.ts_spoke.id
+}
 
 # Vault SSH Key Secret
 output "ssh_key_vault_secret_id" {

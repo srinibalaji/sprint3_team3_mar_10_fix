@@ -33,3 +33,25 @@ variable "devt_app_subnet_cidr" {
   type        = string
   default     = "10.4.0.0/24"
 }
+
+variable "os_bastion_client_cidr" {
+  description = "CIDR block allowed to connect to OS spoke Bastion"
+  type        = string
+  default     = "0.0.0.0/0"
+
+  validation {
+    condition     = can(cidrnetmask(var.os_bastion_client_cidr))
+    error_message = "os_bastion_client_cidr must be a valid CIDR block (for example 203.0.113.0/24)."
+  }
+}
+
+variable "ts_bastion_client_cidr" {
+  description = "CIDR block allowed to connect to TS spoke Bastion"
+  type        = string
+  default     = "0.0.0.0/0"
+
+  validation {
+    condition     = can(cidrnetmask(var.ts_bastion_client_cidr))
+    error_message = "ts_bastion_client_cidr must be a valid CIDR block (for example 203.0.113.0/24)."
+  }
+}

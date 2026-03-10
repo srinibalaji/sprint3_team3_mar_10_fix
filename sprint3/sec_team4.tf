@@ -217,75 +217,65 @@ resource "oci_core_route_table" "hub_fw" {
 # Once the attachment exists, you cannot modify drg_route_table_id via Terraform or OCI Console.
 # Terraform treats drg_route_table_id as immutable for existing attachments — any attempt to change it triggers errors (409-IncorrectState or API rejection).
 
-resource "oci_core_drg_attachment_management" "hub" {
-  attachment_type        = "VCN"
-  compartment_id         = var.nw_compartment_id
+resource "oci_core_drg_attachment" "hub" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.hub_spoke_mesh.id
   display_name           = "drga_r_elz_nw_hub"
   vcn_id                 = var.hub_vcn_id
 
-  network_details {
-    id             = var.hub_vcn_id
-    type           = "VCN"
-    route_table_id = oci_core_route_table.hub_ingress.id
-  }
+  # network_details {
+  #   id             = var.hub_vcn_id
+  #   type           = "VCN"
+  #   route_table_id = oci_core_route_table.hub_ingress.id
+  # }
 }
 
-resource "oci_core_drg_attachment_management" "os" {
-  attachment_type        = "VCN"
-  compartment_id         = var.os_compartment_id
+resource "oci_core_drg_attachment" "os" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_os_elz_nw"
   vcn_id                 = var.os_vcn_id
 
-  network_details {
-    id   = var.os_vcn_id
-    type = "VCN"
-  }
+  # network_details {
+  #   id   = var.os_vcn_id
+  #   type = "VCN"
+  # }
 }
 
-resource "oci_core_drg_attachment_management" "ts" {
-  attachment_type        = "VCN"
-  compartment_id         = var.ts_compartment_id
+resource "oci_core_drg_attachment" "ts" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ts_elz_nw"
   vcn_id                 = var.ts_vcn_id
 
-  network_details {
-    id   = var.ts_vcn_id
-    type = "VCN"
-  }
+  # network_details {
+  #   id   = var.ts_vcn_id
+  #   type = "VCN"
+  # }
 }
 
-resource "oci_core_drg_attachment_management" "ss" {
-  attachment_type        = "VCN"
-  compartment_id         = var.ss_compartment_id
+resource "oci_core_drg_attachment" "ss" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_ss_elz_nw"
   vcn_id                 = var.ss_vcn_id
 
-  network_details {
-    id   = var.ss_vcn_id
-    type = "VCN"
-  }
+  # network_details {
+  #   id   = var.ss_vcn_id
+  #   type = "VCN"
+  # }
 }
 
-resource "oci_core_drg_attachment_management" "devt" {
-  attachment_type        = "VCN"
-  compartment_id         = var.devt_compartment_id
+resource "oci_core_drg_attachment" "devt" {
   drg_id                 = var.hub_drg_id
   drg_route_table_id     = oci_core_drg_route_table.spoke_to_hub.id
   display_name           = "drga_devt_elz_nw"
   vcn_id                 = var.devt_vcn_id
 
-  network_details {
-    id   = var.devt_vcn_id
-    type = "VCN"
-  }
+  # network_details {
+  #   id   = var.devt_vcn_id
+  #   type = "VCN"
+  # }
 }
 
 

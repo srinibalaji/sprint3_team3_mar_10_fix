@@ -7,7 +7,15 @@
 #
 # Rebalanced from T3 to spread workload evenly.
 # ─────────────────────────────────────────────────────────────
+resource "oci_bastion_bastion" "ts_spoke" {
+  compartment_id               = var.ts_compartment_id
+  bastion_type                 = "STANDARD"
+  name                         = local.ts_spoke_bastion_name
+  target_subnet_id             = var.ts_app_subnet_id
+  client_cidr_block_allow_list = [var.ts_bastion_client_cidr]
 
+  defined_tags = local.common_tags
+}
 # ═══════════════════════════════════════════════════════════════
 # 1. BASTION SESSION — TS Sim FW
 # ═══════════════════════════════════════════════════════════════

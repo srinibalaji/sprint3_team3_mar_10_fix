@@ -12,26 +12,26 @@
 # 1. BASTION SESSION — TS Sim FW
 # ═══════════════════════════════════════════════════════════════
 
-# resource "oci_bastion_session" "ts_ssh" {
-#   bastion_id = var.bastion_id
+resource "oci_bastion_session" "ts_ssh" {
+  bastion_id = var.bastion_id
 
-#   key_details {
-#     public_key_content = var.ssh_public_key
-#   }
+  key_details {
+    public_key_content = var.ssh_public_key
+  }
 
-#   target_resource_details {
-#     session_type       = "PORT_FORWARDING"
-#     target_resource_id = var.ts_fw_instance_id
-#     target_resource_port = 22
-#   }
+  target_resource_details {
+    session_type       = "PORT_FORWARDING"
+    target_resource_id = var.ts_fw_instance_id
+    target_resource_port = 22
+  }
 
-#   display_name           = local.bastion_session_ts_name
-#   session_ttl_in_seconds = 1800
+  display_name           = local.bastion_session_ts_name
+  session_ttl_in_seconds = 1800
 
-#   lifecycle {
-#     ignore_changes = [session_ttl_in_seconds]
-#   }
-# }
+  lifecycle {
+    ignore_changes = [session_ttl_in_seconds]
+  }
+}
 
 # ═══════════════════════════════════════════════════════════════
 # 2. NSGs — Hub MGMT + TS + SS + DEVT spokes

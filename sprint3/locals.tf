@@ -48,6 +48,8 @@ locals {
   # ── Bastion Sessions (T1, T2) ──
   bastion_session_os_name = "bsn_os_elz_nw_ssh"
   bastion_session_ts_name = "bsn_ts_elz_nw_ssh"
+  os_spoke_bastion_name   = "bas_os_elz_nw"
+  ts_spoke_bastion_name   = "bas_ts_elz_nw"
 
   # ── Vault and Encryption Keys (T3) ──
   vault_name      = "vlt_r_elz_sec"

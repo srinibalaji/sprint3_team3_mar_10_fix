@@ -7,6 +7,15 @@
 #
 # Rebalanced from T3 to spread workload evenly.
 # ─────────────────────────────────────────────────────────────
+resource "oci_bastion_bastion" "os_spoke" {
+  compartment_id               = var.os_compartment_id
+  bastion_type                 = "STANDARD"
+  name                         = local.os_spoke_bastion_name
+  target_subnet_id             = var.os_app_subnet_id
+  client_cidr_block_allow_list = [var.os_bastion_client_cidr]
+
+  defined_tags = local.common_tags
+}
 
 # ═══════════════════════════════════════════════════════════════
 # 1. BASTION SESSION — OS Sim FW
